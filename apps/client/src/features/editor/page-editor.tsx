@@ -21,7 +21,7 @@ import {
   pageEditorAtom,
   yjsConnectionStatusAtom,
 } from "@/features/editor/atoms/editor-atoms";
-import { asideStateAtom } from "@/components/layouts/global/hooks/atoms/sidebar-atom";
+import { asideStateAtom, viewHeadingsAtom } from "@/components/layouts/global/hooks/atoms/sidebar-atom";
 import {
   activeCommentIdAtom,
   showCommentPopupAtom,
@@ -41,6 +41,11 @@ import LinkMenu from "@/features/editor/components/link/link-menu.tsx";
 import ExcalidrawMenu from "./components/excalidraw/excalidraw-menu";
 import DrawioMenu from "./components/drawio/drawio-menu";
 import { useCollabToken } from "@/features/auth/queries/auth-query.tsx";
+import { authTokensAtom } from "../auth/atoms/auth-tokens-atom";
+import { Box } from "@mantine/core";
+import { EditorHeadingsMenu } from "./components/headings-menu/headings-menu";
+import { PageEditMode } from "@/features/user/types/user.types.ts";
+import SearchAndReplaceDialog from "@/features/editor/components/search-and-replace/search-and-replace-dialog.tsx";
 
 interface PageEditorProps {
   pageId: string;
@@ -65,9 +70,12 @@ export default function PageEditor({
   const [yjsConnectionStatus, setYjsConnectionStatus] = useAtom(
     yjsConnectionStatusAtom,
   );
+  const [isOpenedViewHeadings, setIsOpenedViewHeadings] = useAtom(viewHeadingsAtom);
   const menuContainerRef = useRef(null);
   const documentName = `page.${pageId}`;
   const { data } = useCollabToken();
+  const userPageEditMode =
+    currentUser?.user?.settings?.preferences?.pageEditMode ?? PageEditMode.Edit;
 
   const localProvider = useMemo(() => {
     const provider = new IndexeddbPersistence(documentName, ydoc);
@@ -180,9 +188,26 @@ export default function PageEditor({
     setAsideState({ tab: "", isAsideOpen: false });
   }, [pageId]);
 
+  const isSynced = isLocalSynced && isRemoteSynced;
+
+  useEffect(() => {
+    // honor user default page edit mode preference
+    if (userPageEditMode && editor && editable && isSynced) {
+      if (userPageEditMode === PageEditMode.Edit) {
+        editor.setEditable(true);
+      } else if (userPageEditMode === PageEditMode.Read) {
+        editor.setEditable(false);
+      }
+    }
+  }, [userPageEditMode, editor, editable, isSynced]);
+
   useEffect(() => {
     if (editable) {
       if (yjsConnectionStatus === WebSocketStatus.Connected) {
+        // don't enable edit if user's default edit preference is set to read
+        if (userPageEditMode === PageEditMode.Read) {
+          return;
+        }
         editor.setEditable(true);
       } else {
         // disable edits if connection fails
@@ -191,12 +216,26 @@ export default function PageEditor({
     }
   }, [yjsConnectionStatus]);
 
-  const isSynced = isLocalSynced && isRemoteSynced;
-
   return isSynced ? (
     <div>
-      <div ref={menuContainerRef}>
+      <Box
+        style={{
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+        ref={menuContainerRef}
+      >
         <EditorContent editor={editor} />
+        {currentUser?.user?.settings?.preferences?.viewHeadings && (
+          <EditorHeadingsMenu
+            editor={editor}
+            isFullScreenEditor={currentUser?.user?.settings?.preferences?.fullPageWidth}
+            isOpenedViewHeadingsDrawer={isOpenedViewHeadings}
+            setIsOpenedViewHeadingsDrawer={setIsOpenedViewHeadings}
+          />
+        )}
+        <SearchAndReplaceDialog editor={editor} />
 
         {editor && editor.isEditable && (
           <div>
@@ -212,9 +251,10 @@ export default function PageEditor({
           </div>
         )}
 
-        {showCommentPopup && <CommentDialog editor={editor} pageId={pageId} />}
-      </div>
-
+        {showCommentPopup && (
+          <CommentDialog editor={editor} pageId={pageId} />
+        )}
+      </Box>
       <div
         onClick={() => editor.commands.focus("end")}
         style={{ paddingBottom: "20vh" }}

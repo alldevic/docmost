@@ -111,7 +111,7 @@ export class UserRepo {
     const db = dbOrTx(this.db, trx);
     return db
       .insertInto('users')
-      .values({ ...insertableUser, ...user })
+      .values(user)
       .returningAll()
       .executeTakeFirst();
   }

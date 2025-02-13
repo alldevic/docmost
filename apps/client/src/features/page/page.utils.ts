@@ -1,12 +1,7 @@
-import slugify from "@sindresorhus/slugify";
+import slugify from "slugify";
 
 const buildPageSlug = (pageSlugId: string, pageTitle?: string): string => {
-  const titleSlug = slugify(pageTitle?.substring(0, 70) || "untitled", {
-    customReplacements: [
-      ["♥", ""],
-      ["🦄", ""],
-    ],
-  });
+  const titleSlug = slugify(pageTitle?.substring(0, 70) || "untitled");
 
   return `p/${titleSlug}-${pageSlugId}`;
 };
