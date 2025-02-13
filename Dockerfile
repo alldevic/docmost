@@ -8,8 +8,11 @@ WORKDIR /app
 COPY . .
 
 RUN npm install -g pnpm
+RUN pnpm up
 RUN pnpm install --frozen-lockfile
-RUN pnpm build
+RUN pnpm editor-ext:build
+RUN NX_DAEMON=false pnpm server:build
+RUN NX_DAEMON=false pnpm client:build
 
 FROM base AS installer
 

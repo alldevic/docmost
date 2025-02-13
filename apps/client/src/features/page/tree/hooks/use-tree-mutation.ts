@@ -13,7 +13,7 @@ import { IMovePage, IPage } from "@/features/page/types/page.types.ts";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useCreatePageMutation,
-  useDeletePageMutation,
+  useRemovePageMutation,
   useMovePageMutation,
   useUpdatePageMutation,
 } from "@/features/page/queries/page-query.ts";
@@ -22,18 +22,20 @@ import { SpaceTreeNode } from "@/features/page/tree/types.ts";
 import { buildPageUrl } from "@/features/page/page.utils.ts";
 import { getSpaceUrl } from "@/lib/config.ts";
 import { useQueryEmit } from "@/features/websocket/use-query-emit.ts";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useTreeMutation<T>(spaceId: string) {
   const [data, setData] = useAtom(treeDataAtom);
   const tree = useMemo(() => new SimpleTree<SpaceTreeNode>(data), [data]);
   const createPageMutation = useCreatePageMutation();
   const updatePageMutation = useUpdatePageMutation();
-  const deletePageMutation = useDeletePageMutation();
+  const removePageMutation = useRemovePageMutation();
   const movePageMutation = useMovePageMutation();
   const navigate = useNavigate();
   const { spaceSlug } = useParams();
   const { pageSlug } = useParams();
   const emit = useQueryEmit();
+  const queryClient = useQueryClient();
 
   const onCreate: CreateHandler<T> = async ({ parentId, index, type }) => {
     const payload: { spaceId: string; parentPageId?: string } = {
@@ -208,7 +210,7 @@ export function useTreeMutation<T>(spaceId: string) {
 
   const onDelete: DeleteHandler<T> = async (args: { ids: string[] }) => {
     try {
-      await deletePageMutation.mutateAsync(args.ids[0]);
+      await removePageMutation.mutateAsync(args.ids[0]);
 
       const node = tree.find(args.ids[0]);
       if (!node) {
@@ -217,6 +219,9 @@ export function useTreeMutation<T>(spaceId: string) {
 
       tree.drop({ id: args.ids[0] });
       setData(tree.data);
+      queryClient.invalidateQueries({
+        queryKey: ["recent-changes", node.data.spaceId],
+      })
 
       // navigate only if the current url is same as the deleted page
       if (pageSlug && node.data.slugId === pageSlug.split("-")[1]) {
