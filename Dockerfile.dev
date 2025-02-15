@@ -1,0 +1,23 @@
+FROM node:21-alpine AS base
+
+WORKDIR /app
+RUN apk add bash --no-cache
+# RUN npm install -g pnpm
+
+COPY . .
+
+# RUN pnpm up
+# RUN npm i -f
+# RUN pnpm install --frozen-lockfile
+# RUN pnpm editor-ext:build
+# RUN NX_DAEMON=false pnpm server:build
+# RUN NX_DAEMON=false pnpm client:build
+
+RUN mkdir -p /app/data/storage
+
+# RUN chown 1000:1000 -R /app/
+
+# USER 1000:1000
+
+
+CMD ["npm", "run", "dev"]

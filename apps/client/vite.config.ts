@@ -1,34 +1,31 @@
-import { defineConfig, loadEnv } from "vite";
-import react from "@vitejs/plugin-react";
-import * as path from "path";
+/// <reference types='vitest' />
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 
-export const envPath = path.resolve(process.cwd(), "..", "..");
-
-export default defineConfig(({ mode }) => {
-  const { APP_URL, FILE_UPLOAD_SIZE_LIMIT, DRAWIO_URL } = loadEnv(mode, envPath, "");
-
-  return {
-    define: {
-      "process.env": {
-        APP_URL,
-        FILE_UPLOAD_SIZE_LIMIT,
-        DRAWIO_URL
-      },
-      'APP_VERSION': JSON.stringify(process.env.npm_package_version),
+export default defineConfig({
+  root: __dirname,
+  cacheDir: '../../node_modules/.vite/apps/client',
+  server: {
+    port: 3000,
+    host: '0.0.0.0',
+  },
+  preview: {
+    port: 4300,
+    host: 'localhost',
+  },
+  plugins: [react(), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
+  // Uncomment this if you are using workers.
+  // worker: {
+  //  plugins: [ nxViteTsPaths() ],
+  // },
+  build: {
+    outDir: '../../dist/apps/client',
+    emptyOutDir: true,
+    reportCompressedSize: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
     },
-    plugins: [react()],
-    resolve: {
-      alias: {
-        "@": "/src",
-      },
-    },
-    server: {
-      proxy: {
-        "/api": {
-          target: APP_URL,
-          changeOrigin: true,
-        },
-      },
-    },
-  };
+  },
 });

@@ -2,7 +2,7 @@ services:
   docmost:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     depends_on:
       - db
       - redis
@@ -16,6 +16,7 @@ services:
     restart: unless-stopped
     volumes:
       - docmost:/app/data/storage
+      - ./:/app/:delegated
 
   db:
     image: postgres:16-alpine

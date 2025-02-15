@@ -1,14 +1,14 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './app/app.module';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { NotFoundException, ValidationPipe } from '@nestjs/common';
-import { TransformHttpResponseInterceptor } from './common/interceptors/http-response.interceptor';
+import { TransformHttpResponseInterceptor } from './app/common/interceptors/http-response.interceptor';
 import fastifyMultipart from '@fastify/multipart';
-import { WsRedisIoAdapter } from './ws/adapter/ws-redis.adapter';
-import { InternalLogFilter } from './common/logger/internal-log-filter';
+import { WsRedisIoAdapter } from './app/ws/adapter/ws-redis.adapter';
+import { InternalLogFilter } from './app/common/logger/internal-log-filter';
 import fastifyCookie from '@fastify/cookie';
 
 async function bootstrap() {

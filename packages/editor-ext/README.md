@@ -1,3 +1,7 @@
-# editor extensions
+# editor-ext
 
-Tiptap editor extensions
+This library was generated with [Nx](https://nx.dev).
+
+## Building
+
+Run `nx build editor-ext` to build the library.
