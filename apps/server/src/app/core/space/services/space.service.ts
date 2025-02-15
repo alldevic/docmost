@@ -4,17 +4,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateSpaceDto } from '../dto/create-space.dto';
-import { PaginationOptions } from '@docmost/db/pagination/pagination-options';
-import { SpaceRepo } from '@docmost/db/repos/space/space.repo';
-import { KyselyDB, KyselyTransaction } from '@docmost/db/types/kysely.types';
-import { Space, User } from '@docmost/db/types/entity.types';
-import { PaginationResult } from '@docmost/db/pagination/pagination';
+import { PaginationOptions } from '@docmost-server/database/pagination/pagination-options';
+import { SpaceRepo } from '@docmost-server/database/repos/space/space.repo';
+import { KyselyDB, KyselyTransaction } from '@docmost-server/database/types/kysely.types';
+import { Space, User } from '@docmost-server/database/types/entity.types';
+import { PaginationResult } from '@docmost-server/database/pagination/pagination';
 import { UpdateSpaceDto } from '../dto/update-space.dto';
-import { executeTx } from '@docmost/db/utils';
+import { executeTx } from '@docmost-server/database/utils';
 import { InjectKysely } from 'nestjs-kysely';
 import { SpaceMemberService } from './space-member.service';
 import { SpaceRole } from '../../../common/helpers/types/permission';
-import { QueueJob, QueueName } from 'src/integrations/queue/constants';
+import { QueueJob, QueueName } from '@docmost-server/integrations/queue/constants';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 

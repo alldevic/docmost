@@ -6,12 +6,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateGroupDto, DefaultGroup } from '../dto/create-group.dto';
-import { PaginationOptions } from '@docmost/db/pagination/pagination-options';
+import { PaginationOptions } from '@docmost-server/database/pagination/pagination-options';
 import { UpdateGroupDto } from '../dto/update-group.dto';
-import { KyselyTransaction } from '@docmost/db/types/kysely.types';
-import { GroupRepo } from '@docmost/db/repos/group/group.repo';
-import { Group, InsertableGroup, User } from '@docmost/db/types/entity.types';
-import { PaginationResult } from '@docmost/db/pagination/pagination';
+import { KyselyTransaction } from '@docmost-server/database/types/kysely.types';
+import { GroupRepo } from '@docmost-server/database/repos/group/group.repo';
+import { Group, InsertableGroup, User } from '@docmost-server/database/types/entity.types';
+import { PaginationResult } from '@docmost-server/database/pagination/pagination';
 import { GroupUserService } from './group-user.service';
 
 @Injectable()

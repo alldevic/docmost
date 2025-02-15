@@ -6,7 +6,7 @@ import {
 } from '@nestjs/terminus';
 import { Injectable, Logger } from '@nestjs/common';
 import { sql } from 'kysely';
-import { KyselyDB } from '@docmost/db/types/kysely.types';
+import { KyselyDB } from '@docmost-server/database/types/kysely.types';
 
 @Injectable()
 export class PostgresHealthIndicator extends HealthIndicator {

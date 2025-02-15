@@ -5,12 +5,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PaginationOptions } from '@docmost/db/pagination/pagination-options';
+import { PaginationOptions } from '@docmost-server/database/pagination/pagination-options';
 import { GroupService } from './group.service';
-import { KyselyDB } from '@docmost/db/types/kysely.types';
+import { KyselyDB } from '@docmost-server/database/types/kysely.types';
 import { InjectKysely } from 'nestjs-kysely';
-import { GroupUserRepo } from '@docmost/db/repos/group/group-user.repo';
-import { UserRepo } from '@docmost/db/repos/user/user.repo';
+import { GroupUserRepo } from '@docmost-server/database/repos/group/group-user.repo';
+import { UserRepo } from '@docmost-server/database/repos/user/user.repo';
 
 @Injectable()
 export class GroupUserService {

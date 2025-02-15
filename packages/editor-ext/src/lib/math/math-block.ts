@@ -84,7 +84,7 @@ export const MathBlock = Node.create({
       nodeInputRule({
         find: inputRegex,
         type: this.type,
-        getAttributes: (match) => ({
+        getAttributes: (match: any) => ({
           text: match[1].replaceAll("$", ""),
         }),
       }),

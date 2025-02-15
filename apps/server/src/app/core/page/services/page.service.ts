@@ -5,19 +5,19 @@ import {
 } from '@nestjs/common';
 import { CreatePageDto } from '../dto/create-page.dto';
 import { UpdatePageDto } from '../dto/update-page.dto';
-import { PageRepo } from '@docmost/db/repos/page/page.repo';
-import { Page } from '@docmost/db/types/entity.types';
-import { PaginationOptions } from '@docmost/db/pagination/pagination-options';
+import { PageRepo } from '@docmost-server/database/repos/page/page.repo';
+import { Page } from '@docmost-server/database/types/entity.types';
+import { PaginationOptions } from '@docmost-server/database/pagination/pagination-options';
 import {
   executeWithPagination,
   PaginationResult,
-} from '@docmost/db/pagination/pagination';
+} from '@docmost-server/database/pagination/pagination';
 import { InjectKysely } from 'nestjs-kysely';
-import { KyselyDB } from '@docmost/db/types/kysely.types';
+import { KyselyDB } from '@docmost-server/database/types/kysely.types';
 import { generateJitteredKeyBetween } from 'fractional-indexing-jittered';
 import { MovePageDto } from '../dto/move-page.dto';
 import { ExpressionBuilder } from 'kysely';
-import { DB } from '@docmost/db/types/db';
+import { DB } from '@docmost-server/database/types/db';
 import { generateSlugId } from '../../../common/helpers';
 
 @Injectable()

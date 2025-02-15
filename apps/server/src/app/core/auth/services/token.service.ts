@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { EnvironmentService } from '../../../integrations/environment/environment.service';
 import { JwtCollabPayload, JwtPayload, JwtType } from '../dto/jwt-payload';
-import { User } from '@docmost/db/types/entity.types';
+import { User } from '@docmost-server/database/types/entity.types';
 
 @Injectable()
 export class TokenService {

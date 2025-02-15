@@ -13,15 +13,15 @@ import {
   validateFileType,
 } from '../attachment.utils';
 import { v4 as uuid4, v7 as uuid7 } from 'uuid';
-import { AttachmentRepo } from '@docmost/db/repos/attachment/attachment.repo';
+import { AttachmentRepo } from '@docmost-server/database/repos/attachment/attachment.repo';
 import { AttachmentType, validImageExtensions } from '../attachment.constants';
-import { KyselyDB, KyselyTransaction } from '@docmost/db/types/kysely.types';
-import { Attachment } from '@docmost/db/types/entity.types';
+import { KyselyDB, KyselyTransaction } from '@docmost-server/database/types/kysely.types';
+import { Attachment } from '@docmost-server/database/types/entity.types';
 import { InjectKysely } from 'nestjs-kysely';
-import { executeTx } from '@docmost/db/utils';
-import { UserRepo } from '@docmost/db/repos/user/user.repo';
-import { WorkspaceRepo } from '@docmost/db/repos/workspace/workspace.repo';
-import { SpaceRepo } from '@docmost/db/repos/space/space.repo';
+import { executeTx } from '@docmost-server/database/utils';
+import { UserRepo } from '@docmost-server/database/repos/user/user.repo';
+import { WorkspaceRepo } from '@docmost-server/database/repos/workspace/workspace.repo';
+import { SpaceRepo } from '@docmost-server/database/repos/space/space.repo';
 
 @Injectable()
 export class AttachmentService {

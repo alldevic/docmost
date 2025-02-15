@@ -6,14 +6,14 @@ import {
   InsertablePage,
   Page,
   UpdatablePage,
-} from '@docmost/db/types/entity.types';
-import { PaginationOptions } from '@docmost/db/pagination/pagination-options';
-import { executeWithPagination } from '@docmost/db/pagination/pagination';
+} from '@docmost-server/database/types/entity.types';
+import { PaginationOptions } from '@docmost-server/database/pagination/pagination-options';
+import { executeWithPagination } from '@docmost-server/database/pagination/pagination';
 import { validate as isValidUUID } from 'uuid';
 import { ExpressionBuilder } from 'kysely';
-import { DB } from '@docmost/db/types/db';
+import { DB } from '@docmost-server/database/types/db';
 import { jsonObjectFrom } from 'kysely/helpers/postgres';
-import { SpaceMemberRepo } from '@docmost/db/repos/space/space-member.repo';
+import { SpaceMemberRepo } from '@docmost-server/database/repos/space/space-member.repo';
 
 @Injectable()
 export class PageRepo {

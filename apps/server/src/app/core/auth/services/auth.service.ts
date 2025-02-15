@@ -9,7 +9,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { TokenService } from './token.service';
 import { SignupService } from './signup.service';
 import { CreateAdminUserDto } from '../dto/create-admin-user.dto';
-import { UserRepo } from '@docmost/db/repos/user/user.repo';
+import { UserRepo } from '@docmost-server/database/repos/user/user.repo';
 import {
   comparePasswordHash,
   hashPassword,
@@ -17,18 +17,18 @@ import {
 } from '../../../common/helpers';
 import { ChangePasswordDto } from '../dto/change-password.dto';
 import { MailService } from '../../../integrations/mail/mail.service';
-import ChangePasswordEmail from '@docmost/transactional/emails/change-password-email';
+import ChangePasswordEmail from '@docmost-server/integrations/transactional/emails/change-password-email';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
-import ForgotPasswordEmail from '@docmost/transactional/emails/forgot-password-email';
-import { UserTokenRepo } from '@docmost/db/repos/user-token/user-token.repo';
+import ForgotPasswordEmail from '@docmost-server/integrations/transactional/emails/forgot-password-email';
+import { UserTokenRepo } from '@docmost-server/database/repos/user-token/user-token.repo';
 import { PasswordResetDto } from '../dto/password-reset.dto';
-import { UserToken } from '@docmost/db/types/entity.types';
+import { UserToken } from '@docmost-server/database/types/entity.types';
 import { UserTokenType } from '../auth.constants';
-import { KyselyDB } from '@docmost/db/types/kysely.types';
+import { KyselyDB } from '@docmost-server/database/types/kysely.types';
 import { InjectKysely } from 'nestjs-kysely';
-import { executeTx } from '@docmost/db/utils';
+import { executeTx } from '@docmost-server/database/utils';
 import { VerifyUserTokenDto } from '../dto/verify-user-token.dto';
-import { EnvironmentService } from 'src/integrations/environment/environment.service';
+import { EnvironmentService } from '@docmost-server/integrations/environment/environment.service';
 
 @Injectable()
 export class AuthService {

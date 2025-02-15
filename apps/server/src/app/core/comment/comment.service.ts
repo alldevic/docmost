@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { CommentRepo } from '@docmost/db/repos/comment/comment.repo';
-import { Comment, User } from '@docmost/db/types/entity.types';
-import { PaginationOptions } from '@docmost/db/pagination/pagination-options';
-import { PaginationResult } from '@docmost/db/pagination/pagination';
-import { PageRepo } from '@docmost/db/repos/page/page.repo';
+import { CommentRepo } from '@docmost-server/database/repos/comment/comment.repo';
+import { Comment, User } from '@docmost-server/database/types/entity.types';
+import { PaginationOptions } from '@docmost-server/database/pagination/pagination-options';
+import { PaginationResult } from '@docmost-server/database/pagination/pagination';
+import { PageRepo } from '@docmost-server/database/repos/page/page.repo';
 
 @Injectable()
 export class CommentService {

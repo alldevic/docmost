@@ -7,10 +7,10 @@ import * as Y from 'yjs';
 import { Injectable, Logger } from '@nestjs/common';
 import { TiptapTransformer } from '@hocuspocus/transformer';
 import { getPageId, jsonToText, tiptapExtensions } from '../collaboration.util';
-import { PageRepo } from '@docmost/db/repos/page/page.repo';
+import { PageRepo } from '@docmost-server/database/repos/page/page.repo';
 import { InjectKysely } from 'nestjs-kysely';
-import { KyselyDB } from '@docmost/db/types/kysely.types';
-import { executeTx } from '@docmost/db/utils';
+import { KyselyDB } from '@docmost-server/database/types/kysely.types';
+import { executeTx } from '@docmost-server/database/utils';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bullmq';
 import { QueueJob, QueueName } from '../../integrations/queue/constants';
@@ -21,7 +21,7 @@ import {
 } from '../../common/helpers/prosemirror/utils';
 import { isDeepStrictEqual } from 'node:util';
 import { IPageBacklinkJob } from '../../integrations/queue/constants/queue.interface';
-import { Page } from '@docmost/db/types/entity.types';
+import { Page } from '@docmost-server/database/types/entity.types';
 
 @Injectable()
 export class PersistenceExtension implements Extension {

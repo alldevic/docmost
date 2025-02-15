@@ -5,25 +5,25 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AcceptInviteDto, InviteUserDto } from '../dto/invitation.dto';
-import { UserRepo } from '@docmost/db/repos/user/user.repo';
+import { UserRepo } from '@docmost-server/database/repos/user/user.repo';
 import { InjectKysely } from 'nestjs-kysely';
-import { KyselyDB } from '@docmost/db/types/kysely.types';
-import { executeTx } from '@docmost/db/utils';
+import { KyselyDB } from '@docmost-server/database/types/kysely.types';
+import { executeTx } from '@docmost-server/database/utils';
 import {
   Group,
   User,
   WorkspaceInvitation,
-} from '@docmost/db/types/entity.types';
+} from '@docmost-server/database/types/entity.types';
 import { MailService } from '../../../integrations/mail/mail.service';
-import InvitationEmail from '@docmost/transactional/emails/invitation-email';
+import InvitationEmail from '@docmost-server/integrations/transactional/emails/invitation-email';
 import { hashPassword } from '../../../common/helpers';
-import { GroupUserRepo } from '@docmost/db/repos/group/group-user.repo';
-import InvitationAcceptedEmail from '@docmost/transactional/emails/invitation-accepted-email';
+import { GroupUserRepo } from '@docmost-server/database/repos/group/group-user.repo';
+import InvitationAcceptedEmail from '@docmost-server/integrations/transactional/emails/invitation-accepted-email';
 import { EnvironmentService } from '../../../integrations/environment/environment.service';
 import { TokenService } from '../../auth/services/token.service';
 import { nanoIdGen } from '../../../common/helpers';
-import { PaginationOptions } from '@docmost/db/pagination/pagination-options';
-import { executeWithPagination } from '@docmost/db/pagination/pagination';
+import { PaginationOptions } from '@docmost-server/database/pagination/pagination-options';
+import { executeWithPagination } from '@docmost-server/database/pagination/pagination';
 
 @Injectable()
 export class WorkspaceInvitationService {

@@ -8,8 +8,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { EnvironmentService } from '../../../integrations/environment/environment.service';
 import { JwtPayload, JwtType } from '../dto/jwt-payload';
-import { WorkspaceRepo } from '@docmost/db/repos/workspace/workspace.repo';
-import { UserRepo } from '@docmost/db/repos/user/user.repo';
+import { WorkspaceRepo } from '@docmost-server/database/repos/workspace/workspace.repo';
+import { UserRepo } from '@docmost-server/database/repos/user/user.repo';
 import { FastifyRequest } from 'fastify';
 
 @Injectable()

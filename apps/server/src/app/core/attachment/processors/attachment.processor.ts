@@ -2,8 +2,8 @@ import { Logger, OnModuleDestroy } from '@nestjs/common';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { AttachmentService } from '../services/attachment.service';
-import { QueueJob, QueueName } from 'src/integrations/queue/constants';
-import { Space } from '@docmost/db/types/entity.types';
+import { QueueJob, QueueName } from '@docmost-server/integrations/queue/constants';
+import { Space } from '@docmost-server/database/types/entity.types';
 
 @Processor(QueueName.ATTACHMENT_QUEUE)
 export class AttachmentProcessor extends WorkerHost implements OnModuleDestroy {

@@ -1,9 +1,9 @@
-import { jsonToNode } from 'src/collaboration/collaboration.util';
+import { jsonToNode } from '@docmost-server/collaboration/collaboration.util';
 import { ExportFormat } from './dto/export-dto';
 import { Node } from '@tiptap/pm/model';
 import { validate as isValidUUID } from 'uuid';
 import * as path from 'path';
-import { Page } from '@docmost/db/types/entity.types';
+import { Page } from '@docmost-server/database/types/entity.types';
 
 export type PageExportTree = Record<string, Page[]>;
 

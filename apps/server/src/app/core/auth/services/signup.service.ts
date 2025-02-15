@@ -3,12 +3,12 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { CreateWorkspaceDto } from '../../workspace/dto/create-workspace.dto';
 import { CreateAdminUserDto } from '../dto/create-admin-user.dto';
-import { UserRepo } from '@docmost/db/repos/user/user.repo';
-import { KyselyDB, KyselyTransaction } from '@docmost/db/types/kysely.types';
-import { executeTx } from '@docmost/db/utils';
+import { UserRepo } from '@docmost-server/database/repos/user/user.repo';
+import { KyselyDB, KyselyTransaction } from '@docmost-server/database/types/kysely.types';
+import { executeTx } from '@docmost-server/database/utils';
 import { InjectKysely } from 'nestjs-kysely';
-import { User } from '@docmost/db/types/entity.types';
-import { GroupUserRepo } from '@docmost/db/repos/group/group-user.repo';
+import { User } from '@docmost-server/database/types/entity.types';
+import { GroupUserRepo } from '@docmost-server/database/repos/group/group-user.repo';
 import { UserRole } from '../../../common/helpers/types/permission';
 
 @Injectable()

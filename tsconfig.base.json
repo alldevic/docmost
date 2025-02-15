@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["apps/client/src/*"],
+      "@docmost-server/*": ["apps/server/src/app/*"],
       "@docmost/editor-ext": ["packages/editor-ext/src/index.ts"]
     }
   },

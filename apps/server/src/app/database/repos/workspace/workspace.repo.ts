@@ -6,7 +6,7 @@ import {
   InsertableWorkspace,
   UpdatableWorkspace,
   Workspace,
-} from '@docmost/db/types/entity.types';
+} from '@docmost-server/database/types/entity.types';
 import { sql } from 'kysely';
 
 @Injectable()

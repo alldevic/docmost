@@ -10,17 +10,17 @@ import { SpaceService } from '../../space/services/space.service';
 import { CreateSpaceDto } from '../../space/dto/create-space.dto';
 import { SpaceRole, UserRole } from '../../../common/helpers/types/permission';
 import { SpaceMemberService } from '../../space/services/space-member.service';
-import { WorkspaceRepo } from '@docmost/db/repos/workspace/workspace.repo';
-import { KyselyDB, KyselyTransaction } from '@docmost/db/types/kysely.types';
-import { executeTx } from '@docmost/db/utils';
+import { WorkspaceRepo } from '@docmost-server/database/repos/workspace/workspace.repo';
+import { KyselyDB, KyselyTransaction } from '@docmost-server/database/types/kysely.types';
+import { executeTx } from '@docmost-server/database/utils';
 import { InjectKysely } from 'nestjs-kysely';
-import { User } from '@docmost/db/types/entity.types';
-import { GroupUserRepo } from '@docmost/db/repos/group/group-user.repo';
-import { GroupRepo } from '@docmost/db/repos/group/group.repo';
-import { PaginationOptions } from '@docmost/db/pagination/pagination-options';
-import { PaginationResult } from '@docmost/db/pagination/pagination';
+import { User } from '@docmost-server/database/types/entity.types';
+import { GroupUserRepo } from '@docmost-server/database/repos/group/group-user.repo';
+import { GroupRepo } from '@docmost-server/database/repos/group/group.repo';
+import { PaginationOptions } from '@docmost-server/database/pagination/pagination-options';
+import { PaginationResult } from '@docmost-server/database/pagination/pagination';
 import { UpdateWorkspaceUserRoleDto } from '../dto/update-workspace-user-role.dto';
-import { UserRepo } from '@docmost/db/repos/user/user.repo';
+import { UserRepo } from '@docmost-server/database/repos/user/user.repo';
 
 @Injectable()
 export class WorkspaceService {

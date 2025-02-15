@@ -7,10 +7,10 @@ import {
 import { jsonToHtml, jsonToNode } from '../../collaboration/collaboration.util';
 import { turndown } from './turndown-utils';
 import { ExportFormat } from './dto/export-dto';
-import { Page } from '@docmost/db/types/entity.types';
+import { Page } from '@docmost-server/database/types/entity.types';
 import { InjectKysely } from 'nestjs-kysely';
-import { KyselyDB } from '@docmost/db/types/kysely.types';
-import * as JSZip from 'jszip';
+import { KyselyDB } from '@docmost-server/database/types/kysely.types';
+import JSZip from 'jszip';
 import { StorageService } from '../storage/storage.service';
 import {
   buildTree,
@@ -23,7 +23,7 @@ import {
   replaceInternalLinks,
   updateAttachmentUrls,
 } from './utils';
-import { PageRepo } from '@docmost/db/repos/page/page.repo';
+import { PageRepo } from '@docmost-server/database/repos/page/page.repo';
 import { Node } from '@tiptap/pm/model';
 import { EditorState } from '@tiptap/pm/state';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
