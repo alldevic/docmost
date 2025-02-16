@@ -1,7 +1,7 @@
 FROM node:21-alpine AS base
 
 WORKDIR /app
-RUN apk add bash --no-cache
+RUN apk add bash ncdu nano --no-cache
 # RUN npm install -g pnpm
 
 COPY . .
