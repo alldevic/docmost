@@ -34,6 +34,7 @@ import {
 import { addDays } from 'date-fns';
 import { FastifyReply } from 'fastify';
 import { EnvironmentService } from '../../../integrations/environment/environment.service';
+import { DeactivateMemberDto } from '../dto/deactivate-member.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('workspace')
@@ -94,6 +95,7 @@ export class WorkspaceController {
   @HttpCode(HttpStatus.OK)
   @Post('members/deactivate')
   async deactivateWorkspaceMember(
+    @Body() deactivateMemberDto: DeactivateMemberDto,
     @AuthUser() user: User,
     @AuthWorkspace() workspace: Workspace,
   ) {
@@ -104,7 +106,29 @@ export class WorkspaceController {
       throw new ForbiddenException();
     }
 
-    return this.workspaceService.deactivateUser();
+    return this.workspaceService.deactivateUser(
+      user,
+      deactivateMemberDto.userId,
+      deactivateMemberDto.workspaceId,
+    );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('members/deactivated')
+  async getDeactivatedMembers(
+    @Body()
+    pagination: PaginationOptions,
+    @AuthUser() user: User,
+    @AuthWorkspace() workspace: Workspace,
+  ) {
+    const ability = this.workspaceAbility.createForUser(user, workspace);
+    if (
+      ability.cannot(WorkspaceCaslAction.Manage, WorkspaceCaslSubject.Member)
+    ) {
+      throw new ForbiddenException();
+    }
+
+    return this.workspaceService.getDeactivatedUsers(workspace.id, pagination);
   }
 
   @HttpCode(HttpStatus.OK)

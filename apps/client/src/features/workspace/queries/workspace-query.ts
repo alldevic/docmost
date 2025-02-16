@@ -16,6 +16,8 @@ import {
   getWorkspace,
   getInviteLink,
   getWorkspacePublicData,
+  deactivateUser,
+  getWorkspaceDeactivatedMembers,
 } from "@/features/workspace/services/workspace-service";
 import { IPagination, QueryParams } from "@/lib/types.ts";
 import { notifications } from "@mantine/notifications";
@@ -112,6 +114,7 @@ export function useCreateInvitationMutation() {
 }
 
 export function useResendInvitationMutation() {
+  const { t } = useTranslation();
   return useMutation<
     void,
     Error,
@@ -121,7 +124,7 @@ export function useResendInvitationMutation() {
   >({
     mutationFn: (data) => resendInvitation(data),
     onSuccess: (data, variables) => {
-      notifications.show({ message: "Invitation resent" });
+      notifications.show({ message: t("Invitation resent") });
     },
     onError: (error) => {
       const errorMessage = error["response"]?.data?.message;
@@ -132,6 +135,7 @@ export function useResendInvitationMutation() {
 
 export function useRevokeInvitationMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation<
     void,
@@ -142,7 +146,7 @@ export function useRevokeInvitationMutation() {
   >({
     mutationFn: (data) => revokeInvitation(data),
     onSuccess: (data, variables) => {
-      notifications.show({ message: "Invitation revoked" });
+      notifications.show({ message: t("Invitation revoked") });
       queryClient.invalidateQueries({
         queryKey: ["invitations"],
       });
@@ -162,4 +166,31 @@ export function useGetInvitationQuery(
     queryFn: () => getInvitationById({ invitationId }),
     enabled: !!invitationId,
   });
+}
+
+export const useDeactivateUserMutation = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationKey: ["deactivateUser"],
+		mutationFn: deactivateUser,
+		onSuccess: () => {
+			notifications.show({ message: "User deactivated", color: "green" });
+			// refetch user data
+			queryClient.refetchQueries({
+				queryKey: ["workspaceMembers"],
+			});
+		},
+		onError: error => {
+			const errorMessage = error["response"]?.data?.message;
+			notifications.show({ message: errorMessage, color: "red" });
+		},
+	});
+};
+
+export function useWorkspaceDeactivatedMembersQuery(params?: QueryParams) {
+	return useQuery({
+		queryKey: ["workspaceDeactivatedMembers", params],
+		queryFn: () => getWorkspaceDeactivatedMembers(params),
+	});
 }
