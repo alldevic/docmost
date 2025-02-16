@@ -237,17 +237,17 @@ export default function PageEditor({
         )}
         <SearchAndReplaceDialog editor={editor} />
 
-        {editor && editor.isEditable && (
+        {editor && (
           <div>
             <EditorBubbleMenu editor={editor} />
-            <TableMenu editor={editor} />
-            <TableCellMenu editor={editor} appendTo={menuContainerRef} />
-            <ImageMenu editor={editor} />
-            <VideoMenu editor={editor} />
-            <CalloutMenu editor={editor} />
-            <ExcalidrawMenu editor={editor} />
-            <DrawioMenu editor={editor} />
-            <LinkMenu editor={editor} appendTo={menuContainerRef} />
+              <TableMenu editor={editor} />
+              <TableCellMenu editor={editor} appendTo={menuContainerRef} />
+              <ImageMenu editor={editor} />
+              <VideoMenu editor={editor} />
+              <CalloutMenu editor={editor} />
+              <ExcalidrawMenu editor={editor} />
+              <DrawioMenu editor={editor} />
+              <LinkMenu editor={editor} appendTo={menuContainerRef} />
           </div>
         )}
 
