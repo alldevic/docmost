@@ -1,6 +1,7 @@
 import WorkspaceInviteModal from "@/features/workspace/components/members/components/workspace-invite-modal";
 import {Group, SegmentedControl, Space, Text} from "@mantine/core";
 import WorkspaceMembersTable from "@/features/workspace/components/members/components/workspace-members-table";
+import WorkspaceDeactivatedMembersTable from "@/features/workspace/components/members/components/workspace-deactivated-members-table";
 import SettingsTitle from "@/components/settings/settings-title.tsx";
 import {useEffect, useState} from "react";
 import {useNavigate, useSearchParams} from "react-router-dom";
@@ -11,7 +12,9 @@ import {Helmet} from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 
 export default function WorkspaceMembers() {
-    const [segmentValue, setSegmentValue] = useState("members");
+    const [segmentValue, setSegmentValue] = useState<
+        "members" | "invites" | "deactivated"
+    >("members");
     const [searchParams] = useSearchParams();
     const {isAdmin} = useUserRole();
     const navigate = useNavigate();
@@ -19,14 +22,16 @@ export default function WorkspaceMembers() {
 
     useEffect(() => {
         const currentTab = searchParams.get("tab");
-        if (currentTab === "invites") {
+        if (currentTab === "invites" || currentTab === "deactivated") {
             setSegmentValue(currentTab);
         }
     }, [searchParams.get("tab")]);
 
-    const handleSegmentChange = (value: string) => {
+    const handleSegmentChange = (
+        value: "members" | "invites" | "deactivated"
+    ) => {
         setSegmentValue(value);
-        if (value === "invites") {
+        if (value === "invites" || value === "deactivated") {
             navigate(`?tab=${value}`);
         } else {
             navigate("");
@@ -50,6 +55,7 @@ export default function WorkspaceMembers() {
                     data={[
                         { label: t("Members"), value: "members" },
                         { label: t("Pending"), value: "invites" },
+                        { label: t("Deactivated"), value: "deactivated" },
                     ]}
                     withItemsBorders={false}
                 />
@@ -59,11 +65,9 @@ export default function WorkspaceMembers() {
 
             <Space h="lg"/>
 
-            {segmentValue === "invites" ? (
-                <WorkspaceInvitesTable/>
-            ) : (
-                <WorkspaceMembersTable/>
-            )}
-        </>
-    );
+			{segmentValue === "members" && <WorkspaceMembersTable />}
+			{segmentValue === "invites" && <WorkspaceInvitesTable />}
+			{segmentValue === "deactivated" && <WorkspaceDeactivatedMembersTable />}
+		</>
+	);
 }

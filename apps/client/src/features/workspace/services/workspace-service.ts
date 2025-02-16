@@ -26,6 +26,13 @@ export async function getWorkspaceMembers(
   return req.data;
 }
 
+export const getWorkspaceDeactivatedMembers = async (
+	params?: QueryParams
+): Promise<IPagination<IUser>> => {
+	const req = await api.post("/workspace/members/deactivated", params);
+	return req.data;
+};
+
 export async function updateWorkspace(data: Partial<IWorkspace>) {
   const req = await api.post<IWorkspace>("/workspace/update", data);
   return req.data;
@@ -93,3 +100,11 @@ export async function uploadLogo(file: File) {
   });
   return req.data;
 }
+
+export const deactivateUser = async (data: {
+  userId: string;
+  workspaceId: string;
+}) => {
+  const req = await api.post("/workspace/members/deactivate", data);
+  return req?.data;
+};
