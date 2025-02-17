@@ -81,23 +81,25 @@ export function MultiMemberSelect({ onChange }: MultiMemberSelectProps) {
           : [...updatedGroups, { group: groupName, items: newItemsFiltered }];
       };
 
-      // Merge user items into groups
-      const updatedUserGroups = mergeItemsIntoGroups(
-        data,
-        userItems,
-        t("Select a user"),
-      );
+      setData((oldData) => {
+        // Merge user items into groups
+        const updatedUserGroups = mergeItemsIntoGroups(
+          oldData,
+          userItems,
+          t("Select a user"),
+        );
 
-      // Merge group items into groups
-      const finalData = mergeItemsIntoGroups(
-        updatedUserGroups,
-        groupItems,
-        t("Select a group"),
-      );
+        // Merge group items into groups
+        const finalData = mergeItemsIntoGroups(
+          updatedUserGroups,
+          groupItems,
+          t("Select a group"),
+        );
 
-      setData(finalData);
+        return finalData
+      });
     }
-  }, [suggestion, data]);
+  }, [suggestion, setData]);
 
   return (
     <MultiSelect
