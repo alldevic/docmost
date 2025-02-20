@@ -4,7 +4,7 @@ import { Modal, Text } from "@mantine/core";
 import { useNavigate, useParams } from "react-router-dom";
 import { getPageById, movePageToAnotherSpace } from "../../services/page-service";
 import { getSpaceUrl } from "@/lib/config";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 import { ISpace } from "@/features/space/types/space.types";
 import { queryClient } from "@/main";
 
@@ -15,6 +15,7 @@ interface MoveToAnotherSpaceModalProps {
 }
 
 export function MoveToAnotherSpaceModal({ open, onClose, pageId }: MoveToAnotherSpaceModalProps) {
+  const { t } = useTranslation();
   const { spaceSlug } = useParams();
   const { data: space } = useGetSpaceBySlugQuery(spaceSlug);
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export function MoveToAnotherSpaceModal({ open, onClose, pageId }: MoveToAnother
         <Modal.Header>
           <Modal.Title>
             <Text size="md" fw={500}>
-              Move the page to another space
+              {t("Move to another space")}
             </Text>
           </Modal.Title>
           <Modal.CloseButton />
