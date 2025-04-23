@@ -141,7 +141,10 @@ export class SearchService {
       users = await this.db
         .selectFrom('users')
         .select(['id', 'name', 'email', 'avatarUrl'])
-        .where((eb) => eb(sql`LOWER(users.name)`, 'like', `%${query}%`))
+        .where((eb) => eb.or([
+          eb(sql`LOWER(users.name)`, 'like', `%${query}%`),
+          eb(sql`LOWER(users.email)`, 'like', `%${query}%`)
+        ]))
         .where('workspaceId', '=', workspaceId)
         .where('deletedAt', 'is', null)
         .limit(limit)
