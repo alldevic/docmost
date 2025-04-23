@@ -399,5 +399,16 @@
   "Default page edit mode": "Режим показа страницы по умолчанию",
   "Choose your preferred page edit mode. Avoid accidental edits." : "Выберите предпочитаемый режим показа страницы. Избегайте случайных правок.",
   "Editing": "Редактирование",
-  "Reading": "Чтение"
+  "Reading": "Чтение",
+  "Not found": "Пусто",
+  "Find": "Поиск",
+  "Find (Ctrl-F)": "Поиск (Ctrl-F)",
+  "Previous Match (Shift+Enter)": "Предыдущее совпадение (Shift+Enter)",
+  "Next Match (Enter)": "Следующее совпадение (Enter)",
+  "Match Case (Alt+C)": "Учитывать регистр (Alt+C)",
+  "Replace": "Замена",
+  "Close (Escape)": "Закрыть (Escape)",
+  "Replace (Enter)": "Заменить (Enter)",
+  "Replace All (Ctrl+Alt+Enter)": "Заменить все (Ctrl+Alt+Enter)",
+  "Replace All": "Заменить все"
 }

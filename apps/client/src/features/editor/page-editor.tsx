@@ -54,6 +54,7 @@ import { extractPageSlugId } from "@/lib";
 import { FIVE_MINUTES } from "@/lib/constants.ts";
 import { jwtDecode } from "jwt-decode";
 import { PageEditMode } from "@/features/user/types/user.types.ts";
+import SearchAndReplaceDialog from "@/features/editor/components/search-and-replace/search-and-replace-dialog.tsx";
 
 interface PageEditorProps {
   pageId: string;
@@ -305,6 +306,7 @@ export default function PageEditor({
     <div>
       <div ref={menuContainerRef}>
         <EditorContent editor={editor} />
+        <SearchAndReplaceDialog editor={editor} />
 
         {editor && editor.isEditable && (
           <div>
