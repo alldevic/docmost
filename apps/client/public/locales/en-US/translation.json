@@ -390,5 +390,16 @@
   "Default page edit mode": "Default page edit mode",
   "Choose your preferred page edit mode. Avoid accidental edits.": "Choose your preferred page edit mode. Avoid accidental edits.",
   "Reading": "Reading",
-  "Editing": "Editing"
+  "Editing": "Editing",
+  "Not found": "Not found",
+  "Find": "Find",
+  "Find (Ctrl-F)": "Find (Ctrl-F)",
+  "Previous Match (Shift+Enter)": "Previous Match (Shift+Enter)",
+  "Next Match (Enter)": "Next Match (Enter)",
+  "Match Case (Alt+C)": "Match Case (Alt+C)",
+  "Replace": "Replace",
+  "Close (Escape)": "Close (Escape)",
+  "Replace (Enter)": "Replace (Enter)",
+  "Replace All (Ctrl+Alt+Enter)": "Replace All (Ctrl+Alt+Enter)",
+  "Replace All": "Replace All"
 }

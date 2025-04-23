@@ -9,6 +9,7 @@ import {
   IconList,
   IconMessage,
   IconPrinter,
+  IconSearch,
   IconTrash,
   IconWifiOff,
 } from "@tabler/icons-react";
@@ -16,7 +17,7 @@ import React from "react";
 import useToggleAside from "@/hooks/use-toggle-aside.tsx";
 import { useAtom } from "jotai";
 import { historyAtoms } from "@/features/page-history/atoms/history-atoms.ts";
-import { useClipboard, useDisclosure } from "@mantine/hooks";
+import { useClipboard, useDisclosure, useHotkeys } from "@mantine/hooks";
 import { useParams } from "react-router-dom";
 import { usePageQuery } from "@/features/page/queries/page-query.ts";
 import { buildPageUrl } from "@/features/page/page.utils.ts";
@@ -37,6 +38,7 @@ import MovePageModal from "@/features/page/components/move-page-modal.tsx";
 import { useTimeAgo } from "@/hooks/use-time-ago.tsx";
 import ShareModal from '@/features/share/components/share-modal.tsx';
 import { PageStateSegmentedControl } from "@/features/user/components/page-state-pref.tsx";
+import { searchAndReplaceStateAtom } from "@/features/editor/components/search-and-replace/atoms/search-and-replace-state-atom.ts";
 
 interface PageHeaderMenuProps {
   readOnly?: boolean;
@@ -45,6 +47,28 @@ export default function PageHeaderMenu({ readOnly }: PageHeaderMenuProps) {
   const { t } = useTranslation();
   const toggleAside = useToggleAside();
   const [yjsConnectionStatus] = useAtom(yjsConnectionStatusAtom);
+  const [editor, setEditor] = useAtom(pageEditorAtom);
+  const [pageFindState, setPageFindState] = useAtom(searchAndReplaceStateAtom);
+
+  useHotkeys(
+    [
+      [
+        "ctrl+F",
+        () => {
+          const event = new CustomEvent("openFindDialogFromEditor", {});
+          document.dispatchEvent(event);
+        },
+      ],
+      [
+        "Escape",
+        () => {
+          const event = new CustomEvent("closeFindDialogFromEditor", {});
+          document.dispatchEvent(event);
+        },
+      ],
+    ],
+    [],
+  );
 
   return (
     <>
@@ -63,6 +87,16 @@ export default function PageHeaderMenu({ readOnly }: PageHeaderMenuProps) {
       <ShareModal readOnly={readOnly} />
 
       {!readOnly && <PageStateSegmentedControl />}
+
+      <Tooltip label={t("Find (Ctrl-F)")} openDelay={250} withArrow>
+        <ActionIcon
+          variant="default"
+          style={{ border: "none" }}
+          onClick={() => setPageFindState({ isOpen: true })}
+        >
+          <IconSearch size={20} stroke={2} />
+        </ActionIcon>
+      </Tooltip>
 
       <Tooltip label={t("Comments")} openDelay={250} withArrow>
         <ActionIcon
