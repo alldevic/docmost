@@ -1,4 +1,5 @@
 export * from "./components/page-share-modal";
+export * from "./components/page-access-modal";
 export * from "./components/page-permission-tab";
 export * from "./components/publish-tab";
 export * from "./components/page-permission-list";

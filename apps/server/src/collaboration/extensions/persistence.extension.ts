@@ -3,7 +3,9 @@ import {
   Extension,
   onChangePayload,
   onLoadDocumentPayload,
+  onStatelessPayload,
   onStoreDocumentPayload,
+  Document,
 } from '@hocuspocus/server';
 import * as Y from 'yjs';
 import { Injectable, Logger } from '@nestjs/common';
@@ -45,7 +47,7 @@ export class PersistenceExtension implements Extension {
     @InjectQueue(QueueName.HISTORY_QUEUE) private historyQueue: Queue,
     @InjectQueue(QueueName.NOTIFICATION_QUEUE) private notificationQueue: Queue,
     private readonly collabHistory: CollabHistoryService,
-  ) {}
+  ) { }
 
   async onLoadDocument(data: onLoadDocumentPayload) {
     const { documentName, document } = data;
@@ -93,8 +95,24 @@ export class PersistenceExtension implements Extension {
     return new Y.Doc();
   }
 
+  async onStateless(data: onStatelessPayload): Promise<any> {
+    const { documentName, document, payload, connection } = data;
+
+    switch (payload) {
+      case 'forceSave':
+        return await this.storeDocument(documentName, document, connection.context, true);
+      default:
+        this.logger.warn('statelessPayload: undefined payload');
+        return;
+    }
+  }
+
   async onStoreDocument(data: onStoreDocumentPayload) {
     const { documentName, document, context } = data;
+    return await this.storeDocument(documentName, document, context, false);
+  }
+
+  async storeDocument(documentName: string, document: Document, context: any, forceHistorySave: boolean) {
 
     const pageId = getPageId(documentName);
 
@@ -126,6 +144,15 @@ export class PersistenceExtension implements Extension {
         }
 
         if (isDeepStrictEqual(tiptapJson, page.content)) {
+          if (forceHistorySave) {
+            const contributorIds = [
+              ...editingUserIds,
+              context?.user?.id,
+            ].filter((id): id is string => Boolean(id));
+            await this.collabHistory.addContributors(pageId, contributorIds);
+            await this.enqueuePageHistory(page, forceHistorySave);
+            this.logger.debug(`Page force updated: ${pageId} - SlugId: ${page.slugId}`);
+          }
           page = null;
           return;
         }
@@ -186,7 +213,7 @@ export class PersistenceExtension implements Extension {
         workspaceId: page.workspaceId,
       });
 
-      await this.enqueuePageHistory(page);
+      await this.enqueuePageHistory(page, forceHistorySave);
     }
   }
 
@@ -216,7 +243,15 @@ export class PersistenceExtension implements Extension {
     return userIds;
   }
 
-  private async enqueuePageHistory(page: Page): Promise<void> {
+  private async enqueuePageHistory(page: Page, forceHistorySave: boolean): Promise<void> {
+    if (forceHistorySave) {
+      await this.historyQueue.add(
+        QueueJob.PAGE_HISTORY,
+        { pageId: page.id } as IPageHistoryJob,
+        { jobId: page.id },
+      );
+      return;
+    }
     const pageAge = Date.now() - new Date(page.createdAt).getTime();
     const delay =
       pageAge < HISTORY_FAST_THRESHOLD

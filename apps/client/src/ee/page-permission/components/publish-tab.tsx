@@ -12,11 +12,11 @@ import {
   Divider,
 } from "@mantine/core";
 import { IconExternalLink, IconLock } from "@tabler/icons-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getPageIcon } from "@/lib";
 import CopyTextButton from "@/components/common/copy";
-import { getAppUrl, isCloud } from "@/lib/config";
+import { getAppUrl } from "@/lib/config";
 import { buildPageUrl } from "@/features/page/page.utils";
 import {
   useCreateShareMutation,
@@ -36,11 +36,15 @@ type PublishTabProps = {
   spaceSharingDisabled?: boolean;
 };
 
-export function PublishTab({ pageId, readOnly, isRestricted, workspaceSharingDisabled, spaceSharingDisabled }: PublishTabProps) {
+export function PublishTab({
+  pageId,
+  readOnly,
+  isRestricted,
+  workspaceSharingDisabled,
+  spaceSharingDisabled,
+}: PublishTabProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { pageSlug, spaceSlug } = useParams();
-  const { isTrial } = useTrial();
 
   const { data: share } = useShareForPageQuery(pageId);
   const createShareMutation = useCreateShareMutation();
@@ -56,7 +60,8 @@ export function PublishTab({ pageId, readOnly, isRestricted, workspaceSharingDis
 
   const [isPagePublic, setIsPagePublic] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
-  const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(false);
+  const [isPasswordProtected, setIsPasswordProtected] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (!!share) {
@@ -141,25 +146,6 @@ export function PublishTab({ pageId, readOnly, isRestricted, workspaceSharingDis
     ),
     [publicLink],
   );
-
-  if (isCloud() && isTrial) {
-    return (
-      <Stack align="center" py="md">
-        <IconLock size={20} stroke={1.5} />
-        <Text size="sm" ta="center" fw={500}>
-          {t("Upgrade to share pages")}
-        </Text>
-        <Text size="sm" c="dimmed" ta="center">
-          {t(
-            "Page sharing is available on paid plans. Upgrade to share your pages publicly.",
-          )}
-        </Text>
-        <Button size="xs" onClick={() => navigate("/settings/billing")}>
-          {t("Upgrade Plan")}
-        </Button>
-      </Stack>
-    );
-  }
 
   if (workspaceSharingDisabled || spaceSharingDisabled) {
     return (
@@ -273,9 +259,9 @@ export function PublishTab({ pageId, readOnly, isRestricted, workspaceSharingDis
               disabled={readOnly}
             />
           </Group>
-          
+
           <Divider my="sm" />
-          
+
           <Group justify="space-between" wrap="nowrap" gap="xl" mt="sm">
             <div>
               <Text size="sm">{t("Password protection")}</Text>
@@ -287,7 +273,11 @@ export function PublishTab({ pageId, readOnly, isRestricted, workspaceSharingDis
 
           {isPasswordProtected ? (
             <Group justify="space-between" align="center" mt="xs">
-              <Text size="xs" c="dimmed" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <Text
+                size="xs"
+                c="dimmed"
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
                 <IconLock size={12} />
                 {t("Password protected")}
               </Text>
@@ -297,7 +287,9 @@ export function PublishTab({ pageId, readOnly, isRestricted, workspaceSharingDis
                 color="red"
                 onClick={() => removePasswordMutation.mutateAsync(share.id)}
                 disabled={readOnly}
-              > {/* TODO: canManage */}
+              >
+                {" "}
+                {/* TODO: canManage */}
                 {t("Remove password")}
               </Button>
             </Group>

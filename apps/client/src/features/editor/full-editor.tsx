@@ -116,7 +116,7 @@ function PageByline({
                   size={22}
                 />
                 <Text size="sm" c="dimmed">
-                  {t("By {{name}}", { name: creator.name })}
+                  { creator.name }
                 </Text>
               </Group>
             </UnstyledButton>

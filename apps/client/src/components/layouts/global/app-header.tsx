@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  Badge,
   Box,
   Group,
   Text,
@@ -22,22 +21,16 @@ import {
 import { useToggleSidebar } from "@/components/layouts/global/hooks/hooks/use-toggle-sidebar.ts";
 import SidebarToggle from "@/components/ui/sidebar-toggle-button.tsx";
 import { useTranslation } from "react-i18next";
-import useTrial from "@/ee/hooks/use-trial.tsx";
-import { isCloud } from "@/lib/config.ts";
 import {
   SearchControl,
   SearchMobileControl,
 } from "@/features/search/components/search-control.tsx";
-import {
-  searchSpotlight,
-  shareSearchSpotlight,
-} from "@/features/search/constants.ts";
+import { searchSpotlight } from "@/features/search/constants.ts";
 import { NotificationPopover } from "@/features/notification/components/notification-popover.tsx";
 import { workspaceAtom } from "@/features/user/atoms/current-user-atom.ts";
+import { ThemeToggle } from "@/components/ui/theme-toggle.tsx";
 
-const links = [
-  { link: APP_ROUTE.HOME, label: "Home" },
-];
+const links = [{ link: APP_ROUTE.HOME, label: "Home" }];
 
 export function AppHeader() {
   const { t } = useTranslation();
@@ -46,7 +39,6 @@ export function AppHeader() {
 
   const [desktopOpened] = useAtom(desktopSidebarAtom);
   const toggleDesktop = useToggleSidebar(desktopSidebarAtom);
-  const { isTrial, trialDaysLeft } = useTrial();
   const location = useLocation();
   const toggleAside = useToggleAside();
   const [workspace] = useAtom(workspaceAtom);
@@ -147,7 +139,12 @@ export function AppHeader() {
                   hiddenFrom="sm"
                   aria-label={t("AI Chat")}
                   onClick={(e: React.MouseEvent) => {
-                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) {
+                    if (
+                      e.metaKey ||
+                      e.ctrlKey ||
+                      e.shiftKey ||
+                      e.button === 1
+                    ) {
                       return;
                     }
                     if (isPageRoute) {
@@ -161,20 +158,8 @@ export function AppHeader() {
               </Tooltip>
             </>
           )}
+          <ThemeToggle />
           <NotificationPopover />
-          {isCloud() && isTrial && trialDaysLeft !== 0 && (
-            <Badge
-              variant="light"
-              style={{ cursor: "pointer" }}
-              component={Link}
-              to={APP_ROUTE.SETTINGS.WORKSPACE.BILLING}
-              visibleFrom="xs"
-            >
-              {trialDaysLeft === 1
-                ? "1 day left"
-                : `${trialDaysLeft} days left`}
-            </Badge>
-          )}
           <TopMenu />
         </Group>
       </Group>

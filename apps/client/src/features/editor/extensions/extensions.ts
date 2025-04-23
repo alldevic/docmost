@@ -218,7 +218,9 @@ export const mainExtensions = [
   Typography,
   ExtraLigatures,
   TrailingNode,
-  GlobalDragHandle,
+  GlobalDragHandle.configure({ 
+     excludedTags: ["pre"]
+  }),,
   TextStyle,
   Color,
   SlashCommand,

@@ -9,7 +9,8 @@ export function FullWidthToggle() {
   return (
     <Tooltip label="Toggle page width">
       <ActionIcon
-        variant="default"
+        variant="subtle"
+        color="dark"
         onClick={() => setIsFullWidth(!isFullWidth)}
         style={{ border: "none" }}
         size="sm"

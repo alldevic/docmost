@@ -324,11 +324,11 @@
   "Invalid {{provider}} embed link": "Invalid {{provider}} embed link",
   "Embed {{provider}}": "Embed {{provider}}",
   "Enter {{provider}} link to embed": "Enter {{provider}} link to embed",
-  "Bold": "Bold",
-  "Italic": "Italic",
-  "Underline": "Underline",
-  "Strike": "Strike",
-  "Code": "Code",
+  "Bold": "Bold (Ctrl+B)",
+  "Italic": "Italic (Ctrl+I)",
+  "Underline": "Underline (Ctrl+U)",
+  "Strike": "Strike (Ctrl+Shift+S)",
+  "Code": "Code (Ctrl+E)",
   "Comment": "Comment",
   "Text": "Text",
   "Heading 1": "Heading 1",
@@ -482,6 +482,7 @@
   "Previous Match (Shift+Enter)": "Previous Match (Shift+Enter)",
   "Next match (Enter)": "Next match (Enter)",
   "Match case (Alt+C)": "Match case (Alt+C)",
+  "Find (Ctrl-F)": "Find (Ctrl-F)",
   "Replace": "Replace",
   "Close (Escape)": "Close (Escape)",
   "Replace (Enter)": "Replace (Enter)",
@@ -889,5 +890,7 @@
   "Download code": "Download code",
   "Toggle line wrap": "Toggle line wrap",
   "Enable line wrap": "Enable line wrap",
-  "Disable line wrap": "Disable line wrap"
+  "Disable line wrap": "Disable line wrap",
+  "Editing": "Editing",
+  "Toggle Color Scheme" : "Toggle Color Scheme"
 }

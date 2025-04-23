@@ -1,4 +1,11 @@
-import { ActionIcon, Group, Menu, Text, Tooltip } from "@mantine/core";
+import {
+  ActionIcon,
+  Group,
+  Indicator,
+  Menu,
+  Text,
+  Tooltip,
+} from "@mantine/core";
 import {
   IconArrowRight,
   IconArrowsHorizontal,
@@ -9,13 +16,16 @@ import {
   IconHistory,
   IconLink,
   IconList,
+  IconLock,
   IconMarkdown,
   IconMessage,
   IconPrinter,
+  IconSearch,
   IconStar,
   IconStarFilled,
   IconTrash,
   IconWifiOff,
+  IconWorld,
 } from "@tabler/icons-react";
 import React, { useEffect, useRef, useState } from "react";
 import useToggleAside from "@/hooks/use-toggle-aside.tsx";
@@ -23,6 +33,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { historyAtoms } from "@/features/page-history/atoms/history-atoms.ts";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import { useClipboard } from "@/hooks/use-clipboard";
+import { shareAtoms } from "@/features/share/atoms/share-atoms.ts";
 import { useParams } from "react-router-dom";
 import { usePageQuery } from "@/features/page/queries/page-query.ts";
 import { buildPageUrl } from "@/features/page/page.utils.ts";
@@ -43,7 +54,7 @@ import { formattedDate } from "@/lib/time.ts";
 import { PageStateSegmentedControl } from "@/features/user/components/page-state-pref.tsx";
 import MovePageModal from "@/features/page/components/move-page-modal.tsx";
 import { useTimeAgo } from "@/hooks/use-time-ago.tsx";
-import { PageShareModal } from "@/ee/page-permission";
+import { PageAccessModal } from "@/ee/page-permission";
 import {
   PageVerificationMenuItem,
   PageVerificationModal,
@@ -58,13 +69,17 @@ import {
   useWatchPageMutation,
   useUnwatchPageMutation,
 } from "@/features/page/queries/watcher-query";
-
+import { accessAtoms } from "@/ee/page-permission/atoms/access-atoms";
+import { useShareForPageQuery } from "@/features/share/queries/share-query.ts";
 interface PageHeaderMenuProps {
   readOnly?: boolean;
 }
+import { searchAndReplaceStateAtom } from "@/features/editor/components/search-and-replace/atoms/search-and-replace-state-atom.ts";
+
 export default function PageHeaderMenu({ readOnly }: PageHeaderMenuProps) {
   const { t } = useTranslation();
   const toggleAside = useToggleAside();
+  const [_, setPageFindState] = useAtom(searchAndReplaceStateAtom);
 
   useHotkeys(
     [
@@ -93,7 +108,16 @@ export default function PageHeaderMenu({ readOnly }: PageHeaderMenuProps) {
 
       {!readOnly && <PageStateSegmentedControl size="xs" />}
 
-      <PageShareModal readOnly={readOnly} />
+      <Tooltip label={t("Find (Ctrl-F)")} openDelay={250} withArrow>
+        <ActionIcon
+          variant="subtle"
+          color="dark"
+          style={{ border: "none" }}
+          onClick={() => setPageFindState({ isOpen: true })}
+        >
+          <IconSearch size={20} stroke={2} />
+        </ActionIcon>
+      </Tooltip>
 
       <Tooltip label={t("Comments")} openDelay={250} withArrow>
         <ActionIcon
@@ -126,6 +150,8 @@ interface PageActionMenuProps {
 function PageActionMenu({ readOnly }: PageActionMenuProps) {
   const { t } = useTranslation();
   const [, setHistoryModalOpen] = useAtom(historyAtoms);
+  const [, setShareModalOpen] = useAtom(shareAtoms);
+  const [, setAccessModalOpen] = useAtom(accessAtoms);
   const clipboard = useClipboard({ timeout: 500 });
   const { pageSlug, spaceSlug } = useParams();
   const { data: page, isLoading } = usePageQuery({
@@ -152,6 +178,17 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
   const { data: watchStatus } = useWatchStatusQuery(page?.id);
   const watchPage = useWatchPageMutation();
   const unwatchPage = useUnwatchPageMutation();
+  const pageId = extractPageSlugId(pageSlug);
+  const { data: share } = useShareForPageQuery(pageId);
+  const [isPagePublic, setIsPagePublic] = useState<boolean>(false);
+  const isRestricted = page?.permissions?.hasRestriction ?? false;
+  useEffect(() => {
+    if (share) {
+      setIsPagePublic(true);
+    } else {
+      setIsPagePublic(false);
+    }
+  }, [share, pageId]);
 
   const handleCopyLink = () => {
     const pageUrl =
@@ -176,8 +213,16 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
     }, 250);
   };
 
+  const openAccessModal = () => {
+    setAccessModalOpen(true);
+  };
+
   const openHistoryModal = () => {
     setHistoryModalOpen(true);
+  };
+
+  const openShareModal = () => {
+    setShareModalOpen(true);
   };
 
   const handleDeletePage = () => {
@@ -206,7 +251,17 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
       >
         <Menu.Target>
           <ActionIcon variant="subtle" color="dark">
-            <IconDots size={20} />
+            {isRestricted ? (
+              <Indicator color="red" offset={5} withBorder>
+                <IconDots size={20} />
+              </Indicator>
+            ) : isPagePublic ? (
+              <Indicator color="green" offset={5} withBorder>
+                <IconDots size={20} />
+              </Indicator>
+            ) : (
+              <IconDots size={20} />
+            )}
           </ActionIcon>
         </Menu.Target>
 
@@ -228,7 +283,10 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
           <Menu.Item
             leftSection={
               isFavorited ? (
-                <IconStarFilled size={16} color="var(--mantine-color-yellow-5)" />
+                <IconStarFilled
+                  size={16}
+                  color="var(--mantine-color-yellow-5)"
+                />
               ) : (
                 <IconStar size={16} />
               )
@@ -254,6 +312,41 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
             </Menu.Item>
           )}
 
+          <Menu.Item
+            leftSection={<IconHistory size={16} />}
+            onClick={openHistoryModal}
+          >
+            {t("Page history")}
+          </Menu.Item>
+          <Menu.Item
+            leftSection={<IconLock size={16} />}
+            onClick={openAccessModal}
+          >
+            <Indicator
+              color="red"
+              offset={5}
+              disabled={!isRestricted}
+              processing
+              position="middle-end"
+            >
+              {t("Page access")}
+            </Indicator>
+          </Menu.Item>
+          <Menu.Item
+            leftSection={<IconWorld size={16} />}
+            onClick={openShareModal}
+            disabled={isRestricted}
+          >
+            <Indicator
+              color="green"
+              offset={5}
+              disabled={!isPagePublic}
+              processing
+              position="middle-end"
+            >
+              {t("Share")}
+            </Indicator>
+          </Menu.Item>
           <Menu.Divider />
 
           <Menu.Item leftSection={<IconArrowsHorizontal size={16} />}>
@@ -416,7 +509,12 @@ function ConnectionWarning() {
       openDelay={250}
       withArrow
     >
-      <ActionIcon variant="default" c="red" style={{ border: "none" }}>
+      <ActionIcon
+        variant="subtle"
+        color="dark"
+        c="red"
+        style={{ border: "none" }}
+      >
         <IconWifiOff size={20} stroke={2} />
       </ActionIcon>
     </Tooltip>

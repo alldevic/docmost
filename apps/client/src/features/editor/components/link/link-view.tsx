@@ -287,7 +287,11 @@ export default function LinkView(props: MarkViewProps) {
       e.preventDefault();
       e.stopPropagation();
       if (isEditable) {
-        setPopoverState("preview");
+        if (e.ctrlKey || e.metaKey) {
+          handleNavigate();
+        } else {
+          setPopoverState("preview");
+        }
       } else {
         handleNavigate();
       }

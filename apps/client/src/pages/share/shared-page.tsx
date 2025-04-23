@@ -9,7 +9,6 @@ import React, { useEffect, useState } from "react";
 import ReadonlyPageEditor from "@/features/editor/readonly-page-editor.tsx";
 import { extractPageSlugId } from "@/lib";
 import { Error404 } from "@/components/ui/error-404.tsx";
-import ShareBranding from "@/features/share/components/share-branding.tsx";
 import { useAtomValue } from "jotai";
 import { sharedTreeDataAtom } from "@/features/share/atoms/shared-page-atom.ts";
 import { isPageInTree } from "@/features/share/utils.ts";
@@ -121,8 +120,6 @@ export default function SharedPage() {
           pageId={data.page.id}
         />
       </Container>
-
-      {data && !shareId && !(data.features?.length > 0) && <ShareBranding />}
     </div>
   );
 }

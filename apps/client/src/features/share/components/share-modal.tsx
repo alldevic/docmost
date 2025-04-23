@@ -90,8 +90,10 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
           includeSubPages: true,
           searchIndexing: false,
         });
+        setIsPagePublic(value);
       } else if (share && share.id) {
         await deleteShareMutation.mutateAsync(share.id);
+        setIsPagePublic(value);
       }
     } catch {
       setIsPagePublic(!value);

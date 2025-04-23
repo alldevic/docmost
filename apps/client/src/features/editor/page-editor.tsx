@@ -224,6 +224,11 @@ export default function PageEditor({
     ];
   }, [providersReady, currentUser?.user]);
 
+  const debouncedSendSaveCommand = useDebouncedCallback(() => {
+    const payload = "forceSave";
+    providersRef.current?.remote.sendStateless(payload);
+  }, 300);
+
   const editor = useEditor(
     {
       extensions,
@@ -237,6 +242,7 @@ export default function PageEditor({
           keydown: (_view, event) => {
             if (platformModifierKey(event) && event.code === "KeyS") {
               event.preventDefault();
+              debouncedSendSaveCommand();
               return true;
             }
             if (platformModifierKey(event) && event.code === "KeyK") {

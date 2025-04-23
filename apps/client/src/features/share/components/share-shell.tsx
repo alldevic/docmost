@@ -14,7 +14,10 @@ import { readOnlyEditorAtom } from "@/features/editor/atoms/editor-atoms.ts";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useAtom } from "jotai";
-import { sharedPageTreeAtom, sharedTreeDataAtom } from "@/features/share/atoms/shared-page-atom";
+import {
+  sharedPageTreeAtom,
+  sharedTreeDataAtom,
+} from "@/features/share/atoms/shared-page-atom";
 import { buildSharedPageTree } from "@/features/share/utils";
 import {
   desktopSidebarAtom,
@@ -36,7 +39,6 @@ import {
 } from "@/features/search/components/search-control.tsx";
 import { ShareSearchSpotlight } from "@/features/search/components/share-search-spotlight.tsx";
 import { shareSearchSpotlight } from "@/features/search/constants";
-import ShareBranding from '@/features/share/components/share-branding.tsx';
 import { FullWidthToggle } from "@/components/ui/full-width-toggle";
 
 const MemoizedSharedTree = React.memo(SharedTree);
@@ -58,8 +60,13 @@ export default function ShareShell({
   const toggleToc = useToggleToc(tableOfContentAsideAtom);
 
   const { shareId } = useParams();
-  const sessionPassword = shareId ? sessionStorage.getItem(`share-password-${shareId}`) : null;
-  const { data } = useGetSharedPageTreeQuery(shareId, sessionPassword || undefined);
+  const sessionPassword = shareId
+    ? sessionStorage.getItem(`share-password-${shareId}`)
+    : null;
+  const { data } = useGetSharedPageTreeQuery(
+    shareId,
+    sessionPassword || undefined,
+  );
   const readOnlyEditor = useAtomValue(readOnlyEditorAtom);
 
   // @ts-ignore
@@ -80,7 +87,7 @@ export default function ShareShell({
 
   return (
     <AppShell
-      header={{ height: 50 }}
+      header={{ height: 45 }}
       {...(data?.pageTree?.length > 1 && {
         navbar: {
           width: 300,
@@ -101,8 +108,8 @@ export default function ShareShell({
       }}
       padding="md"
     >
-      <AppShell.Header>
-        <Group wrap="nowrap" justify="space-between" py="sm" px="xl">
+      <AppShell.Header px="md">
+        <Group h="100%" px="md" justify="space-between" wrap={"nowrap"}>
           <Group wrap="nowrap">
             {data?.pageTree?.length > 1 && (
               <>
@@ -145,7 +152,8 @@ export default function ShareShell({
 
               <Tooltip label={t("Table of contents")} withArrow>
                 <ActionIcon
-                  variant="default"
+                  variant="subtle"
+                  color="dark"
                   style={{ border: "none" }}
                   onClick={toggleTocMobile}
                   hiddenFrom="sm"
@@ -157,7 +165,8 @@ export default function ShareShell({
 
               <Tooltip label={t("Table of contents")} withArrow>
                 <ActionIcon
-                  variant="default"
+                  variant="subtle"
+                  color="dark"
                   style={{ border: "none" }}
                   onClick={toggleToc}
                   visibleFrom="sm"
@@ -181,11 +190,7 @@ export default function ShareShell({
         </AppShell.Navbar>
       )}
 
-      <AppShell.Main>
-        {children}
-
-        {data && shareId && !(data.features?.length > 0) && <ShareBranding />}
-      </AppShell.Main>
+      <AppShell.Main>{children}</AppShell.Main>
 
       <AppShell.Aside
         p="md"
