@@ -360,7 +360,7 @@
   "Move": "Переместить",
   "Move page": "Переместить страницу",
   "Move page to a different space.": "Переместите страницу в другое пространство.",
-  "Real-time editor connection lost. Retrying...": "Соединение с редактором в реальном времени потеряно. Повторная попытка...",
+  "Real-time editor connection lost. Retrying...": "Соединение с редактором потеряно. Подключение...",
   "Table of contents": "Содержание",
   "Add headings (H1, H2, H3) to generate a table of contents.": "Добавьте заголовки (H1, H2, H3), чтобы создать оглавление.",
   "Share": "Поделиться",
@@ -395,5 +395,9 @@
   "Deleted Pages": "Удаленные cтраницы",
   "Restore Page" : "Восстановить",
   "Delete Page permanently": "Удалить навсегда",
-  "No deleted pages": "Нет удаленных страниц"
+  "No deleted pages": "Нет удаленных страниц",
+  "Default page edit mode": "Режим показа страницы по умолчанию",
+  "Choose your preferred page edit mode. Avoid accidental edits." : "Выберите предпочитаемый режим показа страницы. Избегайте случайных правок.",
+  "Editing": "Редактирование",
+  "Reading": "Чтение"
 }

@@ -53,6 +53,7 @@ import { useParams } from "react-router-dom";
 import { extractPageSlugId } from "@/lib";
 import { FIVE_MINUTES } from "@/lib/constants.ts";
 import { jwtDecode } from "jwt-decode";
+import { PageEditMode } from "@/features/user/types/user.types.ts";
 
 interface PageEditorProps {
   pageId: string;
@@ -85,6 +86,8 @@ export default function PageEditor({
   const [isCollabReady, setIsCollabReady] = useState(false);
   const { pageSlug } = useParams();
   const slugId = extractPageSlugId(pageSlug);
+  const userPageEditMode =
+    currentUser?.user?.settings?.preferences?.pageEditMode ?? PageEditMode.Edit;
 
   const localProvider = useMemo(() => {
     const provider = new IndexeddbPersistence(documentName, ydoc);
@@ -286,6 +289,17 @@ export default function PageEditor({
     }, 500);
     return () => clearTimeout(collabReadyTimeout);
   }, [isRemoteSynced, isLocalSynced, remoteProvider?.status]);
+
+  useEffect(() => {
+    // honor user default page edit mode preference
+    if (userPageEditMode && editor && editable && isSynced) {
+      if (userPageEditMode === PageEditMode.Edit) {
+        editor.setEditable(true);
+      } else if (userPageEditMode === PageEditMode.Read) {
+        editor.setEditable(false);
+      }
+    }
+  }, [userPageEditMode, editor, editable, isSynced]);
 
   return isCollabReady ? (
     <div>
