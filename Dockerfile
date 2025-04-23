@@ -9,7 +9,9 @@ COPY . .
 
 RUN npm install -g pnpm@10.4.0
 RUN pnpm install --frozen-lockfile
-RUN pnpm build
+RUN pnpm editor-ext:build
+RUN NX_DAEMON=false pnpm server:build
+RUN NX_DAEMON=false pnpm client:build
 
 FROM base AS installer
 
