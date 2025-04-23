@@ -30,6 +30,21 @@ export default function GlobalAppShell({
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef(null);
 
+  const handleOutSideClick = (event: MouseEvent) => {
+    if (mobileOpened && !sidebarRef.current.contains(event.target)) {
+      event.stopPropagation();
+      toggleMobile();
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleOutSideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutSideClick);
+    };
+  }, [mobileOpened]);
+
   const startResizing = React.useCallback((mouseDownEvent) => {
     mouseDownEvent.preventDefault();
     setIsResizing(true);
