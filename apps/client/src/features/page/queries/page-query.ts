@@ -14,6 +14,9 @@ import {
   movePage,
   getPageBreadcrumbs,
   getRecentChanges,
+  getDeletedPages,
+  restorePage,
+  removePage,
 } from "@/features/page/services/page-service";
 import {
   IMovePage,
@@ -97,6 +100,19 @@ export function useUpdatePageMutation() {
   });
 }
 
+export function useRemovePageMutation() {
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: (pageId: string) => removePage(pageId),
+    onSuccess: () => {
+      notifications.show({ message: t("Page deleted successfully") });
+    },
+    onError: (error) => {
+      notifications.show({ message: t("Failed to delete page"), color: "red" });
+    },
+  });
+}
+
 export function useDeletePageMutation() {
   const { t } = useTranslation();
   return useMutation({
@@ -113,6 +129,19 @@ export function useDeletePageMutation() {
 export function useMovePageMutation() {
   return useMutation<void, Error, IMovePage>({
     mutationFn: (data) => movePage(data),
+  });
+}
+
+export function useRestorePageMutation() {
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: (pageId: string) => restorePage(pageId),
+    onSuccess: () => {
+      notifications.show({ message: t("Page restored successfully") });
+    },
+    onError: (error) => {
+      notifications.show({ message: t("Failed to restore page"), color: "red" });
+    },
   });
 }
 
@@ -165,6 +194,16 @@ export function useRecentChangesQuery(
   return useQuery({
     queryKey: ["recent-changes", spaceId],
     queryFn: () => getRecentChanges(spaceId),
+    refetchOnMount: true,
+  });
+}
+
+export function useDeletedPagesQuery(
+  spaceId: string,
+): UseQueryResult<IPagination<IPage>, Error> {
+  return useQuery({
+    queryKey: ["deleted-pages", spaceId],
+    queryFn: () => getDeletedPages(spaceId),
     refetchOnMount: true,
   });
 }
