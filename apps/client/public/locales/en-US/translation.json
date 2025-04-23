@@ -386,5 +386,9 @@
   "Failed to share page": "Failed to share page",
   "Copy page":  "Copy page",
   "Copy page to a different space.": "Copy page to a different space.",
-  "Page copied successfully": "Page copied successfully"
+  "Page copied successfully": "Page copied successfully",
+  "Default page edit mode": "Default page edit mode",
+  "Choose your preferred page edit mode. Avoid accidental edits.": "Choose your preferred page edit mode. Avoid accidental edits.",
+  "Reading": "Reading",
+  "Editing": "Editing"
 }
