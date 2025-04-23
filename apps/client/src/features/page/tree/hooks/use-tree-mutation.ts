@@ -23,6 +23,7 @@ import { SpaceTreeNode } from "@/features/page/tree/types.ts";
 import { buildPageUrl } from "@/features/page/page.utils.ts";
 import { getSpaceUrl } from "@/lib/config.ts";
 import { useQueryEmit } from "@/features/websocket/use-query-emit.ts";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useTreeMutation<T>(spaceId: string) {
   const [data, setData] = useAtom(treeDataAtom);
@@ -35,6 +36,7 @@ export function useTreeMutation<T>(spaceId: string) {
   const { spaceSlug } = useParams();
   const { pageSlug } = useParams();
   const emit = useQueryEmit();
+  const queryClient = useQueryClient();
 
   const onCreate: CreateHandler<T> = async ({ parentId, index, type }) => {
     const payload: { spaceId: string; parentPageId?: string } = {
@@ -72,6 +74,10 @@ export function useTreeMutation<T>(spaceId: string) {
 
     tree.create({ parentId, index, data });
     setData(tree.data);
+
+    queryClient.invalidateQueries({
+      queryKey: ["recent-changes", createdPage.spaceId],
+    });
 
     setTimeout(() => {
       emit({
@@ -218,6 +224,13 @@ export function useTreeMutation<T>(spaceId: string) {
     tree.update({ id, changes: { name } as any });
     setData(tree.data);
 
+    const node = tree.find(id);
+    if (node) {
+      queryClient.invalidateQueries({
+        queryKey: ["recent-changes", node.data.spaceId],
+      });
+    }
+
     try {
       updatePageMutation.mutateAsync({ pageId: id, title: name });
     } catch (error) {
@@ -253,6 +266,9 @@ export function useTreeMutation<T>(spaceId: string) {
 
       tree.drop({ id: args.ids[0] });
       setData(tree.data);
+      queryClient.invalidateQueries({
+        queryKey: ["recent-changes", node.data.spaceId],
+      });
 
       if (pageSlug && isPageInNode(node, pageSlug.split("-")[1])) {
         navigate(getSpaceUrl(spaceSlug));
