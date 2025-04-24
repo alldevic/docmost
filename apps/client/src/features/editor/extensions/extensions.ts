@@ -38,6 +38,8 @@ import {
   Embed,
   SearchAndReplace,
   Mention,
+  ColumnContainer,
+  Column,
 } from "@docmost/editor-ext";
 import {
   randomElement,
@@ -75,6 +77,8 @@ import { MarkdownClipboard } from "@/features/editor/extensions/markdown-clipboa
 import EmojiCommand from "./emoji-command";
 import { CharacterCount } from "@tiptap/extension-character-count";
 import { countWords } from "alfaaz";
+import ColumnContainerView from "@/features/editor/components/column-layout/column-container-view";
+import ColumnView from "@/features/editor/components/column-layout/column-view";
 
 const lowlight = createLowlight(common);
 lowlight.register("mermaid", plaintext);
@@ -236,6 +240,12 @@ export const mainExtensions = [
       }
     },
   }).configure(),
+  ColumnContainer.configure({
+    view: ColumnContainerView,
+  }),
+  Column.configure({
+    view: ColumnView,
+  }),
 ] as any;
 
 type CollabExtensions = (provider: HocuspocusProvider, user: IUser) => any[];
