@@ -398,6 +398,10 @@
   "Replace": "Replace",
   "Close (Escape)": "Close (Escape)",
   "Replace (Enter)": "Replace (Enter)",
-  "Replace all (Ctrl+Alt+Enter)": "Replace all (Ctrl+Alt+Enter)",
-  "Replace all": "Replace all"
+  "Replace All (Ctrl+Alt+Enter)": "Replace All (Ctrl+Alt+Enter)",
+  "Replace All": "Replace All",
+  "Add column before": "Add column before",
+  "Add column after": "Add column after",
+  "Delete column layout": "Delete column layout",
+  "Insert a column layout.": "Insert a column layout."
 }
