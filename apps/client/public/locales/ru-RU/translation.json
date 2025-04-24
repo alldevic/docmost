@@ -410,5 +410,9 @@
   "Close (Escape)": "Закрыть (Escape)",
   "Replace (Enter)": "Заменить (Enter)",
   "Replace All (Ctrl+Alt+Enter)": "Заменить все (Ctrl+Alt+Enter)",
-  "Replace All": "Заменить все"
+  "Replace All": "Заменить все",
+  "Add column before": "Добавить столбец слева",
+  "Add column after": "Добавить столбец справа",
+  "Delete column layout": "Удалить column layout",
+  "Insert a column layout.": "Добавить column layout."
 }
