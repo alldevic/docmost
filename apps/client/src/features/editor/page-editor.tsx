@@ -309,7 +309,7 @@ export default function PageEditor({
         <EditorContent editor={editor} />
         <SearchAndReplaceDialog editor={editor} />
 
-        {editor && editor.isEditable && (
+        {editor && (
           <div>
             <EditorBubbleMenu editor={editor} />
             <TableMenu editor={editor} />
