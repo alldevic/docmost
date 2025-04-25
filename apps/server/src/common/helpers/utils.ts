@@ -1,11 +1,11 @@
 import * as path from 'path';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 export const envPath = path.resolve(process.cwd(), '..', '..', '.env');
 
 export async function hashPassword(password: string) {
-  const saltRounds = 12;
-  return bcrypt.hash(password, saltRounds);
+  const salt = await bcrypt.genSalt(12);
+  return bcrypt.hash(password, salt);
 }
 
 export async function comparePasswordHash(
