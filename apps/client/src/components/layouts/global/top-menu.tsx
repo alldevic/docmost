@@ -36,19 +36,43 @@ export default function TopMenu() {
           <UnstyledButton>
             <Group gap={7} wrap={"nowrap"}>
               <CustomAvatar
-                avatarUrl={workspace?.logo}
-                name={workspace?.name}
+                avatarUrl={user.avatarUrl}
+                name={user.name}
                 variant="filled"
                 size="sm"
               />
-              <Text fw={500} size="sm" lh={1} mr={3} lineClamp={1}>
-                {workspace?.name}
-              </Text>
+              <div style={{ width: 190 }}>
+                <Text fw={500} size="sm" lh={1} mr={3} lineClamp={1}>
+                  {user.name}
+                </Text>
+                <Text size="xs" c="dimmed" truncate="end">
+                  {user.email}
+                </Text>
+              </div>
               <IconChevronDown size={16} />
             </Group>
           </UnstyledButton>
         </Menu.Target>
         <Menu.Dropdown>
+          <Menu.Label>{t("Account")}</Menu.Label>
+          <Menu.Item
+            component={Link}
+            to={APP_ROUTE.SETTINGS.ACCOUNT.PROFILE}
+            leftSection={<IconUserCircle size={16} />}
+          >
+            {t("My profile")}
+          </Menu.Item>
+
+          <Menu.Item
+            component={Link}
+            to={APP_ROUTE.SETTINGS.ACCOUNT.PREFERENCES}
+            leftSection={<IconBrush size={16} />}
+          >
+            {t("My preferences")}
+          </Menu.Item>
+
+          <Menu.Divider />
+
           <Menu.Label>{t("Workspace")}</Menu.Label>
 
           <Menu.Item
@@ -65,43 +89,6 @@ export default function TopMenu() {
             leftSection={<IconUsers size={16} />}
           >
             {t("Manage members")}
-          </Menu.Item>
-
-          <Menu.Divider />
-
-          <Menu.Label>{t("Account")}</Menu.Label>
-          <Menu.Item component={Link} to={APP_ROUTE.SETTINGS.ACCOUNT.PROFILE}>
-            <Group wrap={"nowrap"}>
-              <CustomAvatar
-                size={"sm"}
-                avatarUrl={user.avatarUrl}
-                name={user.name}
-              />
-
-              <div style={{width: 190}}>
-                <Text size="sm" fw={500} lineClamp={1}>
-                  {user.name}
-                </Text>
-                <Text size="xs" c="dimmed" truncate="end">
-                  {user.email}
-                </Text>
-              </div>
-            </Group>
-          </Menu.Item>
-          <Menu.Item
-            component={Link}
-            to={APP_ROUTE.SETTINGS.ACCOUNT.PROFILE}
-            leftSection={<IconUserCircle size={16} />}
-          >
-            {t("My profile")}
-          </Menu.Item>
-
-          <Menu.Item
-            component={Link}
-            to={APP_ROUTE.SETTINGS.ACCOUNT.PREFERENCES}
-            leftSection={<IconBrush size={16} />}
-          >
-            {t("My preferences")}
           </Menu.Item>
 
           <Menu.Divider />
