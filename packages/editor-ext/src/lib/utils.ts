@@ -357,7 +357,7 @@ export function isTextSelected(editor: Editor) {
   const isEmptyTextBlock =
     !doc.textBetween(from, to).length && isTextSelection(selection);
 
-  if (empty || isEmptyTextBlock || !editor.isEditable) {
+  if (empty || isEmptyTextBlock) {
     return false;
   }
 

@@ -368,7 +368,7 @@ export default function PageEditor({
         <EditorContent editor={editor} spellCheck={userSpellcheckPref} />
         <SearchAndReplaceDialog editor={editor} editable={editable} />
 
-        {editor && editor.isEditable && (
+        {editor && (
           <div>
             <EditorBubbleMenu editor={editor} />
             <TableMenu editor={editor} />

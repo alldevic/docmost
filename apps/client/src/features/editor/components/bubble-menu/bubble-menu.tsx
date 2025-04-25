@@ -104,7 +104,6 @@ export const EditorBubbleMenu: FC<EditorBubbleMenuProps> = (props) => {
       const { empty } = selection;
 
       if (
-        !editor.isEditable ||
         editor.isActive("image") ||
         empty ||
         isNodeSelection(selection) ||
@@ -142,6 +141,7 @@ export const EditorBubbleMenu: FC<EditorBubbleMenuProps> = (props) => {
   return (
     <BubbleMenu {...bubbleMenuProps}>
       <div className={classes.bubbleMenu}>
+        {props.editor.isEditable && <>
         <NodeSelector
           editor={props.editor}
           isOpen={isNodeSelectorOpen}
@@ -220,7 +220,7 @@ export const EditorBubbleMenu: FC<EditorBubbleMenuProps> = (props) => {
             setIsHighlightColorSelectorOpen(false);
           }}
         />
-
+      </>}
         <ActionIcon
           variant="default"
           size="lg"
