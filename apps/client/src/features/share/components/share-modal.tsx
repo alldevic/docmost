@@ -61,7 +61,7 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
       createShareMutation.mutateAsync({
         pageId: pageId,
         includeSubPages: true,
-        searchIndexing: true,
+        searchIndexing: false,
       });
       setIsPagePublic(value);
     } else {

@@ -1,4 +1,4 @@
-import { ActionIcon, Group, Menu, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Group, Indicator, Menu, Text, Tooltip } from "@mantine/core";
 import {
   IconArrowRight,
   IconArrowsHorizontal,
@@ -12,11 +12,13 @@ import {
   IconSearch,
   IconTrash,
   IconWifiOff,
+  IconWorld
 } from "@tabler/icons-react";
 import React from "react";
 import useToggleAside from "@/hooks/use-toggle-aside.tsx";
 import { useAtom } from "jotai";
 import { historyAtoms } from "@/features/page-history/atoms/history-atoms.ts";
+import { shareAtoms } from "@/features/share/atoms/share-atoms.ts";
 import { useClipboard, useDisclosure, useHotkeys } from "@mantine/hooks";
 import { useParams } from "react-router-dom";
 import { usePageQuery } from "@/features/page/queries/page-query.ts";
@@ -36,7 +38,6 @@ import {
 import { formattedDate, timeAgo } from "@/lib/time.ts";
 import MovePageModal from "@/features/page/components/move-page-modal.tsx";
 import { useTimeAgo } from "@/hooks/use-time-ago.tsx";
-import ShareModal from '@/features/share/components/share-modal.tsx';
 import { PageStateSegmentedControl } from "@/features/user/components/page-state-pref.tsx";
 import { searchAndReplaceStateAtom } from "@/features/editor/components/search-and-replace/atoms/search-and-replace-state-atom.ts";
 
@@ -84,8 +85,6 @@ export default function PageHeaderMenu({ readOnly }: PageHeaderMenuProps) {
         </Tooltip>
       )}
 
-      <ShareModal readOnly={readOnly} />
-
       {!readOnly && <PageStateSegmentedControl />}
 
       <Tooltip label={t("Find (Ctrl-F)")} openDelay={250} withArrow>
@@ -129,6 +128,7 @@ interface PageActionMenuProps {
 function PageActionMenu({ readOnly }: PageActionMenuProps) {
   const { t } = useTranslation();
   const [, setHistoryModalOpen] = useAtom(historyAtoms);
+  const [, setShareModalOpen] = useAtom(shareAtoms);
   const clipboard = useClipboard({ timeout: 500 });
   const { pageSlug, spaceSlug } = useParams();
   const { data: page, isLoading } = usePageQuery({
@@ -163,6 +163,9 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
     setHistoryModalOpen(true);
   };
 
+  const openShareModal = () => {
+    setShareModalOpen(true);
+  };
   const handleDeletePage = () => {
     openDeleteModal({ onConfirm: () => tree?.delete(page.id) });
   };
@@ -189,6 +192,19 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
             onClick={handleCopyLink}
           >
             {t("Copy link")}
+          </Menu.Item>
+          <Menu.Item leftSection={<IconWorld size={16} />}
+            onClick={openShareModal}
+          >
+            <Indicator
+              color="green"
+              offset={5}
+              // disabled={!isPagePublic}
+              disabled
+              withBorder
+              position="middle-end">
+              {t("Share")}
+            </Indicator>
           </Menu.Item>
           <Menu.Divider />
 
