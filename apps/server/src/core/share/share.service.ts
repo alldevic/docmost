@@ -97,7 +97,7 @@ export class ShareService {
         key: nanoIdGen().toLowerCase(),
         pageId: page.id,
         includeSubPages: createShareDto.includeSubPages || true,
-        searchIndexing: createShareDto.searchIndexing || true,
+        searchIndexing: createShareDto.searchIndexing || false,
         passwordHash,
         creatorId: authUserId,
         spaceId: page.spaceId,

@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { usePageQuery } from "@/features/page/queries/page-query";
 import { FullEditor } from "@/features/editor/full-editor";
 import HistoryModal from "@/features/page-history/components/history-modal";
+import ShareModal from "@/features/share/components/share-modal-ext"
 import { Helmet } from "react-helmet-async";
 import PageHeader from "@/features/page/components/header/page-header.tsx";
 import { extractPageSlugId } from "@/lib";
@@ -17,6 +18,7 @@ import React from "react";
 const MemoizedFullEditor = React.memo(FullEditor);
 const MemoizedPageHeader = React.memo(PageHeader);
 const MemoizedHistoryModal = React.memo(HistoryModal);
+const MemoizedShareModal = React.memo(ShareModal);
 
 export default function Page() {
   const { t } = useTranslation();
@@ -74,6 +76,10 @@ export default function Page() {
           )}
         />
         <MemoizedHistoryModal pageId={page.id} />
+        <MemoizedShareModal readOnly={spaceAbility.cannot(
+            SpaceCaslAction.Manage,
+            SpaceCaslSubject.Page,
+          )}/>
       </div>
     )
   );

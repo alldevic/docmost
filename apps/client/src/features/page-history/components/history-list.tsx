@@ -24,6 +24,7 @@ import {
   SpaceCaslAction,
   SpaceCaslSubject,
 } from "@/features/space/permissions/permissions.type.ts";
+import { shareAtoms } from "@/features/share/atoms/share-atoms";
 
 interface Props {
   pageId: string;
@@ -42,6 +43,7 @@ function HistoryList({ pageId }: Props) {
   const [mainEditor] = useAtom(pageEditorAtom);
   const [mainEditorTitle] = useAtom(titleEditorAtom);
   const [, setHistoryModalOpen] = useAtom(historyAtoms);
+  const [, setShareModalOpen] = useAtom(shareAtoms);
 
   const { spaceSlug } = useParams();
   const { data: space } = useSpaceQuery(spaceSlug);
@@ -75,6 +77,7 @@ function HistoryList({ pageId }: Props) {
         .setContent(activeHistoryData.content)
         .run();
       setHistoryModalOpen(false);
+      setShareModalOpen(false);
       notifications.show({ message: t("Successfully restored") });
     }
   }, [activeHistoryData]);
