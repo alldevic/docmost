@@ -62,6 +62,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
           .toggleNode("paragraph", "paragraph")
           .run();
       },
+      hotkey: "Ctrl+ Alt + 0"
     },
     {
       title: "To-do list",
@@ -71,6 +72,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).toggleTaskList().run();
       },
+      hotkey: "Ctrl + Shift + 9"
     },
     {
       title: "Heading 1",
@@ -85,6 +87,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
           .setNode("heading", { level: 1 })
           .run();
       },
+      hotkey: "Ctrl + Alt + 1"
     },
     {
       title: "Heading 2",
@@ -99,6 +102,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
           .setNode("heading", { level: 2 })
           .run();
       },
+      hotkey: "Ctrl + Alt + 2"
     },
     {
       title: "Heading 3",
@@ -113,6 +117,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
           .setNode("heading", { level: 3 })
           .run();
       },
+      hotkey: "Ctrl + Alt + 3"
     },
     {
       title: "Bullet list",
@@ -122,6 +127,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).toggleBulletList().run();
       },
+      hotkey: "Ctrl + Shift + 8"
     },
     {
       title: "Numbered list",
@@ -131,6 +137,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).toggleOrderedList().run();
       },
+      hotkey: "Ctrl + Shift + 7"
     },
     {
       title: "Quote",
@@ -139,6 +146,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
       icon: IconBlockquote,
       command: ({ editor, range }: CommandProps) =>
         editor.chain().focus().deleteRange(range).toggleBlockquote().run(),
+      hotkey: "Ctrl + Shift + B"
     },
     {
       title: "Code",
@@ -147,6 +155,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
       icon: IconCode,
       command: ({ editor, range }: CommandProps) =>
         editor.chain().focus().deleteRange(range).toggleCodeBlock().run(),
+      hotkey: "Ctrl + Alt + C"
     },
     {
       title: "Divider",
