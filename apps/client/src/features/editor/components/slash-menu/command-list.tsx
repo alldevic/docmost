@@ -6,6 +6,7 @@ import {
 import {
   ActionIcon,
   Group,
+  Badge,
   Paper,
   ScrollArea,
   Text,
@@ -111,10 +112,12 @@ const CommandList = ({
                   </ActionIcon>
 
                   <div style={{ flex: 1 }}>
-                    <Text size="sm" fw={500}>
-                      {t(item.title)}
-                    </Text>
-
+                    <Group justify="space-between">
+                      <Text size="sm" fw={500}>
+                        {t(item.title)}
+                      </Text>
+                      {item.hotkey && <Badge variant="default" size="xs">{item.hotkey}</Badge>}
+                    </Group>
                     <Text c="dimmed" size="xs">
                       {t(item.description)}
                     </Text>
