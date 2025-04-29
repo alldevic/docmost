@@ -20,7 +20,8 @@ import {
   IconCalendar, 
   IconAppWindow,
   IconColumns,
-} from '@tabler/icons-react';
+  IconWorld,
+} from "@tabler/icons-react";
 import {
   CommandProps,
   SlashMenuGroupedItemsType,
@@ -152,6 +153,20 @@ const CommandGroups: SlashMenuGroupedItemsType = {
       icon: IconMenu4,
       command: ({ editor, range }: CommandProps) =>
         editor.chain().focus().deleteRange(range).setHorizontalRule().run(),
+    },
+    {
+      title: "Embed URL",
+      description: "Embed Any url",
+      searchTerms: ["Embedurl", "embed", "url"],
+      icon: IconWorld,
+      command: ({ editor, range }: CommandProps) => {
+        editor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          .setEmbed({ provider: "generic" })
+          .run();
+      },
     },
     {
       title: "Image",
