@@ -14,7 +14,7 @@ import {
   IconWifiOff,
   IconWorld
 } from "@tabler/icons-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useToggleAside from "@/hooks/use-toggle-aside.tsx";
 import { useAtom } from "jotai";
 import { historyAtoms } from "@/features/page-history/atoms/history-atoms.ts";
@@ -40,7 +40,9 @@ import MovePageModal from "@/features/page/components/move-page-modal.tsx";
 import { useTimeAgo } from "@/hooks/use-time-ago.tsx";
 import { PageStateSegmentedControl } from "@/features/user/components/page-state-pref.tsx";
 import { searchAndReplaceStateAtom } from "@/features/editor/components/search-and-replace/atoms/search-and-replace-state-atom.ts";
-
+import {
+  useShareForPageQuery,
+} from "@/features/share/queries/share-query.ts";
 interface PageHeaderMenuProps {
   readOnly?: boolean;
 }
@@ -144,6 +146,16 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
   ] = useDisclosure(false);
   const [pageEditor] = useAtom(pageEditorAtom);
   const pageUpdatedAt = useTimeAgo(page?.updatedAt);
+  const pageId = extractPageSlugId(pageSlug);
+  const { data: share } = useShareForPageQuery(pageId);
+  const [isPagePublic, setIsPagePublic] = useState<boolean>(false);
+  useEffect(() => {
+    if (share) {
+      setIsPagePublic(true);
+    } else {
+      setIsPagePublic(false);
+    }
+  }, [share, pageId]);
 
   const handleCopyLink = () => {
     const pageUrl =
@@ -199,10 +211,10 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
             <Indicator
               color="green"
               offset={5}
-              // disabled={!isPagePublic}
-              disabled
-              withBorder
-              position="middle-end">
+              disabled={!isPagePublic}
+              processing
+              position="middle-end"
+            >
               {t("Share")}
             </Indicator>
           </Menu.Item>
