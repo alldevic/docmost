@@ -8,6 +8,7 @@ import {
   Card,
   FocusTrap,
   Group,
+  NumberInput,
   Popover,
   Text,
   TextInput,
@@ -22,6 +23,7 @@ import {
 import { notifications } from "@mantine/notifications";
 import { useTranslation } from "react-i18next";
 import i18n from "i18next";
+import { NodeHeightResize } from '@/features/editor/components/common/node-height-resize';
 
 const schema = z.object({
   url: z
@@ -33,7 +35,7 @@ const schema = z.object({
 export default function EmbedView(props: NodeViewProps) {
   const { t } = useTranslation();
   const { node, selected, updateAttributes } = props;
-  const { src, provider } = node.attrs;
+  const { src, provider, height } = node.attrs;
 
   const embedUrl = useMemo(() => {
     if (src) {
@@ -70,13 +72,44 @@ export default function EmbedView(props: NodeViewProps) {
     <NodeViewWrapper>
       {embedUrl ? (
         <>
-          <AspectRatio ratio={16 / 9}>
+          {selected && (
+            <Group gap="xs" mt={4} style={{ alignItems: 'center', justifyContent: 'left'}}>
+              <NumberInput
+                value={height}
+                onChange={(value) => {
+                  const heightValue = typeof value === 'string' ? parseInt(value) : value;
+                  updateAttributes({ height: heightValue || null });
+                }}
+                min={100}
+                size="xs"
+                style={{ width: 60,}}
+                placeholder="Height"
+              />
+              <NodeHeightResize
+                onChange={(value) => updateAttributes({ height: value })}
+                value={height}
+              />
+            </Group>
+          )}
+          <AspectRatio 
+            ratio={height ? undefined : 16 / 9} 
+            style={{ 
+              height: height ? height : undefined,
+              transition: 'height 0.2s ease-out',
+            }}
+          >
             <iframe
               src={embedUrl}
               allow="encrypted-media"
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
               allowFullScreen
               frameBorder="0"
+              style={{ 
+                height: '100%',
+                width: '100%',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}
             ></iframe>
           </AspectRatio>
         </>
