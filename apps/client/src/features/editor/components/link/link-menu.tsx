@@ -9,7 +9,7 @@ export function LinkMenu({ editor, appendTo }: EditorMenuProps) {
   const [showEdit, setShowEdit] = useState(false);
 
   const shouldShow = useCallback(() => {
-    return editor.isActive("link");
+    return editor.isActive("link")  && editor.isEditable;
   }, [editor]);
 
   const { href: link } = editor.getAttributes("link");
