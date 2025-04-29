@@ -15,7 +15,7 @@ import { NodeWidthResize } from '@/features/editor/components/common/node-width-
 export function ExcalidrawMenu({ editor }: EditorMenuProps) {
   const shouldShow = useCallback(
     ({ state }: ShouldShowProps) => {
-      if (!state) {
+      if (!state || !editor.isEditable) {
         return false;
       }
 
