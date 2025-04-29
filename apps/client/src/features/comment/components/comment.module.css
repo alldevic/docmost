@@ -44,3 +44,13 @@
     }
 }
 
+.bubbleMenu {
+    display: flex;
+    flex-wrap: wrap;
+    width: fit-content;
+
+    .active {
+        color: light-dark(var(--mantine-color-blue-8), var(--mantine-color-gray-5));
+    }
+}
+
