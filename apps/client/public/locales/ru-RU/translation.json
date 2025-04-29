@@ -415,5 +415,7 @@
   "Add column after": "Добавить столбец справа",
   "Delete column layout": "Удалить column layout",
   "Insert a column layout.": "Добавить column layout.",
-  "Toggle Color Scheme" : "Переключить тему"
+  "Toggle Color Scheme" : "Переключить тему",
+  "Embed URL": "Встроить URL",
+  "Embed Any url": "Встроить любой URL"
 }
