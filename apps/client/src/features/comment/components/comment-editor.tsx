@@ -31,10 +31,12 @@ import { TaskList } from "@tiptap/extension-task-list";
 import { TaskItem } from "@tiptap/extension-task-item";
 import { Highlight } from "@tiptap/extension-highlight";
 import { TextStyle } from "@tiptap/extension-text-style";
+import EmojiCommand from "@/features/editor/extensions/emoji-command";
 
 interface CommentEditorProps {
   defaultContent?: any;
   onUpdate?: any;
+  onSave?: any;
   editable: boolean;
   placeholder?: string;
   autofocus?: boolean;
@@ -189,6 +191,7 @@ const CommentEditor = forwardRef(
     {
       defaultContent,
       onUpdate,
+      onSave,
       editable,
       placeholder,
       autofocus,
@@ -217,8 +220,36 @@ const CommentEditor = forwardRef(
         Highlight.configure({
           multicolor: true,
         }),
-        TextStyle
+        TextStyle,
+        EmojiCommand,
       ],
+      editorProps: {
+        handleDOMEvents: {
+          keydown: (_view, event) => {
+            if (
+              [
+                "ArrowUp",
+                "ArrowDown",
+                "ArrowLeft",
+                "ArrowRight",
+                "Enter",
+              ].includes(event.key)
+            ) {
+              const emojiCommand = document.querySelector("#emoji-command");
+              if (emojiCommand) {
+                return true;
+              }
+            }
+
+            if (event.ctrlKey && event.key === 'Enter') {
+              event.preventDefault();
+              if (onSave) onSave();
+
+              return true;
+            }
+          },
+        },
+      },
       onUpdate({ editor }) {
         if (onUpdate) onUpdate(editor.getJSON());
       },
