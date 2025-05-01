@@ -1,7 +1,7 @@
 .tableWrapper {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  overflow-x: visible;
+  overflow-x: auto;
   & table {
     overflow-x: hidden;
   }
@@ -47,7 +47,7 @@
 
     .column-resize-handle {
       background-color: #adf;
-      bottom: -2px;
+      bottom: -1px;
       position: absolute;
       right: -2px;
       pointer-events: none;
