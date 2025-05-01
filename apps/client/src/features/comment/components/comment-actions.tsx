@@ -24,9 +24,11 @@ function CommentActions({
         </Button>
       )}
 
-      <Button size="compact-sm" loading={isLoading} onClick={onSave}>
-        {t("Save")}
-      </Button>
+      <Tooltip label={t("Ctrl + Enter")}>
+        <Button size="compact-sm" loading={isLoading} onClick={onSave}>
+          {t("Save")}
+        </Button>
+      </Tooltip>
     </Group>
   );
 }

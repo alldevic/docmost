@@ -32,6 +32,7 @@ import { TaskList } from "@tiptap/extension-task-list";
 import { TaskItem } from "@tiptap/extension-task-item";
 import { Highlight } from "@tiptap/extension-highlight";
 import { TextStyle } from "@tiptap/extension-text-style";
+import EmojiCommand from "@/features/editor/extensions/emoji-command";
 
 interface CommentEditorProps {
   defaultContent?: any;
@@ -221,7 +222,8 @@ const CommentEditor = forwardRef(
         Highlight.configure({
           multicolor: true,
         }),
-        TextStyle
+        TextStyle,
+        EmojiCommand,
       ],
       editorProps: {
         handleDOMEvents: {
