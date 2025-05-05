@@ -145,11 +145,11 @@ const MenuBar: FC<EditorMenuProps> = (props) => {
     },
   ];
 
-  // const [isLinkSelectorOpen, setIsLinkSelectorOpen] = useState(false);
-  // const [isColorSelectorOpen, setIsColorSelectorOpen] = useState(false);
+  const [isLinkSelectorOpen, setIsLinkSelectorOpen] = useState(false);
+  const [isColorSelectorOpen, setIsColorSelectorOpen] = useState(false);
 
   return (
-    props.editor.isEditable && props.editor.isFocused &&
+    props.editor.isEditable && props.editor.isActive &&
     <ActionIcon.Group className={classes.bubbleMenu}>
       {items.map((item, index) => (
         <Tooltip key={index} label={t(item.name)} withArrow>
@@ -167,7 +167,7 @@ const MenuBar: FC<EditorMenuProps> = (props) => {
           </ActionIcon>
         </Tooltip>
       ))}
-      {/* <LinkSelector
+      <LinkSelector
         editor={props.editor}
         isOpen={isLinkSelectorOpen}
         setIsOpen={() => {
@@ -182,7 +182,7 @@ const MenuBar: FC<EditorMenuProps> = (props) => {
           setIsLinkSelectorOpen(false);
           setIsColorSelectorOpen(!isColorSelectorOpen);
         }}
-      /> */}
+      />
     </ActionIcon.Group>
   )
 }

@@ -428,5 +428,7 @@
   "Permanently delete member": "Окончательно удаленный участник",
   "Are you sure? This action is <strong>not reversible</strong>": "Вы уверены? Это действие <strong>необратимо</strong>",
   "Deactivated": "Удаленные",
-  "User deactivated": "Пользователь удален"
+  "User deactivated": "Пользователь удален",
+  "Float left": "Плавающий слева",
+  "Float right": "Плавающий справа"
 }

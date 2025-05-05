@@ -98,7 +98,7 @@ function CommentDialog({ editor, pageId }: CommentDialogProps) {
     <Dialog
       opened={true}
       onClose={handleDialogClose}
-      ref={useClickOutsideRef}
+      // ref={useClickOutsideRef}
       size="lg"
       radius="md"
       w={300}
