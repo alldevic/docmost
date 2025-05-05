@@ -484,4 +484,61 @@ export class WorkspaceService {
       // empty
     }
   }
+
+  async deactivateUser(
+    authUser: User,
+    userId: string,
+    workspaceId: string,
+  ): Promise<any> {
+    // get user from database
+    const user = await this.userRepo.findById(userId, workspaceId);
+
+    if (!user) {
+      throw new BadRequestException('Workspace member not found');
+    }
+
+    // get workspace owner count
+    const workspaceOwnerCount = await this.userRepo.roleCountByWorkspaceId(
+      UserRole.OWNER,
+      workspaceId,
+    );
+
+    // prevent deactivating last owner
+    if (user.role === UserRole.OWNER && workspaceOwnerCount === 1) {
+      throw new BadRequestException(
+        'There must be at least one workspace owner',
+      );
+    }
+
+    // prevent user from deactivating themselves
+    if (authUser.id === userId) {
+      throw new ForbiddenException('You cannot deactivate yourself');
+    }
+
+    // prevent admin from deactivating owner
+    if (authUser.role === UserRole.ADMIN && user.role === UserRole.OWNER) {
+      throw new ForbiddenException(
+        'You are not allowed to perform this action',
+      );
+    }
+
+    // deactivate user
+    await this.userRepo.updateUser(
+      {
+        deactivatedAt: new Date(),
+      },
+      userId,
+      workspaceId,
+    );
+  }
+
+  async getDeactivatedUsers(
+    workspaceId: string,
+    pagination: PaginationOptions,
+  ) {
+    return await this.userRepo.getDeactivatedUsersPaginated(
+      workspaceId,
+      pagination,
+    );
+  }А
 }
