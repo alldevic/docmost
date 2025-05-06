@@ -1,7 +1,7 @@
 import * as z from "zod";
 import { useForm, zodResolver } from "@mantine/form";
 import useAuth from "@/features/auth/hooks/use-auth";
-import { ILogin } from "@/features/auth/types/auth.types";
+import { ILogin, IOIDCConfig } from "@/features/auth/types/auth.types";
 import {
   Container,
   Title,
@@ -20,7 +20,8 @@ import { useTranslation } from "react-i18next";
 import SsoLogin from "@/ee/components/sso-login.tsx";
 import { useWorkspacePublicDataQuery } from "@/features/workspace/queries/workspace-query.ts";
 import { Error404 } from "@/components/ui/error-404.tsx";
-import React from "react";
+import { useState, useEffect } from "react";
+import api from "@/lib/api-client";
 
 const formSchema = z.object({
   email: z
@@ -33,7 +34,23 @@ const formSchema = z.object({
 export function LoginForm() {
   const { t } = useTranslation();
   const { signIn, isLoading } = useAuth();
+
+  const [buttonName, setButtonName] = useState<string>("Login with OIDC");
+  const [oidcEnabled, setOidcEnabled] = useState<boolean>(false);
+
   useRedirectIfAuthenticated();
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      const response = await api.get<IOIDCConfig>("/auth/oidc-public-config");
+
+      setButtonName(response.data.buttonName);
+      setOidcEnabled(response.data.enabled);
+    };
+
+    fetchConfig();
+  });
+
   const {
     data,
     isLoading: isDataLoading,
@@ -54,11 +71,15 @@ export function LoginForm() {
   }
 
   if (isDataLoading) {
-   return null;
+    return null;
   }
 
   if (isError && error?.["response"]?.status === 404) {
     return <Error404 />;
+  }
+
+  async function loginWithOAuth() {
+    window.location.href = "/api/auth/oauth-redirect";
   }
 
   return (
@@ -104,6 +125,16 @@ export function LoginForm() {
               <Button type="submit" fullWidth mt="md" loading={isLoading}>
                 {t("Sign In")}
               </Button>
+              {oidcEnabled && (
+                <Button
+                  onClick={loginWithOAuth}
+                  hidden={!oidcEnabled}
+                  fullWidth
+                  mt="sm"
+                >
+                  {t("Login with ") + buttonName}
+                </Button>
+              )}
             </form>
           </>
         )}

@@ -288,6 +288,13 @@ export interface Workspaces {
   status: string | null;
   stripeCustomerId: string | null;
   trialEndAt: Timestamp | null;
+  // OIDC settings
+  oidcEnabled: boolean;
+  oidcClientId: string | null;
+  oidcClientSecret: string | null;
+  oidcIssuerUrl: string | null;
+  oidcJitEnabled: boolean;
+  oidcButtonName: string | null;
   updatedAt: Generated<Timestamp>;
 }
 
