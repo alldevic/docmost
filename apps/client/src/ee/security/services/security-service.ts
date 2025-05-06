@@ -8,8 +8,8 @@ export async function getSsoProviderById(data: {
   return req.data;
 }
 
-export async function getSsoProviders(): Promise<IAuthProvider[]> {
-  const req = await api.post<IAuthProvider[]>("/sso/providers");
+export async function getSsoProviders(): Promise<any> {
+  const req = await api.get<any>("/auth/oidc-config");
   return req.data;
 }
 

@@ -1,5 +1,10 @@
 import { IAuthProvider } from "@/ee/security/types/security.types.ts";
 
+export interface IOIDCConfig {
+  enabled: boolean;
+  buttonName: string;
+}
+
 export interface IWorkspace {
   id: string;
   name: string;
@@ -21,6 +26,8 @@ export interface IWorkspace {
   memberCount?: number;
   plan?: string;
   hasLicenseKey?: boolean;
+  oidcEnabled: boolean;
+  oidcButtonName: string;
 }
 
 export interface ICreateInvite {
