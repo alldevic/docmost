@@ -18,7 +18,7 @@ import {
   IVerifyUserToken,
 } from "@/features/auth/types/auth.types";
 import { notifications } from "@mantine/notifications";
-import { IAcceptInvite } from "@/features/workspace/types/workspace.types.ts";
+import { IAcceptInvite, IOIDCConfig, } from "@/features/workspace/types/workspace.types.ts";
 import {
   acceptInvitation,
   createWorkspace,

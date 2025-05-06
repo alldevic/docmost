@@ -38,6 +38,8 @@ export class UserController {
       ...rest,
       memberCount,
       hasLicenseKey: Boolean(licenseKey),
+      oidcEnabled: workspace.oidcEnabled,
+      oidcButtonName: workspace.oidcButtonName,
     };
 
     return { user: authUser, workspace: workspaceInfo };
