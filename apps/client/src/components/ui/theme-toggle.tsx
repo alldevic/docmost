@@ -1,23 +1,28 @@
-import { ActionIcon, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
-import { IconSun, IconMoon } from '@tabler/icons-react';
+import {
+  ActionIcon,
+  Tooltip,
+  useComputedColorScheme,
+  useMantineColorScheme,
+} from "@mantine/core";
+import { IconMoon, IconSun } from "@tabler/icons-react";
+import classes from "./theme-toggle.module.css";
 
 export function ThemeToggle() {
   const { setColorScheme } = useMantineColorScheme();
-  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+  const computedColorScheme = useComputedColorScheme();
 
   return (
-    <ActionIcon
-      onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
-      variant="transparent"
-      size="md"
-      color="foreground"
-      aria-label="Toggle color scheme"
-    >
-      {computedColorScheme === 'light' ? (
-        <IconMoon size={18} stroke={1.5} />
-      ) : (
-        <IconSun size={18} stroke={1.5} />
-      )}
-    </ActionIcon>
+    <Tooltip label="Toggle Color Scheme">
+      <ActionIcon
+        variant="default"
+        onClick={() => {
+          setColorScheme(computedColorScheme === "light" ? "dark" : "light");
+        }}
+        aria-label="Toggle color scheme"
+      >
+        <IconSun className={classes.light} size={18} stroke={1.5} />
+        <IconMoon className={classes.dark} size={18} stroke={1.5} />
+      </ActionIcon>
+    </Tooltip>
   );
 }
