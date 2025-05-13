@@ -1,5 +1,4 @@
 import {
-  InfiniteData,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -60,9 +59,7 @@ export function useCreatePageMutation() {
   const { t } = useTranslation();
   return useMutation<IPage, Error, Partial<IPageInput>>({
     mutationFn: (data) => createPage(data),
-    onSuccess: (data) => {
-      invalidateOnCreatePage(data.spaceId, data.parentPageId);
-    },
+    onSuccess: (data) => {},
     onError: (error) => {
       notifications.show({ message: t("Failed to create page"), color: "red" });
     },
@@ -115,8 +112,6 @@ export function useUpdatePageMutation() {
       if (pageById) {
         queryClient.setQueryData(["pages", data.id], { ...pageById, ...data });
       }
-
-      invalidateOnUpdatePage(data.spaceId, data.parentPageId, data.id, data.title, data.icon);
     },
   });
 }
@@ -138,9 +133,8 @@ export function useDeletePageMutation() {
   const { t } = useTranslation();
   return useMutation({
     mutationFn: (pageId: string) => deletePage(pageId),
-    onSuccess: (data, pageId) => {
+    onSuccess: () => {
       notifications.show({ message: t("Page deleted successfully") });
-      invalidateOnDeletePage(pageId);
     },
     onError: (error) => {
       notifications.show({ message: t("Failed to delete page"), color: "red" });
@@ -151,9 +145,6 @@ export function useDeletePageMutation() {
 export function useMovePageMutation() {
   return useMutation<void, Error, IMovePage>({
     mutationFn: (data) => movePage(data),
-    onSuccess: () => {
-      invalidateOnMovePage();
-    },
   });
 }
 
@@ -230,149 +221,5 @@ export function useDeletedPagesQuery(
     queryKey: ["deleted-pages", spaceId],
     queryFn: () => getDeletedPages(spaceId),
     refetchOnMount: true,
-  });
-}
-
-export function invalidateOnCreatePage(spaceId: string, parentPageId: string) {
-  //for create and move invalidate sidebar pages for now (how to do with pagination???)
-  if (parentPageId === null) {
-    //invalidate root sidebar pages
-    queryClient.invalidateQueries({
-      queryKey: ["root-sidebar-pages", spaceId],
-    });
-  } else {
-    //force refatch sub sidebar pages
-    queryClient.refetchQueries({
-      queryKey: ['sidebar-pages', { pageId: parentPageId, spaceId: spaceId }],
-    });
-    //update sub sidebar pages haschildern
-    const subSideBarMatches = queryClient.getQueriesData({
-      queryKey: ['sidebar-pages'],
-      exact: false,
-    });
-
-    subSideBarMatches.forEach(([key, d]) => {
-      queryClient.setQueryData<IPagination<IPage>>(key, (old) => {
-        return {
-          ...old,
-          items: old.items.map((sidebarPage) =>
-            sidebarPage.id === parentPageId ? { ...sidebarPage, hasChildren: true } : sidebarPage
-          ),
-        };
-      });
-    });
-
-    //update root sidebar pages haschildern
-    const rootSideBarMatches = queryClient.getQueriesData({
-      queryKey: ['root-sidebar-pages', spaceId],
-      exact: false,
-    });
-
-    rootSideBarMatches.forEach(([key, d]) => {
-      queryClient.setQueryData<InfiniteData<IPagination<IPage>>>(key, (old) => {
-        return {
-          ...old,
-          pages: old.pages.map((page) => ({
-            ...page,
-            items: page.items.map((sidebarPage: IPage) =>
-              sidebarPage.id === parentPageId ? { ...sidebarPage, hasChildren: true } : sidebarPage
-            )
-          })),
-        };
-      });
-    });
-  }
-  //update recent changes
-  queryClient.invalidateQueries({
-    queryKey: ["recent-changes", spaceId],
-  });
-  // ---
-}
-
-export function invalidateOnUpdatePage(spaceId: string, parentPageId: string, id: string, title: string, icon: string) {
-  if (parentPageId === null) {
-    //update root sidebar pages
-    queryClient.setQueryData<InfiniteData<IPagination<IPage>>>(['root-sidebar-pages', spaceId], (old) => {
-      if (!old) return old;
-      return {
-        ...old,
-        pages: old.pages.map((page) => ({
-          ...page,
-          items: page.items.map((sidebarPage: IPage) =>
-            sidebarPage.id === id ? { ...sidebarPage, title: title, icon: icon } : sidebarPage
-          )
-        })),
-      };
-    });
-  } else {
-    //update sub sidebar pages
-    queryClient.setQueryData<IPagination<IPage>>(['sidebar-pages', { pageId: parentPageId, spaceId: spaceId }], (old) => {
-      if (!old) return old;
-      return {
-        ...old,
-        items: old.items.map((sidebarPage) =>
-          sidebarPage.id === id ? { ...sidebarPage, title: title, icon: icon } : sidebarPage
-        ),
-      };
-    });
-  }
-  //update recent changes
-  queryClient.invalidateQueries({
-    queryKey: ["recent-changes", spaceId],
-  });
-}
-
-export function invalidateOnMovePage() {
-  //for create and move invalidate all sidebars for now (how to do with pagination???)
-  //invalidate all root sidebar pages
-  queryClient.invalidateQueries({
-    queryKey: ["root-sidebar-pages"],
-  });
-  //invalidate all sub sidebar pages
-  queryClient.invalidateQueries({
-    queryKey: ['sidebar-pages'],
-  });
-  // ---
-}
-
-export function invalidateOnDeletePage(pageId: string) {
-  //update root sidebar pages
-  const rootSideBarMatches = queryClient.getQueriesData({
-    queryKey: ['root-sidebar-pages'],
-    exact: false,
-  });
-
-  rootSideBarMatches.forEach(([key, d]) => {
-    queryClient.setQueryData<InfiniteData<IPagination<IPage>>>(key, (old) => {
-      return {
-        ...old,
-        pages: old.pages.map((page) => ({
-          ...page,
-          items: page.items.filter((sidebarPage: IPage) => sidebarPage.id !== pageId),
-        })),
-      };
-    });
-  });
-
-  //update sub sidebar pages
-  const subSideBarMatches = queryClient.getQueriesData({
-    queryKey: ['sidebar-pages'],
-    exact: false,
-  });
-
-  subSideBarMatches.forEach(([key, d]) => {
-    console.log(key)
-    console.log(d)
-    queryClient.setQueryData<IPagination<IPage>>(key, (old) => {
-      return {
-        ...old,
-        items: old.items.filter((sidebarPage: IPage) => sidebarPage.id !== pageId),
-      };
-    });
-  });
-
-  //update recent changes
-  queryClient.invalidateQueries({
-    queryKey: ["recent-changes"],
   });
 }
