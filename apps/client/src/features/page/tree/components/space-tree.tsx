@@ -24,7 +24,7 @@ import {
   IconPointFilled,
   IconTrash,
 } from "@tabler/icons-react";
-import { appendNodeChildrenAtom, treeDataAtom } from "@/features/page/tree/atoms/tree-data-atom.ts";
+import { treeDataAtom } from "@/features/page/tree/atoms/tree-data-atom.ts";
 import clsx from "clsx";
 import EmojiPicker from "@/components/ui/emoji-picker.tsx";
 import { useTreeMutation } from "@/features/page/tree/hooks/use-tree-mutation.ts";
@@ -237,7 +237,6 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<any>) {
   const { t } = useTranslation();
   const updatePageMutation = useUpdatePageMutation();
   const [treeData, setTreeData] = useAtom(treeDataAtom);
-  const [, appendChildren] = useAtom(appendNodeChildrenAtom);
   const emit = useQueryEmit();
   const { spaceSlug } = useParams();
   const timerRef = useRef(null);
@@ -263,10 +262,9 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<any>) {
 
   async function handleLoadChildren(node: NodeApi<SpaceTreeNode>) {
     if (!node.data.hasChildren) return;
-    // in conflict with use-query-subscription.ts => case "addTreeNode":
-    // if (node.data.children && node.data.children.length > 0) {
-    //   return;
-    // }
+    if (node.data.children && node.data.children.length > 0) {
+      return;
+    }
 
     try {
       const params: SidebarPagesParams = {
@@ -282,10 +280,13 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<any>) {
 
       const childrenTree = buildTree(newChildren.items);
 
-      appendChildren({
-        parentId: node.data.id,
-        children: childrenTree,
-      });
+      const updatedTreeData = appendNodeChildren(
+        treeData,
+        node.data.id,
+        childrenTree,
+      );
+
+      setTreeData(updatedTreeData);
     } catch (error) {
       console.error("Failed to fetch children:", error);
     }
@@ -303,17 +304,17 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<any>) {
 
   const handleEmojiSelect = (emoji: { native: string }) => {
     handleUpdateNodeIcon(node.id, emoji.native);
-    updatePageMutation.mutateAsync({ pageId: node.id, icon: emoji.native }).then((data) => {
-      setTimeout(() => {
-        emit({
-          operation: "updateOne",
-          spaceId: node.data.spaceId,
-          entity: ["pages"],
-          id: node.id,
-          payload: { icon: emoji.native, parentPageId: data.parentPageId },
-        });
-      }, 50);
-    });
+    updatePageMutation.mutateAsync({ pageId: node.id, icon: emoji.native });
+
+    setTimeout(() => {
+      emit({
+        operation: "updateOne",
+        spaceId: node.data.spaceId,
+        entity: ["pages"],
+        id: node.id,
+        payload: { icon: emoji.native },
+      });
+    }, 50);
   };
 
   const handleRemoveEmoji = () => {
@@ -575,12 +576,6 @@ interface PageArrowProps {
 }
 
 function PageArrow({ node, onExpandTree }: PageArrowProps) {
-  useEffect(() => {
-    if (node.isOpen) {
-      onExpandTree();
-    }
-  }, []);
-
   return (
     <ActionIcon
       size={20}
