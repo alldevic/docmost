@@ -14,7 +14,7 @@ import APP_ROUTE from "@/lib/app-route.ts";
 import useAuth from "@/features/auth/hooks/use-auth.ts";
 import { CustomAvatar } from "@/components/ui/custom-avatar.tsx";
 import { useTranslation } from "react-i18next";
-import { ThemeToggle } from "@/components/theme-toggle.tsx";
+import { ThemeToggle } from "@/components/ui/theme-toggle.tsx";
 
 export default function TopMenu() {
   const { t } = useTranslation();
