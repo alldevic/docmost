@@ -11,7 +11,7 @@ import { useParams } from "react-router-dom";
 import SharedTree from "@/features/share/components/shared-tree.tsx";
 import { TableOfContents } from "@/features/editor/components/table-of-contents/table-of-contents.tsx";
 import { readOnlyEditorAtom } from "@/features/editor/atoms/editor-atoms.ts";
-import { ThemeToggle } from "@/components/theme-toggle.tsx";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useAtom } from "jotai";
 import { sharedPageTreeAtom, sharedTreeDataAtom } from "@/features/share/atoms/shared-page-atom";
@@ -37,6 +37,7 @@ import {
 import { ShareSearchSpotlight } from "@/features/search/components/share-search-spotlight.tsx";
 import { shareSearchSpotlight } from "@/features/search/constants";
 import ShareBranding from '@/features/share/components/share-branding.tsx';
+import { FullWidthToggle } from "@/components/ui/full-width-toggle";
 
 const MemoizedSharedTree = React.memo(SharedTree);
 
@@ -165,6 +166,8 @@ export default function ShareShell({
                 </ActionIcon>
               </Tooltip>
             </>
+
+            <FullWidthToggle />
 
             <ThemeToggle />
           </Group>

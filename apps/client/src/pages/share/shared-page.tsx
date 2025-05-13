@@ -11,12 +11,16 @@ import ShareBranding from "@/features/share/components/share-branding.tsx";
 import { useAtomValue } from "jotai";
 import { sharedTreeDataAtom } from "@/features/share/atoms/shared-page-atom.ts";
 import { isPageInTree } from "@/features/share/utils.ts";
+import { useAtom } from "jotai";
+import { shareFullPageWidthAtom } from "@/features/share/atoms/sidebar-atom";
 
 export default function SharedPage() {
   const { t } = useTranslation();
   const { pageSlug } = useParams();
   const { shareId } = useParams();
   const navigate = useNavigate();
+
+  const [isFullWidth] = useAtom(shareFullPageWidthAtom);
 
   const { data, isLoading, isError, error } = useSharePageQuery({
     pageId: extractPageSlugId(pageSlug),
@@ -59,7 +63,7 @@ export default function SharedPage() {
         )}
       </Helmet>
 
-      <Container size={900} p={0}>
+      <Container size={isFullWidth ? "100%" : 900} p={0}>
         <ReadonlyPageEditor
           key={data.page.id}
           title={data.page.title}
