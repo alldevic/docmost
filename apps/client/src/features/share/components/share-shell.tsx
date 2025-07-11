@@ -68,7 +68,7 @@ export default function ShareShell({
   // Build and set the tree data when it changes
   const treeData = useMemo(() => {
     if (!data?.pageTree) return null;
-    return buildSharedPageTree(data.pageTree);
+    return buildSharedPageTree(t, data.pageTree);
   }, [data?.pageTree]);
 
   useEffect(() => {

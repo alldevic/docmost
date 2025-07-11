@@ -16,6 +16,7 @@ export type SharedPageTreeNode = {
 };
 
 export function buildSharedPageTree(
+  t,
   pages: Partial<IPage[]>,
 ): SharedPageTreeNode[] {
   const pageMap: Record<string, SharedPageTreeNode> = {};
@@ -32,7 +33,7 @@ export function buildSharedPageTree(
       hasChildren: false,
       spaceId: page.spaceId,
       parentPageId: page.parentPageId,
-      label: page.title || "untitled",
+      label: page.title || t("untitled"),
       value: page.id,
       children: [],
     };

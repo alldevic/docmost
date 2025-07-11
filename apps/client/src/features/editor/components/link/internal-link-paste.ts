@@ -3,6 +3,7 @@ import { getPageById } from "@/features/page/services/page-service.ts";
 import { IPage } from "@/features/page/types/page.types.ts";
 import { v7 } from "uuid";
 import { extractPageSlugId } from "@/lib";
+import { useTranslation } from "react-i18next";
 
 export type LinkFn = (
   url: string,
@@ -22,6 +23,7 @@ export const handleInternalLink =
   async (url: string, view, pos, creatorId, anchorId) => {
     const validated = validateFn(url, view);
     if (!validated) return;
+    const { t } = useTranslation();
 
     const linkedPageId = extractPageSlugId(url);
 
@@ -31,7 +33,7 @@ export const handleInternalLink =
 
         const node = schema.nodes.mention.create({
           id: v7(),
-          label: page.title || "Untitled",
+          label: page.title || t("Untitled"),
           entityType: "page",
           entityId: page.id,
           slugId: page.slugId,

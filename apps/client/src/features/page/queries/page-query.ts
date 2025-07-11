@@ -164,6 +164,7 @@ export function useMovePageMutation() {
 export function useRestorePageMutation() {
   const [treeData, setTreeData] = useAtom(treeDataAtom);
   const emit = useQueryEmit();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: (pageId: string) => restorePage(pageId),
@@ -179,7 +180,7 @@ export function useRestorePageMutation() {
         const nodeData: SpaceTreeNode = {
           id: restoredPage.id,
           slugId: restoredPage.slugId,
-          name: restoredPage.title || "Untitled",
+          name: restoredPage.title || t("Untitled"),
           icon: restoredPage.icon,
           position: restoredPage.position,
           spaceId: restoredPage.spaceId,

@@ -37,13 +37,14 @@ export function buildTree(pages: IPage[]): SpaceTreeNode[] {
 }
 
 export function findBreadcrumbPath(
+  t,
   tree: SpaceTreeNode[],
   pageId: string,
   path: SpaceTreeNode[] = [],
 ): SpaceTreeNode[] | null {
   for (const node of tree) {
     if (!node.name || node.name.trim() === "") {
-      node.name = "untitled";
+      node.name = t("untitled");
     }
 
     if (node.id === pageId) {
@@ -51,7 +52,7 @@ export function findBreadcrumbPath(
     }
 
     if (node.children) {
-      const newPath = findBreadcrumbPath(node.children, pageId, [
+      const newPath = findBreadcrumbPath(t, node.children, pageId, [
         ...path,
         node,
       ]);

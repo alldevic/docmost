@@ -43,12 +43,12 @@ export default function SharedTree({ sharedPageTree }: SharedTree) {
   const [openTreeNodes, setOpenTreeNodes] = useAtom<OpenMap>(
     openSharedTreeNodesAtom,
   );
-
+  const { t } = useTranslation();
   const currentNodeId = extractPageSlugId(pageSlug);
 
   const treeData: SharedPageTreeNode[] = useMemo(() => {
     if (!sharedPageTree?.pageTree) return;
-    return buildSharedPageTree(sharedPageTree.pageTree);
+    return buildSharedPageTree(t, sharedPageTree.pageTree);
   }, [sharedPageTree?.pageTree]);
 
   useEffect(() => {

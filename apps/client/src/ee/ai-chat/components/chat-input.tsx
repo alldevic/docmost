@@ -285,7 +285,7 @@ export default function ChatInput({
             <div key={page.id} className={classes.attachmentChip}>
               <IconFileText size={14} />
               <span className={classes.attachmentChipName}>
-                {page.title || "Untitled"}
+                {page.title || t("Untitled")}
               </span>
               {onRemoveContextPage && (
                 <button
