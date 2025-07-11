@@ -882,5 +882,8 @@
   "Untitled chat": "Чат без названия",
   "What can I help you with?": "Чем я могу вам помочь?",
   "Float left": "Плавающий слева",
-  "Float right": "Плавающий справа"
+  "Float right": "Плавающий справа",
+  "Spellcheck": "Правописание",
+  "Choose if spellcheck is enabled.": "Выберите для включения проверки правописания.",
+  "Toggle spellcheck": "Переключить проверку правописания"
 }

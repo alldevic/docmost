@@ -880,5 +880,10 @@
   "Try a different search term.": "Try a different search term.",
   "Try again": "Try again",
   "Untitled chat": "Untitled chat",
-  "What can I help you with?": "What can I help you with?"
+  "What can I help you with?": "What can I help you with?",
+  "Replace All (Ctrl+Alt+Enter)": "Replace All (Ctrl+Alt+Enter)",
+  "Replace All": "Replace All",
+  "Spellcheck": "Spellcheck",
+  "Choose if spellcheck is enabled.": "Choose if spellcheck is enabled.",
+  "Toggle spellcheck": "Toggle spellcheck"
 }

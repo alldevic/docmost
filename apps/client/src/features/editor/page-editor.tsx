@@ -117,6 +117,9 @@ export default function PageEditor({
     [isComponentMounted],
   );
   const { handleScrollTo } = useEditorScroll({ canScroll });
+
+  const userSpellcheckPref = currentUser?.user?.settings?.preferences?.spellcheck ?? true;
+
   // Providers only created once per pageId
   const providersRef = useRef<{
     local: IndexeddbPersistence;
@@ -404,7 +407,7 @@ export default function PageEditor({
   return (
     <div className="editor-container" style={{ position: "relative" }}>
       <div ref={menuContainerRef}>
-        <EditorContent editor={editor} />
+        <EditorContent editor={editor} spellCheck={userSpellcheckPref} />
 
         {editor && (
           <SearchAndReplaceDialog editor={editor} editable={editable} />

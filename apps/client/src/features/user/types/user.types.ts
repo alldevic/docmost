@@ -26,6 +26,7 @@ export interface IUser {
   notificationCommentCreated: boolean; // used for update
   notificationCommentResolved: boolean; // used for update
   hasGeneratedPassword?: boolean;
+  spellcheck: boolean; // used for update
 }
 
 export interface ICurrentUser {
@@ -37,6 +38,7 @@ export interface IUserSettings {
   preferences: {
     fullPageWidth: boolean;
     pageEditMode: string;
+    spellcheck: boolean;
   };
   notifications?: {
     "page.updated"?: boolean;
