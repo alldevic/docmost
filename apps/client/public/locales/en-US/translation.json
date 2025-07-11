@@ -885,5 +885,9 @@
   "Replace All": "Replace All",
   "Spellcheck": "Spellcheck",
   "Choose if spellcheck is enabled.": "Choose if spellcheck is enabled.",
-  "Toggle spellcheck": "Toggle spellcheck"
+  "Toggle spellcheck": "Toggle spellcheck",
+  "Download code": "Download code",
+  "Toggle line wrap": "Toggle line wrap",
+  "Enable line wrap": "Enable line wrap",
+  "Disable line wrap": "Disable line wrap"
 }

@@ -34,6 +34,24 @@ export const CustomCodeBlock = CodeBlock.extend<CodeBlockLowlightOptions>({
     };
   },
 
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      wrap: {
+        default: false,
+        parseHTML: (element) => {
+          const value = element.getAttribute("data-wrap");
+          return value === null || value === "true";
+        },
+        renderHTML: (attributes) => {
+          return {
+            "data-wrap": attributes.wrap.toString(),
+          };
+        },
+      },
+    };
+  },
+
   addKeyboardShortcuts() {
     return {
       ...this.parent?.(),
