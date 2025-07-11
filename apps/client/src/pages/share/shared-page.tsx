@@ -1,9 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
-import { useSharePageQuery } from "@/features/share/queries/share-query.ts";
+import {
+  useSharePageQuery
+} from "@/features/share/queries/share-query.ts";
 import { Container } from "@mantine/core";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ReadonlyPageEditor from "@/features/editor/readonly-page-editor.tsx";
 import { extractPageSlugId } from "@/lib";
 import { Error404 } from "@/components/ui/error-404.tsx";
@@ -13,6 +15,8 @@ import { sharedTreeDataAtom } from "@/features/share/atoms/shared-page-atom.ts";
 import { isPageInTree } from "@/features/share/utils.ts";
 import { useAtom } from "jotai";
 import { shareFullPageWidthAtom } from "@/features/share/atoms/sidebar-atom";
+import SharePasswordModal from "@/features/share/components/share-password-modal.tsx";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function SharedPage() {
   const { t } = useTranslation();
@@ -21,9 +25,14 @@ export default function SharedPage() {
   const navigate = useNavigate();
 
   const [isFullWidth] = useAtom(shareFullPageWidthAtom);
+  const queryClient = useQueryClient();
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
+  const sessionPassword = shareId ? sessionStorage.getItem(`share-password-${shareId}`) : null;
 
   const { data, isLoading, isError, error } = useSharePageQuery({
     pageId: extractPageSlugId(pageSlug),
+    password: sessionPassword || undefined,
   });
 
   const sharedTreeData = useAtomValue(sharedTreeDataAtom);
@@ -43,15 +52,56 @@ export default function SharedPage() {
     }
   }, [shareId, data, sharedTreeData]);
 
+  useEffect(() => {
+    if (isError && error) {
+      if (error?.["status"] === 403 && error?.["response"]?.data?.error === "SHARE_PASSWORD_REQUIRED") {
+        setIsPasswordModalOpen(true);
+      }
+    }
+  }, [isError, error]);
+
+  const handlePasswordSuccess = (enteredPassword: string) => {
+    if (shareId) {
+      sessionStorage.setItem(`share-password-${shareId}`, enteredPassword);
+    }
+    setIsPasswordModalOpen(false);
+
+    queryClient.invalidateQueries({
+      queryKey: ["shares", {
+        pageId: extractPageSlugId(pageSlug),
+        password: enteredPassword,
+      }],
+    });
+  };
+
   if (isLoading) {
     return <></>;
   }
 
   if (isError || !data) {
     if ([401, 403, 404].includes(error?.["status"])) {
+      if (error?.["status"] === 403 && error?.["response"]?.data?.error === "SHARE_PASSWORD_REQUIRED") {
+        return (
+          <SharePasswordModal
+            shareId={shareId || ""}
+            opened={isPasswordModalOpen}
+            onSuccess={handlePasswordSuccess}
+          />
+        );
+      }
       return <Error404 />;
     }
     return <div>{t("Error fetching page data.")}</div>;
+  }
+
+  if (isPasswordModalOpen) {
+    return (
+      <SharePasswordModal
+        shareId={shareId || ""}
+        opened={isPasswordModalOpen}
+        onSuccess={handlePasswordSuccess}
+      />
+    );
   }
 
   return (

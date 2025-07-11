@@ -8,14 +8,18 @@ import {
   Switch,
   Text,
   TextInput,
+  PasswordInput,
+  Divider,
 } from "@mantine/core";
-import { IconExternalLink, IconWorld, IconLock } from "@tabler/icons-react";
+import { IconExternalLink, IconWorld, IconLock, IconLockOpen } from "@tabler/icons-react";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   useCreateShareMutation,
   useDeleteShareMutation,
   useShareForPageQuery,
   useUpdateShareMutation,
+  useSetSharePasswordMutation,
+  useRemoveSharePasswordMutation,
 } from "@/features/share/queries/share-query.ts";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { extractPageSlugId, getPageIcon } from "@/lib";
@@ -51,6 +55,9 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
   const createShareMutation = useCreateShareMutation();
   const updateShareMutation = useUpdateShareMutation();
   const deleteShareMutation = useDeleteShareMutation();
+  const setPasswordMutation = useSetSharePasswordMutation();
+  const removePasswordMutation = useRemoveSharePasswordMutation();
+
   // pageIsShared means that the share exists and its level equals zero.
   const pageIsShared = share && share.level === 0;
   // if level is greater than zero, then it is a descendant page from a shared page
@@ -59,11 +66,16 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
   const publicLink = `${getAppUrl()}/share/${share?.key}/p/${pageSlug}`;
 
   const [isPagePublic, setIsPagePublic] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>("");
+  const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(false);
   useEffect(() => {
     if (share) {
       setIsPagePublic(true);
+      // Check if share has password protection based on the presence of passwordHash
+      setIsPasswordProtected(!!share.passwordHash);
     } else {
       setIsPagePublic(false);
+      setIsPasswordProtected(false);
     }
   }, [share, pageId]);
 
@@ -111,6 +123,17 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
       });
     } catch {
       // query invalidation will revert the UI
+    }
+  };
+
+  const handleSetPassword = async () => {
+    if (password.trim()) {
+      await setPasswordMutation.mutateAsync({
+        shareId: share.id,
+        password: password.trim(),
+      });
+      setIsPasswordProtected(true);
+      setPassword("");
     }
   };
 
@@ -277,6 +300,53 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
                     disabled={readOnly}
                   />
                 </Group>
+
+                <Divider my="sm" />
+
+                <Group justify="space-between" wrap="nowrap" gap="xl" mt="sm">
+                  <div>
+                    <Text size="sm">{t("Password protection")}</Text>
+                    <Text size="xs" c="dimmed">
+                      {t("Require password to access this page")}
+                    </Text>
+                  </div>
+                </Group>
+
+                {isPasswordProtected ? (
+                  <Group justify="space-between" align="center" mt="xs">
+                    <Text size="xs" c="dimmed" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <IconLock size={12} />
+                      {t("Password protected")}
+                    </Text>
+                    <Button
+                      size="xs"
+                      variant="subtle"
+                      color="red"
+                      onClick={() => removePasswordMutation.mutateAsync(share.id)}
+                      disabled={readOnly}
+                    > {/* TODO: canManage */}
+                      {t("Remove password")}
+                    </Button>
+                  </Group>
+                ) : (
+                  <Group mt="xs" gap="xs">
+                    <PasswordInput
+                      placeholder={t("Enter password")}
+                      value={password}
+                      onChange={(event) => setPassword(event.currentTarget.value)}
+                      size="xs"
+                      style={{ flex: 1 }}
+                      disabled={readOnly}
+                    />
+                    <Button
+                      size="xs"
+                      onClick={handleSetPassword}
+                      disabled={!password.trim() || readOnly}
+                    >
+                      {t("Set password")}
+                    </Button>
+                  </Group>
+                )}
               </>
             )}
           </>

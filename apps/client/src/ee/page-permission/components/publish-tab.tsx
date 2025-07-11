@@ -8,6 +8,8 @@ import {
   Switch,
   Text,
   TextInput,
+  PasswordInput,
+  Divider,
 } from "@mantine/core";
 import { IconExternalLink, IconLock } from "@tabler/icons-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -21,6 +23,8 @@ import {
   useDeleteShareMutation,
   useShareForPageQuery,
   useUpdateShareMutation,
+  useSetSharePasswordMutation,
+  useRemoveSharePasswordMutation,
 } from "@/features/share/queries/share-query";
 import useTrial from "@/ee/hooks/use-trial";
 
@@ -42,6 +46,8 @@ export function PublishTab({ pageId, readOnly, isRestricted, workspaceSharingDis
   const createShareMutation = useCreateShareMutation();
   const updateShareMutation = useUpdateShareMutation();
   const deleteShareMutation = useDeleteShareMutation();
+  const setPasswordMutation = useSetSharePasswordMutation();
+  const removePasswordMutation = useRemoveSharePasswordMutation();
 
   const pageIsShared = share && share.level === 0;
   const isDescendantShared = share && share.level > 0;
@@ -49,9 +55,18 @@ export function PublishTab({ pageId, readOnly, isRestricted, workspaceSharingDis
   const publicLink = `${getAppUrl()}/share/${share?.key}/p/${pageSlug}`;
 
   const [isPagePublic, setIsPagePublic] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>("");
+  const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(false);
 
   useEffect(() => {
-    setIsPagePublic(!!share);
+    if (!!share) {
+      setIsPagePublic(true);
+      // Check if share has password protection based on the presence of passwordHash
+      setIsPasswordProtected(!!share.passwordHash);
+    } else {
+      setIsPagePublic(false);
+      setIsPasswordProtected(false);
+    }
   }, [share, pageId]);
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,6 +105,17 @@ export function PublishTab({ pageId, readOnly, isRestricted, workspaceSharingDis
       shareId: share.id,
       searchIndexing: value,
     });
+  };
+
+  const handleSetPassword = async () => {
+    if (password.trim()) {
+      await setPasswordMutation.mutateAsync({
+        shareId: share.id,
+        password: password.trim(),
+      });
+      setIsPasswordProtected(true);
+      setPassword("");
+    }
   };
 
   const shareLink = useMemo(
@@ -247,6 +273,53 @@ export function PublishTab({ pageId, readOnly, isRestricted, workspaceSharingDis
               disabled={readOnly}
             />
           </Group>
+          
+          <Divider my="sm" />
+          
+          <Group justify="space-between" wrap="nowrap" gap="xl" mt="sm">
+            <div>
+              <Text size="sm">{t("Password protection")}</Text>
+              <Text size="xs" c="dimmed">
+                {t("Require password to access this page")}
+              </Text>
+            </div>
+          </Group>
+
+          {isPasswordProtected ? (
+            <Group justify="space-between" align="center" mt="xs">
+              <Text size="xs" c="dimmed" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                <IconLock size={12} />
+                {t("Password protected")}
+              </Text>
+              <Button
+                size="xs"
+                variant="subtle"
+                color="red"
+                onClick={() => removePasswordMutation.mutateAsync(share.id)}
+                disabled={readOnly}
+              > {/* TODO: canManage */}
+                {t("Remove password")}
+              </Button>
+            </Group>
+          ) : (
+            <Group mt="xs" gap="xs">
+              <PasswordInput
+                placeholder={t("Enter password")}
+                value={password}
+                onChange={(event) => setPassword(event.currentTarget.value)}
+                size="xs"
+                style={{ flex: 1 }}
+                disabled={readOnly}
+              />
+              <Button
+                size="xs"
+                onClick={handleSetPassword}
+                disabled={!password.trim() || readOnly}
+              >
+                {t("Set password")}
+              </Button>
+            </Group>
+          )}
         </>
       )}
     </Stack>

@@ -19,6 +19,7 @@ import {
   ShareIdDto,
   ShareInfoDto,
   SharePageIdDto,
+  SharePasswordDto,
   UpdateShareDto,
 } from './dto/share.dto';
 import { PageRepo } from '@docmost/db/repos/page/page.repo';
@@ -34,6 +35,11 @@ import {
   AUDIT_SERVICE,
   IAuditService,
 } from '../../integrations/audit/audit.service';
+import { SharePasswordRequiredException } from './exceptions/share-password-required.exception';
+import { comparePasswordHash } from '../../common/helpers';
+import { SpaceMemberRepo } from '@docmost/db/repos/space/space-member.repo';
+import { findHighestUserSpaceRole } from '@docmost/db/repos/space/utils';
+import { SpaceRole } from 'src/common/helpers/types/permission';
 
 @UseGuards(JwtAuthGuard)
 @Controller('shares')
@@ -46,6 +52,7 @@ export class ShareController {
     private readonly pageAccessService: PageAccessService,
     private readonly licenseCheckService: LicenseCheckService,
     @Inject(AUDIT_SERVICE) private readonly auditService: IAuditService,
+    private readonly spaceMemberRepo: SpaceMemberRepo
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -105,6 +112,17 @@ export class ShareController {
     );
     if (!sharingAllowed) {
       throw new NotFoundException('Share not found');
+    }
+
+    if (share.passwordHash) {
+      if (!dto.password) {
+        throw new SharePasswordRequiredException(share.key);
+      }
+
+      const isValidPassword = await comparePasswordHash(dto.password, share.passwordHash);
+      if (!isValidPassword) {
+        throw new SharePasswordRequiredException(share.key);
+      }
     }
 
     return share;
@@ -242,9 +260,10 @@ export class ShareController {
     @Body() dto: ShareIdDto,
     @AuthWorkspace() workspace: Workspace,
   ) {
-    const treeData = await this.shareService.getShareTree(
+    const treeData = await this.shareService.getShareTreeWithPassword(
       dto.shareId,
-      workspace.id,
+      dto.password,
+      workspace.id
     );
 
     const sharingAllowed = await this.shareService.isSharingAllowed(
@@ -262,5 +281,51 @@ export class ShareController {
         workspace.plan,
       ),
     };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('/set-password')
+  async setPassword(@Body() dto: SharePasswordDto, @AuthUser() user: User) {
+    const share = await this.shareRepo.findById(dto.shareId);
+
+    if (!share) {
+      throw new NotFoundException('Share not found');
+    }
+
+    const page = await this.pageRepo.findById(share.pageId);
+    if (!page) {
+      throw new NotFoundException('Page not found');
+    }
+
+    await this.pageAccessService.validateCanEdit(page, user);
+
+    await this.shareService.setSharePassword(dto.shareId, dto.password);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('/remove-password')
+  async removePassword(
+    @Body() dto: ShareIdDto,
+    @AuthUser() user: User,
+  ) {
+    const share = await this.shareRepo.findById(dto.shareId);
+
+    if (!share) {
+      throw new NotFoundException('Share not found');
+    }
+
+    const userSpaceRoles = await this.spaceMemberRepo.getUserSpaceRoles(
+      user.id,
+      share.spaceId,
+    );
+
+    const userSpaceRole = findHighestUserSpaceRole(userSpaceRoles);
+
+    // Can created by Reader, but needs Admin permission to remove password to prevent abuse. They still can delete the share which will change the slug
+    if (userSpaceRole !== SpaceRole.ADMIN) {
+      throw new ForbiddenException();
+    }
+
+    await this.shareService.removeSharePassword(dto.shareId);
   }
 }
