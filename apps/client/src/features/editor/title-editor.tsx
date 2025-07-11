@@ -53,6 +53,7 @@ export function TitleEditor({
   const [currentUser] = useAtom(currentUserAtom);
   const userPageEditMode =
     currentUser?.user?.settings?.preferences?.pageEditMode ?? PageEditMode.Edit;
+  const userSpellcheckPref = currentUser?.user?.settings?.preferences?.spellcheck ?? true;
 
   const titleEditor = useEditor({
     extensions: [
@@ -197,6 +198,7 @@ export function TitleEditor({
         // Then handle other key events
         handleTitleKeyDown(event);
       }}
+      spellCheck={userSpellcheckPref}
     />
   );
 }

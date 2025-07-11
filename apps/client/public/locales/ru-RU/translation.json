@@ -435,5 +435,8 @@
   "Highlight text color": "Подсветить",
   "Set": "Задать",
   "Float left": "Плавающий слева",
-  "Float right": "Плавающий справа"
+  "Float right": "Плавающий справа",
+  "Spellcheck": "Правописание",
+  "Choose if spellcheck is enabled.": "Выберите для включения проверки правописания.",
+  "Toggle spellcheck": "Переключить проверку правописания"
 }
