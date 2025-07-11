@@ -65,6 +65,7 @@ const MentionList = forwardRef<any, MentionListProps>((props, ref) => {
     return {
       id: null,
       label: label,
+      breadcrumbs: '',
       entityType: "page",
       entityId: null,
       slugId: null,
@@ -97,6 +98,7 @@ const MentionList = forwardRef<any, MentionListProps>((props, ref) => {
           suggestion.pages.map((page) => ({
             id: uuid7(),
             label: page.title || "Untitled",
+            breadcrumbs: page.breadcrumbs.join(' / '),
             entityType: "page",
             entityId: page.id,
             slugId: page.slugId,
@@ -322,7 +324,7 @@ const MentionList = forwardRef<any, MentionListProps>((props, ref) => {
                   [classes.selectedItem]: index === selectedIndex,
                 })}
               >
-                <Group>
+                <Group wrap="nowrap">
                   <ActionIcon
                     variant="default"
                     component="div"
@@ -340,11 +342,16 @@ const MentionList = forwardRef<any, MentionListProps>((props, ref) => {
                     )}
                   </ActionIcon>
 
-                  <div style={{ flex: 1 }}>
+                  <Stack gap="0">
                     <Text size="sm" fw={500}>
                       { (item.id) ? item.label : t("Create page") + ': ' + item.label }
                     </Text>
-                  </div>
+                    {item.breadcrumbs !== "" && (
+                      <Text size="xs" c="dimmed" lineClamp={1}>
+                        {item.breadcrumbs}
+                      </Text>
+                    )}
+                  </Stack>
                 </Group>
               </UnstyledButton>
             );
