@@ -85,7 +85,7 @@ export class ExportController {
 
     if (result.type === 'file') {
       const ext = getExportExtension(dto.format);
-      const fileName = sanitize(page.title || 'untitled') + ext;
+      const fileName = sanitize(page.title || 'untitled', { replacement: '-'}) + ext;
       const contentType = getMimeType(path.extname(fileName));
 
       res.headers({
@@ -96,7 +96,7 @@ export class ExportController {
 
       res.send(result.content);
     } else {
-      const fileName = sanitize(page.title || 'untitled') + '.zip';
+      const fileName = sanitize(page.title || 'untitled', { replacement: '-'}) + '.zip';
 
       res.headers({
         'Content-Type': 'application/zip',
@@ -144,7 +144,7 @@ export class ExportController {
       'Content-Type': 'application/zip',
       'Content-Disposition':
         'attachment; filename="' +
-        encodeURIComponent(sanitize(exportFile.fileName)) +
+        encodeURIComponent(sanitize(exportFile.fileName, { replacement: '-'})) +
         '"',
     });
 
