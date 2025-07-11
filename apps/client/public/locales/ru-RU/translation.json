@@ -439,5 +439,9 @@
   "Float right": "Плавающий справа",
   "Spellcheck": "Правописание",
   "Choose if spellcheck is enabled.": "Выберите для включения проверки правописания.",
-  "Toggle spellcheck": "Переключить проверку правописания"
+  "Toggle spellcheck": "Переключить проверку правописания",
+  "Download code": "Скачать",
+  "Toggle line wrap": "Переключить перенос",
+  "Enable line wrap": "Включить перенос",
+  "Disable line wrap": "Выключить перенос"
 }
