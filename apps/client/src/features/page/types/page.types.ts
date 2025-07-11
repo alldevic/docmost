@@ -28,6 +28,7 @@ export interface IPage {
     canEdit: boolean;
     hasRestriction: boolean;
   };
+  breadcrumbs: string[];
 }
 
 export interface IContributor {

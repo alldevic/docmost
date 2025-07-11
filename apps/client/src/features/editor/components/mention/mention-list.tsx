@@ -72,6 +72,7 @@ const MentionList = forwardRef<any, MentionListProps>((props, ref) => {
     return {
       id: null,
       label: label,
+      breadcrumbs: '',
       entityType: "page",
       entityId: null,
       slugId: null,
@@ -104,6 +105,7 @@ const MentionList = forwardRef<any, MentionListProps>((props, ref) => {
           suggestion.pages.map((page) => ({
             id: uuid7(),
             label: page.title || t("Untitled"),
+            breadcrumbs: page.breadcrumbs.join(' / '),
             entityType: "page",
             entityId: page.id,
             slugId: page.slugId,
@@ -378,7 +380,7 @@ const MentionList = forwardRef<any, MentionListProps>((props, ref) => {
                     </AutoTooltipText>
                     {item.spaceName && (
                       <Text size="xs" c="dimmed" truncate>
-                        {item.spaceName}
+                        {item.spaceName} {item.breadcrumbs !== "" && (item.breadcrumbs)}
                       </Text>
                     )}
                   </div>
