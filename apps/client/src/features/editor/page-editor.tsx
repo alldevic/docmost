@@ -211,6 +211,11 @@ export default function PageEditor({
     ];
   }, [remoteProvider, currentUser?.user]);
 
+  const debouncedSendSaveCommand = useDebouncedCallback(() => {
+    const payload = 'forceSave';
+    remoteProvider.sendStateless(payload);
+  }, 300);
+
   const editor = useEditor(
     {
       extensions,
@@ -224,6 +229,7 @@ export default function PageEditor({
           keydown: (_view, event) => {
             if ((event.ctrlKey || event.metaKey) && event.code === 'KeyS') {
               event.preventDefault();
+              debouncedSendSaveCommand();
               return true;
             }
             if (["ArrowUp", "ArrowDown", "Enter"].includes(event.key)) {
