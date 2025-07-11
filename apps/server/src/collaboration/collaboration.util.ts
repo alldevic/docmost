@@ -12,6 +12,7 @@ import { Color } from '@tiptap/extension-color';
 import { Youtube } from '@tiptap/extension-youtube';
 import Table from '@tiptap/extension-table';
 import TableHeader from '@tiptap/extension-table-header';
+import UniqueID from '@tiptap/extension-unique-id';
 import {
   Callout,
   Comment,
@@ -80,7 +81,11 @@ export const tiptapExtensions = [
   Embed,
   Mention,
   ColumnContainer,
-  Column
+  Column,
+  UniqueID.configure({
+    types: ['heading'],
+    attributeName: 'uid',
+  }),
 ] as any;
 
 export function jsonToHtml(tiptapJson: any) {
