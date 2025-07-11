@@ -8,8 +8,20 @@ WORKDIR /app
 COPY . .
 
 RUN npm install -g pnpm@10.4.0
+
+COPY patches patches
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml nx.json .npmrc ./
+COPY apps/client/package.json apps/client/package.json
+COPY apps/server/package.json apps/server/package.json
+COPY packages/editor-ext/package.json packages/editor-ext/package.json
+
 RUN pnpm install --frozen-lockfile
-RUN pnpm build
+
+COPY . .
+
+RUN pnpm editor-ext:build
+RUN NX_DAEMON=false pnpm server:build
+RUN NX_DAEMON=false pnpm client:build
 
 FROM base AS installer
 
