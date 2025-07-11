@@ -433,5 +433,7 @@
   "Deactivated": "Удаленные",
   "User deactivated": "Пользователь удален",
   "Highlight text color": "Подсветить",
-  "Set": "Задать"
+  "Set": "Задать",
+  "Float left": "Плавающий слева",
+  "Float right": "Плавающий справа"
 }
