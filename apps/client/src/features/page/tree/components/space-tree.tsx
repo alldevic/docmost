@@ -16,7 +16,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import classes from "@/features/page/tree/styles/tree.module.css";
-import { ActionIcon, Box, Menu, rem, Text } from "@mantine/core";
+import { ActionIcon, Box, Loader, Menu, rem, Text } from "@mantine/core";
 import {
   IconArrowRight,
   IconChevronDown,
@@ -397,13 +397,15 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<any>) {
 
   const pageUrl = buildPageUrl(spaceSlug, node.data.slugId, node.data.name);
 
+  const [isPageDeleting, setIsPageDeleting] = useState(false);
+
   return (
     <>
       <Box
         style={style}
-        className={clsx(classes.node, node.state)}
+        className={clsx(classes.node, node.state, isPageDeleting && classes.deleting)}
         component={Link}
-        to={pageUrl}
+        to={isPageDeleting ? undefined : pageUrl}
         // @ts-ignore
         ref={dragHandle}
         onClick={() => {
@@ -435,8 +437,10 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<any>) {
 
         <span className={classes.text}>{node.data.name || t("untitled")}</span>
 
+        {isPageDeleting && <Loader color="gray" size={16} me={5} />}
+
         <div className={classes.actions}>
-          <NodeMenu node={node} treeApi={tree} spaceId={node.data.spaceId} />
+          <NodeMenu node={node} treeApi={tree} spaceId={node.data.spaceId} setIsPageDeleting={setIsPageDeleting} />
 
           {tree.props.disableEdit !== true && node.data.canEdit !== false && (
             <CreateNode
@@ -458,16 +462,25 @@ interface CreateNodeProps {
 }
 
 function CreateNode({ node, treeApi, onExpandTree }: CreateNodeProps) {
+  const [createPageButtonEnabled, setCreatePageButtonEnabled] = useState(true);
+
   function handleCreate() {
+    setCreatePageButtonEnabled(false);
     if (node.data.hasChildren && node.children.length === 0) {
       node.toggle();
       onExpandTree();
 
       setTimeout(() => {
-        treeApi?.create({ type: "internal", parentId: node.id, index: 0 });
+        treeApi?.create({ type: "internal", parentId: node.id, index: 0 })
+          .finally(() => {
+            setCreatePageButtonEnabled(true);
+          });
       }, 500);
     } else {
-      treeApi?.create({ type: "internal", parentId: node.id });
+      treeApi?.create({ type: "internal", parentId: node.id })
+        .finally(() => {
+          setCreatePageButtonEnabled(true);
+        });
     }
   }
 
@@ -480,6 +493,7 @@ function CreateNode({ node, treeApi, onExpandTree }: CreateNodeProps) {
         e.stopPropagation();
         handleCreate();
       }}
+      loading={!createPageButtonEnabled}
     >
       <IconPlus style={{ width: rem(20), height: rem(20) }} stroke={2} />
     </ActionIcon>
@@ -490,9 +504,10 @@ interface NodeMenuProps {
   node: NodeApi<SpaceTreeNode>;
   treeApi: TreeApi<SpaceTreeNode>;
   spaceId: string;
+  setIsPageDeleting: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function NodeMenu({ node, treeApi, spaceId }: NodeMenuProps) {
+function NodeMenu({ node, treeApi, spaceId, setIsPageDeleting }: NodeMenuProps) {
   const { t } = useTranslation();
   const clipboard = useClipboard({ timeout: 500 });
   const { spaceSlug } = useParams();
@@ -684,7 +699,15 @@ function NodeMenu({ node, treeApi, spaceId }: NodeMenuProps) {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    openDeleteModal({ onConfirm: () => treeApi?.delete(node) });
+                    openDeleteModal({
+                    onConfirm: () => {
+                      setIsPageDeleting(true);
+                      treeApi?.delete(node)
+                        .catch(() => {
+                          setIsPageDeleting(false);
+                        });
+                    },
+                  });
                   }}
                 >
                   {t("Move to trash")}

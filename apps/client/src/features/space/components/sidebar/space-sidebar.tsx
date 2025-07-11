@@ -26,7 +26,7 @@ import {
   useUnwatchSpaceMutation,
 } from "@/features/space/queries/space-watcher-query.ts";
 import classes from "./space-sidebar.module.css";
-import React from "react";
+import React, { useState } from "react";
 import { useAtom } from "jotai";
 import { treeApiAtom } from "@/features/page/tree/atoms/tree-api-atom.ts";
 import { Link, useLocation, useParams } from "react-router-dom";
@@ -69,12 +69,18 @@ export function SpaceSidebar() {
   const spaceRules = space?.membership?.permissions;
   const spaceAbility = useSpaceAbility(spaceRules);
 
+  const [createPageButtonEnabled, setCreatePageButtonEnabled] = useState(true);
+
   if (!space) {
     return <></>;
   }
 
   function handleCreatePage() {
-    tree?.create({ parentId: null, type: "internal", index: 0 });
+    setCreatePageButtonEnabled(false);
+    tree?.create({ parentId: null, type: "internal", index: 0 })
+      .finally(() => {
+        setCreatePageButtonEnabled(true);
+      });
   }
 
   return (
@@ -201,6 +207,7 @@ export function SpaceSidebar() {
                     size={18}
                     onClick={handleCreatePage}
                     aria-label={t("Create page")}
+                    loading={!createPageButtonEnabled}
                   >
                     <IconPlus />
                   </ActionIcon>
