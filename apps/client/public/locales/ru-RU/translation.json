@@ -431,5 +431,7 @@
   "Permanently delete member": "Окончательно удаленный участник",
   "Are you sure? This action is <strong>not reversible</strong>": "Вы уверены? Это действие <strong>необратимо</strong>",
   "Deactivated": "Удаленные",
-  "User deactivated": "Пользователь удален"
+  "User deactivated": "Пользователь удален",
+  "Highlight text color": "Подсветить",
+  "Set": "Задать"
 }
