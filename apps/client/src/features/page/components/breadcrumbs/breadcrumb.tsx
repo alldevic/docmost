@@ -19,15 +19,10 @@ import { buildPageUrl } from "@/features/page/page.utils.ts";
 import { usePageQuery } from "@/features/page/queries/page-query.ts";
 import { extractPageSlugId } from "@/lib";
 import { useMediaQuery } from "@mantine/hooks";
-
-function getTitle(name: string, icon: string) {
-  if (icon) {
-    return `${icon} ${name}`;
-  }
-  return name;
-}
+import { useTranslation } from "react-i18next";
 
 export default function Breadcrumb() {
+  const { t } = useTranslation()
   const treeData = useAtomValue(treeDataAtom);
   const [breadcrumbNodes, setBreadcrumbNodes] = useState<
     SpaceTreeNode[] | null
@@ -37,6 +32,13 @@ export default function Breadcrumb() {
     pageId: extractPageSlugId(pageSlug),
   });
   const isMobile = useMediaQuery("(max-width: 48em)");
+
+  function getTitle(name: string, icon: string) {
+    if (icon) {
+      return `${icon} ${t(name)}`
+    }
+    return t(name)
+  }
 
   useEffect(() => {
     if (treeData?.length > 0 && currentPage) {
@@ -81,7 +83,7 @@ export default function Breadcrumb() {
 
   const renderAnchor = useCallback(
     (node: SpaceTreeNode) => (
-      <Tooltip label={node.name} key={node.id}>
+      <Tooltip label={t(node.name)} key={node.id}>
         <Anchor
           component={Link}
           to={buildPageUrl(spaceSlug, node.slugId, node.name)}
