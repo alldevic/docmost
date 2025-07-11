@@ -40,6 +40,7 @@ import {
   Mention,
   ColumnContainer,
   Column,
+  ExtraLigatures,
 } from "@docmost/editor-ext";
 import {
   randomElement,
@@ -146,6 +147,7 @@ export const mainExtensions = [
     multicolor: true,
   }),
   Typography,
+  ExtraLigatures,
   TrailingNode,
   GlobalDragHandle,
   TextStyle,
