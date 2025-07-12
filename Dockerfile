@@ -5,27 +5,30 @@ FROM base AS builder
 
 WORKDIR /app
 
-COPY . .
-
 RUN npm install -g pnpm@10.4.0
 
 COPY patches patches
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml nx.json .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml nx.json .npmrc crowdin.yml ./
 COPY apps/client/package.json apps/client/package.json
 COPY apps/server/package.json apps/server/package.json
 COPY packages/editor-ext/package.json packages/editor-ext/package.json
 
 RUN pnpm install --frozen-lockfile
 
-COPY . .
-
+COPY packages packages
 RUN pnpm editor-ext:build
+
+COPY apps/server apps/server
 RUN NX_DAEMON=false pnpm server:build
+
+COPY apps/client apps/client
 RUN NX_DAEMON=false pnpm client:build
 
 FROM base AS installer
 
 RUN apk add --no-cache curl bash
+
+RUN npm install -g pnpm@10.4.0
 
 WORKDIR /app
 
@@ -44,8 +47,6 @@ COPY --from=builder /app/pnpm*.yaml /app/
 
 # Copy patches
 COPY --from=builder /app/patches /app/patches
-
-RUN npm install -g pnpm@10.4.0
 
 RUN chown -R node:node /app
 
