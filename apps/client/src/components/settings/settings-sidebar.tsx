@@ -90,16 +90,16 @@ const groupedData: DataGroup[] = [
       },
     ],
   },
-  {
-    heading: "System",
-    items: [
-      {
-        label: "License & Edition",
-        icon: IconKey,
-        path: "/settings/license",
-      },
-    ],
-  },
+  // {
+  //   heading: "System",
+  //   items: [
+  //     {
+  //       label: "License & Edition",
+  //       icon: IconKey,
+  //       path: "/settings/license",
+  //     },
+  //   ],
+  // },
 ];
 
 export default function SettingsSidebar() {
