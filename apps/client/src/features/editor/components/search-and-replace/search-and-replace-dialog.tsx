@@ -209,7 +209,7 @@ function SearchAndReplaceDialog({ editor, editable = true }: PageFindDialogDialo
               ["shift+Enter", previous],
               ["alt+C", caseSensitiveToggle],
               //@ts-ignore
-              ...(editable ? [["alt+R", replaceButtonToggle]] : []),
+              ...(editor.isEditable ? [["alt+R", replaceButtonToggle]] : []),
             ])}
           />
 
@@ -242,7 +242,7 @@ function SearchAndReplaceDialog({ editor, editable = true }: PageFindDialogDialo
                 />
               </ActionIcon>
             </Tooltip>
-            {editable && (
+            {editor.isEditable && (
               <Tooltip label={t("Replace")}>
                 <ActionIcon
                   variant="subtle"
@@ -263,7 +263,7 @@ function SearchAndReplaceDialog({ editor, editable = true }: PageFindDialogDialo
             </Tooltip>
           </ActionIcon.Group>
         </Flex>
-        {replaceButton.isReplaceShow && editable && (
+        {replaceButton.isReplaceShow && editor.isEditable && (
           <Flex align="center" gap="xs">
             <Input
               placeholder={t("Replace")}
