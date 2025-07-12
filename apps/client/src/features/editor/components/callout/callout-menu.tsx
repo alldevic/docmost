@@ -26,7 +26,7 @@ export function CalloutMenu({ editor }: EditorMenuProps) {
 
   const shouldShow = useCallback(
     ({ state }: ShouldShowProps) => {
-      if (!state) {
+      if (!state || !editor.isEditable) {
         return false;
       }
 

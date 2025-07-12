@@ -54,7 +54,7 @@ export function LinkMenu({ editor, appendTo }: EditorMenuProps) {
     if (suppressMenu) {
       return false;
     }
-    return editor.isActive("link");
+    return editor.isActive("link") && editor.isEditable;
   }, [editor, suppressMenu]);
 
   const linkAttributes = editor.getAttributes("link");
