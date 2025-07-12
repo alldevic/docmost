@@ -105,6 +105,7 @@ export const EditorBubbleMenu: FC<EditorBubbleMenuProps> = (props) => {
 
       if (
         editor.isActive("image") ||
+        editor.isActive("codeBlock") ||
         empty ||
         isNodeSelection(selection) ||
         isCellSelection(selection) ||
