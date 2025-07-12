@@ -21,3 +21,4 @@ export * from "./lib/search-and-replace";
 export * from "./lib/embed-provider";
 export * from "./lib/column-layout";
 export * from "./lib/extra-ligatures";
+export * from "./lib/audio";

@@ -21,6 +21,7 @@ import {
   IconAppWindow,
   IconColumns,
   IconWorld,
+  IconHeadphones,
 } from "@tabler/icons-react";
 import {
   CommandProps,
@@ -44,6 +45,7 @@ import {
   VimeoIcon,
   YoutubeIcon,
 } from "@/components/icons";
+import { uploadAudioAction } from "@/features/editor/components/audio/upload-audio-action.ts";
 
 const CommandGroups: SlashMenuGroupedItemsType = {
   basic: [
@@ -215,6 +217,31 @@ const CommandGroups: SlashMenuGroupedItemsType = {
             const file = input.files[0];
             const pos = editor.view.state.selection.from;
             uploadVideoAction(file, editor.view, pos, pageId);
+          }
+        };
+        input.click();
+      },
+    },
+    {
+      title: "Audio",
+      description: "Upload any audio from your device.",
+      searchTerms: ["audio", "mp3", "media", "m4a", "opus"],
+      icon: IconHeadphones,
+      command: ({ editor, range }) => {
+        editor.chain().focus().deleteRange(range).run();
+
+        const pageId = editor.storage?.pageId;
+        if (!pageId) return;
+
+        // upload audio
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "audio/*";
+        input.onchange = async () => {
+          if (input.files?.length) {
+            const file = input.files[0];
+            const pos = editor.view.state.selection.from;
+            uploadAudioAction(file, editor.view, pos, pageId);
           }
         };
         input.click();
