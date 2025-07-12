@@ -33,7 +33,8 @@ export default function ShareActionMenu({ share }: Props) {
       share.page.slugId,
       share.page.title,
     );
-    navigate(pageLink);
+    // navigate(pageLink);
+    window.open(pageLink, '_blank')
   };
 
   const copyLink = () => {
@@ -43,7 +44,7 @@ export default function ShareActionMenu({ share }: Props) {
       pageSlugId: share.page.slugId,
     });
 
-    clipboard.copy(shareLink);
+    clipboard.copy(`${window.location.origin}${shareLink}`);
     notifications.show({ message: t("Link copied") });
   };
   const onDelete = async () => {
