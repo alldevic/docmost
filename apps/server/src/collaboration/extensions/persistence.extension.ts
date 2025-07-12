@@ -90,14 +90,14 @@ export class PersistenceExtension implements Extension {
 
     switch (payload) {
       case 'forceSave':
-        return await this.storeDocument(documentName, document, connection.context);
+        return await this.storeDocument(documentName, document, connection.context, true);
       default:
         this.logger.warn('statelessPayload: undefined payload');
         return;
     }
   }
 
-  async storeDocument(documentName: string, document: Document, context: any){
+  async storeDocument(documentName: string, document: Document, context: any, forceHistorySave: boolean){
     const pageId = getPageId(documentName);
 
     const tiptapJson = TiptapTransformer.fromYdoc(document, 'default');
@@ -127,6 +127,16 @@ export class PersistenceExtension implements Extension {
         }
 
         if (isDeepStrictEqual(tiptapJson, page.content)) {
+          if (forceHistorySave) {
+            this.eventEmitter.emit('collab.page.updated', {
+              page: {
+                ...page,
+                content: tiptapJson,
+                lastUpdatedById: context.user.id,
+              },
+              forceHistorySave: forceHistorySave,
+            });
+          }
           page = null;
           return;
         }
@@ -170,6 +180,7 @@ export class PersistenceExtension implements Extension {
           content: tiptapJson,
           lastUpdatedById: context.user.id,
         },
+        forceHistorySave: forceHistorySave,
       });
 
       const mentions = extractMentions(tiptapJson);
@@ -185,7 +196,7 @@ export class PersistenceExtension implements Extension {
 
   async onStoreDocument(data: onStoreDocumentPayload) {
     const { documentName, document, context } = data;
-    return await this.storeDocument(documentName, document, context);
+    return await this.storeDocument(documentName, document, context, false);
   }
 
   async onChange(data: onChangePayload) {
