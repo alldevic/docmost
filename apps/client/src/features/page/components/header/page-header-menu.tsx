@@ -52,6 +52,7 @@ export default function PageHeaderMenu({ readOnly }: PageHeaderMenuProps) {
   const { t } = useTranslation();
   const toggleAside = useToggleAside();
   const [yjsConnectionStatus] = useAtom(yjsConnectionStatusAtom);
+  const [_, setPageFindState] = useAtom(searchAndReplaceStateAtom);
 
   useHotkeys(
     [
@@ -90,6 +91,16 @@ export default function PageHeaderMenu({ readOnly }: PageHeaderMenuProps) {
       {!readOnly && <PageStateSegmentedControl size="xs" />}
 
       <ShareModal readOnly={readOnly} />
+
+      <Tooltip label={t("Find (Ctrl-F)")} openDelay={250} withArrow>
+        <ActionIcon
+          variant="default"
+          style={{ border: "none" }}
+          onClick={() => setPageFindState({ isOpen: true })}
+        >
+          <IconSearch size={20} stroke={2} />
+        </ActionIcon>
+      </Tooltip>
 
       <Tooltip label={t("Comments")} openDelay={250} withArrow>
         <ActionIcon

@@ -59,6 +59,20 @@ export function TitleEditor({
     extensions: [
       Document.extend({
         content: "heading",
+        addKeyboardShortcuts() {
+          return {
+            'Mod-f': () => {
+              const event = new CustomEvent("openFindDialogFromEditor", {});
+              document.dispatchEvent(event);
+              return true;
+            },
+            'Escape': () => {
+              const event = new CustomEvent("closeFindDialogFromEditor", {});
+              document.dispatchEvent(event);
+              return true;
+            },
+          }
+        },
       }),
       Heading.configure({
         levels: [1],
