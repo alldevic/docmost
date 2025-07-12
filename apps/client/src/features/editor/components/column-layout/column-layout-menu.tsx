@@ -33,7 +33,7 @@ export const ColumnLayoutMenu = React.memo(
     const { t } = useTranslation();
     const shouldShow = useCallback(
       ({ state }: ShouldShowProps) => {
-        if (!state) {
+        if (!state || !editor.isEditable) {
           return false;
         }
 

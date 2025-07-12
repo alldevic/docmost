@@ -20,7 +20,7 @@ export const TableCellMenu = React.memo(
     const { t } = useTranslation();
     const shouldShow = useCallback(
       ({ view, state, from }: ShouldShowProps) => {
-        if (!state) {
+        if (!state || !editor.isEditable) {
           return false;
         }
 
