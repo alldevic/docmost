@@ -198,7 +198,14 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
       >
         <Menu.Target>
           <ActionIcon variant="default" style={{ border: "none" }}>
-            <IconDots size={20} />
+            <Indicator
+              color="green"
+              offset={1}
+              disabled={!isPagePublic}
+              withBorder
+            >
+              <IconDots size={20} />
+            </Indicator>
           </ActionIcon>
         </Menu.Target>
 

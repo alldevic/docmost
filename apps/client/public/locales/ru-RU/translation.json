@@ -63,8 +63,8 @@
   "Enter your new password": "Введите ваш новый пароль",
   "Enter your new preferred email": "Введите ваш новый предпочитаемый адрес электронной почты",
   "Enter your password": "Введите ваш пароль",
-  "Error fetching page data.": "Ошибка при загрузке данных страницы.",
-  "Error loading page history.": "Ошибка при загрузке истории страницы.",
+  "Error fetching page data.": "Ошибка при загрузке данных страницы",
+  "Error loading page history.": "Ошибка при загрузке истории страницы",
   "Export": "Экспорт",
   "Failed to create page": "Не удалось создать страницу",
   "Failed to delete page": "Не удалось удалить страницу",
@@ -460,5 +460,7 @@
   "Numbered list": "Список чисел",
   "To-do list": "Список дел",
   "Toggle header row": "Переключить строку заголовка",
-  "Toggle header column": "Переключить столбец заголовка"
+  "Toggle header column": "Переключить столбец заголовка",
+  "Password protection": "Защита паролем",
+  "Require password to access this page": "Для отображения содержимого странциы будет необходим пароль"
 }
