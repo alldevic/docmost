@@ -16,6 +16,8 @@ import SlashCommand from "@/features/editor/extensions/slash-command";
 import { Collaboration, isChangeOrigin } from "@tiptap/extension-collaboration";
 import { CollaborationCursor } from "@tiptap/extension-collaboration-cursor";
 import { HocuspocusProvider } from "@hocuspocus/provider";
+import AutoJoiner from 'tiptap-extension-auto-joiner';
+
 import {
   Comment,
   Details,
@@ -151,7 +153,10 @@ export const mainExtensions = [
   Typography,
   ExtraLigatures,
   TrailingNode,
-  GlobalDragHandle,
+  AutoJoiner,
+  GlobalDragHandle.configure({ 
+     excludedTags: ["pre"]
+  }),
   TextStyle,
   Color,
   SlashCommand,
