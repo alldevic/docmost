@@ -110,8 +110,6 @@ export default function SharedPage() {
           content={data.page.content}
         />
       </Container>
-
-      {data && !shareId && !data.hasLicenseKey && <ShareBranding />}
     </div>
   );
 }

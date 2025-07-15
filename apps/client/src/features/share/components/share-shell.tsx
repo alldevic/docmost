@@ -166,8 +166,6 @@ export default function ShareShell({
 
       <AppShell.Main>
         {children}
-
-        {data && shareId && !data.hasLicenseKey && <ShareBranding />}
       </AppShell.Main>
 
       <AppShell.Aside
