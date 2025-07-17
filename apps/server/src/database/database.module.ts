@@ -25,6 +25,7 @@ import { MigrationService } from '@docmost/db/services/migration.service';
 import { UserTokenRepo } from './repos/user-token/user-token.repo';
 import { BacklinkRepo } from '@docmost/db/repos/backlink/backlink.repo';
 import { ShareRepo } from '@docmost/db/repos/share/share.repo';
+import { SynchronizedPageRepo } from './repos/page/synchronized_page.repo';
 
 // https://github.com/brianc/node-postgres/issues/811
 types.setTypeParser(types.builtins.INT8, (val) => Number(val));
@@ -75,7 +76,8 @@ types.setTypeParser(types.builtins.INT8, (val) => Number(val));
     AttachmentRepo,
     UserTokenRepo,
     BacklinkRepo,
-    ShareRepo
+    ShareRepo,
+    SynchronizedPageRepo,
   ],
   exports: [
     WorkspaceRepo,
@@ -90,7 +92,8 @@ types.setTypeParser(types.builtins.INT8, (val) => Number(val));
     AttachmentRepo,
     UserTokenRepo,
     BacklinkRepo,
-    ShareRepo
+    ShareRepo,
+    SynchronizedPageRepo,
   ],
 })
 export class DatabaseModule

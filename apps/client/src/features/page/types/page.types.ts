@@ -22,6 +22,7 @@ export interface IPage {
   lastUpdatedBy: ILastUpdatedBy;
   space: Partial<ISpace>;
   breadcrumbs: string[];
+  isSynced?: boolean;
 }
 
 interface ICreator {
@@ -29,6 +30,7 @@ interface ICreator {
   name: string;
   avatarUrl: string;
 }
+
 interface ILastUpdatedBy {
   id: string;
   name: string;
@@ -78,4 +80,15 @@ export interface IExportPageParams {
 export enum ExportFormat {
   HTML = "html",
   Markdown = "markdown",
+}
+
+export interface ICreateSynchronizedPage {
+  spaceId: string;
+  originPageId: string;
+  parentPageId?: string;
+}
+
+export interface PagesInSpaceParams {
+  spaceId: string;
+  page?: number; // pagination
 }

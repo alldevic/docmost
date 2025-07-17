@@ -18,6 +18,7 @@ import {
   AuthAccounts,
   Shares,
   FileTasks,
+  SynchronizedPages,
 } from './db';
 
 // Workspace
@@ -68,6 +69,13 @@ export type UpdatablePage = Updateable<Omit<Pages, 'id'>>;
 export type PageHistory = Selectable<History>;
 export type InsertablePageHistory = Insertable<History>;
 export type UpdatablePageHistory = Updateable<Omit<History, 'id'>>;
+
+// SynchronizedPage
+export type SynchronizedPage = Selectable<SynchronizedPages>;
+export type InsertableSynchronizedPage = Insertable<SynchronizedPages>;
+export type UpdatableSynchronizedPage = Updateable<
+  Omit<SynchronizedPages, 'id'>
+>;
 
 // Comment
 export type Comment = Selectable<Comments>;

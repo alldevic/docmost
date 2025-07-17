@@ -7,6 +7,8 @@ import {
   IPage,
   IPageInput,
   SidebarPagesParams,
+  ICreateSynchronizedPage,
+  PagesInSpaceParams,
 } from '@/features/page/types/page.types';
 import { IAttachment, IPagination } from "@/lib/types.ts";
 import { saveAs } from "file-saver";
@@ -20,7 +22,7 @@ export async function createPage(data: Partial<IPage>): Promise<IPage> {
 
 export async function getPageById(
   pageInput: Partial<IPageInput>,
-): Promise<IPage> {
+): Promise<IPage & { originPageId?: string; isSyncedPage?: boolean }> {
   const req = await api.post<IPage>("/pages/info", pageInput);
   return req.data;
 }
@@ -60,10 +62,24 @@ export async function copyPageToSpace(data: ICopyPageToSpace): Promise<IPage> {
   return req.data;
 }
 
+export async function createSynchronizedPage(
+  data: ICreateSynchronizedPage,
+): Promise<IPage> {
+  const req = await api.post<IPage>("/pages/sync-page", data);
+  return req.data;
+}
+
 export async function getSidebarPages(
   params: SidebarPagesParams,
 ): Promise<IPagination<IPage>> {
   const req = await api.post("/pages/sidebar-pages", params);
+  return req.data;
+}
+
+export async function getPagesInSpace(
+  params: PagesInSpaceParams,
+): Promise<IPagination<IPage>> {
+  const req = await api.get("/pages", { params: params });
   return req.data;
 }
 

@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Post,
   Body,
   HttpCode,
@@ -8,6 +9,8 @@ import {
   ForbiddenException,
   NotFoundException,
   BadRequestException,
+  Logger,
+  Query,
 } from '@nestjs/common';
 import { PageService } from './services/page.service';
 import { CreatePageDto } from './dto/create-page.dto';
@@ -30,6 +33,10 @@ import { PageRepo } from '@docmost/db/repos/page/page.repo';
 import { RecentPageDto } from './dto/recent-page.dto';
 import { CopyPageToSpaceDto } from './dto/copy-page.dto';
 import { DeletedPageDto } from './dto/deleted-page.dto';
+import { CreateSyncPageDto } from './dto/create-sync-page.dto';
+import { SynchronizedPageService } from './services/synchronized-page.service';
+import { cpSync } from 'fs-extra';
+import { SpaceIdDto } from '../space/dto/space-id.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pages')
@@ -39,7 +46,8 @@ export class PageController {
     private readonly pageRepo: PageRepo,
     private readonly pageHistoryService: PageHistoryService,
     private readonly spaceAbility: SpaceAbilityFactory,
-  ) {}
+    private readonly syncPageService: SynchronizedPageService,
+  ) { }
 
   @HttpCode(HttpStatus.OK)
   @Post('/info')
@@ -59,6 +67,23 @@ export class PageController {
     const ability = await this.spaceAbility.createForUser(user, page.spaceId);
     if (ability.cannot(SpaceCaslAction.Read, SpaceCaslSubject.Page)) {
       throw new ForbiddenException();
+    }
+
+    const syncPage = await this.syncPageService.findByReferenceId(page.id);
+
+    if (syncPage) {
+      const originPage = await this.pageRepo.findById(syncPage.originPageId, {
+        includeContent: true,
+        includeLastUpdatedBy: true,
+        includeContributors: true,
+      });
+      if (!originPage) {
+        throw new NotFoundException('Origin page not found');
+      }
+      page.content = originPage.content;
+      page.id = originPage.id;
+      page.title = originPage.title;
+      page.icon = originPage.icon;
     }
 
     return page;
@@ -94,6 +119,18 @@ export class PageController {
     const ability = await this.spaceAbility.createForUser(user, page.spaceId);
     if (ability.cannot(SpaceCaslAction.Edit, SpaceCaslSubject.Page)) {
       throw new ForbiddenException();
+    }
+
+    Logger.debug(updatePageDto);
+
+    if (page.isSynced) {
+      const syncPageData = await this.syncPageService.findByReferenceId(
+        page.id,
+      );
+      const originPage = await this.pageRepo.findById(
+        syncPageData.originPageId,
+      );
+      return this.pageService.update(originPage, updatePageDto, user.id);
     }
 
     return this.pageService.update(page, updatePageDto, user.id);
@@ -258,7 +295,36 @@ export class PageController {
       pageId = page.id;
     }
 
-    return this.pageService.getSidebarPages(dto.spaceId, pagination, pageId);
+    const pagesInSpace = await this.pageService.getSidebarPages(dto.spaceId, pagination, pageId);
+
+    if (!pagesInSpace) {
+      return;
+    }
+
+    return {
+      items: await Promise.all(
+        pagesInSpace.items.map(async (page) => {
+          try {
+            if (page.isSynced) {
+              const syncPageMeta = await this.syncPageService.findByReferenceId(
+                page.id,
+              );
+              const originPage = await this.pageRepo.findById(
+                syncPageMeta.originPageId,
+              );
+
+              page.title = originPage.title;
+              page.icon = originPage.icon;
+            }
+
+            return page
+          } catch (err) {
+            return null;
+          }
+        }),
+      ).then((items) => items.filter(Boolean)),
+      meta: pagesInSpace.meta,
+    };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -353,5 +419,66 @@ export class PageController {
       throw new ForbiddenException();
     }
     return this.pageService.getPageBreadCrumbs(page.id);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('/sync-page')
+  async createSyncPage(
+    @Body() dto: CreateSyncPageDto,
+    @AuthUser() user: User,
+    @AuthWorkspace() workspace: Workspace,
+  ) {
+    const originPage = await this.pageService.findById(dto.originPageId);
+    if (!originPage) {
+      throw new NotFoundException('Origin page not found');
+    }
+
+    if (dto.parentPageId && dto.parentPageId === originPage.parentPageId) {
+      throw new BadRequestException(
+        'Cannot create a sync page with the same parent page as the origin page',
+      );
+    }
+
+    return this.syncPageService.create(dto, user.id, workspace.id);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('/')
+  async getSpacePages(
+    @Query() dto: SpaceIdDto,
+    @Query() pagination: PaginationOptions,
+    @AuthUser() user: User,
+  ) {
+    const spaceAbility = await this.spaceAbility.createForUser(
+      user,
+      dto.spaceId,
+    );
+    if (spaceAbility.cannot(SpaceCaslAction.Read, SpaceCaslSubject.Page)) {
+      throw new ForbiddenException();
+    }
+
+    const pagesInSpace = await this.pageService.getPagesInSpace(
+      dto.spaceId,
+      pagination,
+    );
+
+    if (!pagesInSpace) {
+      return;
+    }
+
+    Logger.debug(pagesInSpace);
+
+    return {
+      items: await Promise.all(
+        pagesInSpace.items.map(async (page) => {
+          try {
+            return page
+          } catch (err) {
+            return null;
+          }
+        }),
+      ).then((items) => items.filter(Boolean)),
+      meta: pagesInSpace.meta,
+    };
   }
 }

@@ -21,12 +21,17 @@ import {
   getDeletedPages,
   restorePage,
   removePage,
+  createSynchronizedPage,
+  getPagesInSpace,
 } from "@/features/page/services/page-service";
 import {
   IMovePage,
   IPage,
   IPageInput,
   SidebarPagesParams,
+  ICreateSynchronizedPage,
+  PagesInSpaceParams,
+
 } from "@/features/page/types/page.types";
 import { notifications } from "@mantine/notifications";
 import { IPagination } from "@/lib/types.ts";
@@ -38,7 +43,10 @@ import { useTranslation } from "react-i18next";
 
 export function usePageQuery(
   pageInput: Partial<IPageInput>,
-): UseQueryResult<IPage, Error> {
+): UseQueryResult<
+  IPage & { originPageId?: string; isSyncedPage?: boolean },
+  Error
+> {
   const query = useQuery({
     queryKey: ["pages", pageInput.pageId],
     queryFn: () => getPageById(pageInput),
@@ -159,6 +167,12 @@ export function useRestorePageMutation() {
   });
 }
 
+export function useCreateSynchronizedPageMutation() {
+  return useMutation<IPage, Error, ICreateSynchronizedPage>({
+    mutationFn: (data) => createSynchronizedPage(data),
+  });
+}
+
 export function useGetSidebarPagesQuery(data: SidebarPagesParams|null): UseInfiniteQueryResult<InfiniteData<IPagination<IPage>, unknown>> {
   return useInfiniteQuery({
     queryKey: ["sidebar-pages", data],
@@ -168,6 +182,15 @@ export function useGetSidebarPagesQuery(data: SidebarPagesParams|null): UseInfin
       firstPage.meta.hasPrevPage ? firstPage.meta.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
       lastPage.meta.hasNextPage ? lastPage.meta.page + 1 : undefined,
+  });
+}
+
+export function useGetPagesInSpace(
+  data: PagesInSpaceParams,
+): UseQueryResult<IPagination<IPage>, Error> {
+  return useQuery({
+    queryKey: ["pages-in-space", data],
+    queryFn: () => getPagesInSpace(data),
   });
 }
 

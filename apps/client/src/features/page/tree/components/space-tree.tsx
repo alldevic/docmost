@@ -19,6 +19,7 @@ import {
   IconDotsVertical,
   IconFileDescription,
   IconFileExport,
+  IconFileSymlink,
   IconLink,
   IconPlus,
   IconPointFilled,
@@ -66,6 +67,7 @@ import MovePageModal from "../../components/move-page-modal.tsx";
 import { mobileSidebarAtom } from "@/components/layouts/global/hooks/atoms/sidebar-atom.ts";
 import { useToggleSidebar } from "@/components/layouts/global/hooks/hooks/use-toggle-sidebar.ts";
 import CopyPageModal from "../../components/copy-page-modal.tsx";
+import CreateSyncPageModal from "../../components/create-sync-page-modal.tsx";
 
 interface SpaceTreeProps {
   spaceId: string;
@@ -386,6 +388,8 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<any>) {
 
         {isPageDeleting && <Loader color="gray" size={16} me={5} />}
 
+        {node.data.isSynced ? <IconLink size="18" /> : null}
+
         <div className={classes.actions}>
           <NodeMenu node={node} treeApi={tree} setIsPageDeleting={setIsPageDeleting} />
 
@@ -460,13 +464,20 @@ function NodeMenu({ node, treeApi, setIsPageDeleting }: NodeMenuProps) {
   const { openDeleteModal } = useDeletePageModal();
   const [exportOpened, { open: openExportModal, close: closeExportModal }] =
     useDisclosure(false);
+
   const [
     movePageModalOpened,
     { open: openMovePageModal, close: closeMoveSpaceModal },
   ] = useDisclosure(false);
+
   const [
     copyPageModalOpened,
     { open: openCopyPageModal, close: closeCopySpaceModal },
+  ] = useDisclosure(false);
+
+  const [
+    createSyncedPageModelOpened,
+    { open: openCreateSyncedPageModal, close: closeCreateSyncedPageModal },
   ] = useDisclosure(false);
 
   const handleCopyLink = () => {
@@ -506,6 +517,19 @@ function NodeMenu({ node, treeApi, setIsPageDeleting }: NodeMenuProps) {
           >
             {t("Copy link")}
           </Menu.Item>
+
+          {!node.data.isSynced ? (
+            <Menu.Item
+              leftSection={<IconFileSymlink size={16} />}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openCreateSyncedPageModal();
+              }}
+            >
+              {t("New Synced Page")}
+            </Menu.Item>
+          ) : null}
 
           <Menu.Item
             leftSection={<IconFileExport size={16} />}
@@ -580,6 +604,13 @@ function NodeMenu({ node, treeApi, setIsPageDeleting }: NodeMenuProps) {
         currentSpaceSlug={spaceSlug}
         onClose={closeCopySpaceModal}
         open={copyPageModalOpened}
+      />
+
+      <CreateSyncPageModal
+        originPageId={node.id}
+        currentSpaceSlug={spaceSlug}
+        onClose={closeCreateSyncedPageModal}
+        open={createSyncedPageModelOpened}
       />
 
       <ExportModal

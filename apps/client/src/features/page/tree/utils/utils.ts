@@ -25,6 +25,7 @@ export function buildTree(pages: IPage[]): SpaceTreeNode[] {
       spaceId: page.spaceId,
       parentPageId: page.parentPageId,
       children: [],
+      isSynced: page.isSynced,
     };
   });
 

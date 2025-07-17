@@ -193,6 +193,7 @@ export interface Pages {
   icon: string | null;
   id: Generated<string>;
   isLocked: Generated<boolean>;
+  isSynced: Generated<boolean>;
   lastUpdatedById: string | null;
   parentPageId: string | null;
   position: string | null;
@@ -204,6 +205,12 @@ export interface Pages {
   updatedAt: Generated<Timestamp>;
   workspaceId: string;
   ydoc: Buffer | null;
+}
+
+export interface SynchronizedPages {
+  id: Generated<string>;
+  originPageId: string;
+  referencePageId: string;
 }
 
 export interface Shares {
@@ -337,6 +344,7 @@ export interface DB {
   shares: Shares;
   spaceMembers: SpaceMembers;
   spaces: Spaces;
+  synchronizedPages: SynchronizedPages;
   users: Users;
   userTokens: UserTokens;
   workspaceInvitations: WorkspaceInvitations;
