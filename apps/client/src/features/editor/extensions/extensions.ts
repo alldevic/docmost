@@ -185,7 +185,7 @@ export const mainExtensions = [
   }),
   Table.configure({
     resizable: true,
-    lastColumnResizable: false,
+    lastColumnResizable: true,
     allowTableNodeSelection: true,
   }),
   TableRow,
