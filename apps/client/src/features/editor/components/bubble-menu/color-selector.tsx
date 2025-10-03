@@ -9,8 +9,7 @@ import {
   Text,
   Tooltip,
 } from "@mantine/core";
-import type { Editor } from "@tiptap/react";
-import { useEditorState } from "@tiptap/react";
+import { useEditor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
 export interface BubbleColorMenuItem {
@@ -19,7 +18,7 @@ export interface BubbleColorMenuItem {
 }
 
 interface ColorSelectorProps {
-  editor: Editor | null;
+  editor: ReturnType<typeof useEditor>;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }
@@ -109,36 +108,12 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
   setIsOpen,
 }) => {
   const { t } = useTranslation();
-
-  const editorState = useEditorState({
-    editor,
-    selector: ctx => {
-      if (!ctx.editor) {
-        return null;
-      }
-
-      const activeColors: Record<string, boolean> = {};
-      TEXT_COLORS.forEach(({ color }) => {
-        activeColors[`text_${color}`] = ctx.editor.isActive("textStyle", { color });
-      });
-      HIGHLIGHT_COLORS.forEach(({ color }) => {
-        activeColors[`highlight_${color}`] = ctx.editor.isActive("highlight", { color });
-      });
-
-      return activeColors;
-    },
-  });
-
-  if (!editor || !editorState) {
-    return null;
-  }
-
   const activeColorItem = TEXT_COLORS.find(({ color }) =>
-    editorState[`text_${color}`]
+    editor.isActive("textStyle", { color }),
   );
 
   const activeHighlightItem = HIGHLIGHT_COLORS.find(({ color }) =>
-    editorState[`highlight_${color}`]
+    editor.isActive("highlight", { color }),
   );
 
   return (
@@ -176,7 +151,7 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
                 justify="left"
                 fullWidth
                 rightSection={
-                  editorState[`text_${color}`] && (
+                  editor.isActive("textStyle", { color }) && (
                     <IconCheck style={{ width: rem(16) }} />
                   )
                 }

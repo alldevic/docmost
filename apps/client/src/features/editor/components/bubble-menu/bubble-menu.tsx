@@ -3,7 +3,6 @@ import {
   BubbleMenuProps,
   isNodeSelection,
   useEditor,
-  useEditorState,
 } from "@tiptap/react";
 import { FC, useEffect, useRef, useState } from "react";
 import {
@@ -52,52 +51,34 @@ export const EditorBubbleMenu: FC<EditorBubbleMenuProps> = (props) => {
     showCommentPopupRef.current = showCommentPopup;
   }, [showCommentPopup]);
 
-  const editorState = useEditorState({
-    editor: props.editor,
-    selector: (ctx) => {
-      if (!props.editor) {
-        return null;
-      }
-
-      return {
-        isBold: ctx.editor.isActive("bold"),
-        isItalic: ctx.editor.isActive("italic"),
-        isUnderline: ctx.editor.isActive("underline"),
-        isStrike: ctx.editor.isActive("strike"),
-        isCode: ctx.editor.isActive("code"),
-        isComment: ctx.editor.isActive("comment"),
-      };
-    },
-  });
-
   const items: BubbleMenuItem[] = [
     {
       name: "Bold",
-      isActive: () => editorState?.isBold,
+      isActive: () => props.editor.isActive("bold"),
       command: () => props.editor.chain().focus().toggleBold().run(),
       icon: IconBold,
     },
     {
       name: "Italic",
-      isActive: () => editorState?.isItalic,
+      isActive: () => props.editor.isActive("italic"),
       command: () => props.editor.chain().focus().toggleItalic().run(),
       icon: IconItalic,
     },
     {
       name: "Underline",
-      isActive: () => editorState?.isUnderline,
+      isActive: () => props.editor.isActive("underline"),
       command: () => props.editor.chain().focus().toggleUnderline().run(),
       icon: IconUnderline,
     },
     {
       name: "Strike",
-      isActive: () => editorState?.isStrike,
+      isActive: () => props.editor.isActive("strike"),
       command: () => props.editor.chain().focus().toggleStrike().run(),
       icon: IconStrikethrough,
     },
     {
       name: "Code",
-      isActive: () => editorState?.isCode,
+      isActive: () => props.editor.isActive("code"),
       command: () => props.editor.chain().focus().toggleCode().run(),
       icon: IconCode,
     },
@@ -105,7 +86,7 @@ export const EditorBubbleMenu: FC<EditorBubbleMenuProps> = (props) => {
 
   const commentItem: BubbleMenuItem = {
     name: "Comment",
-    isActive: () => editorState?.isComment,
+    isActive: () => props.editor.isActive("comment"),
     command: () => {
       const commentId = uuid7();
 

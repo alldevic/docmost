@@ -1,5 +1,5 @@
+import { BubbleMenu as BaseBubbleMenu } from "@tiptap/react";
 import React, { useCallback, useState, useEffect, useRef } from "react";
-import { BubbleMenu as BaseBubbleMenu, useEditorState } from "@tiptap/react";
 import { EditorMenuProps } from "@/features/editor/components/table/types/types.ts";
 import { LinkEditorPanel } from "@/features/editor/components/link/link-editor-panel.tsx";
 import { LinkPreviewPanel } from "@/features/editor/components/link/link-preview.tsx";
@@ -57,18 +57,8 @@ export function LinkMenu({ editor, appendTo }: EditorMenuProps) {
     return editor.isActive("link") && editor.isEditable;
   }, [editor, suppressMenu]);
 
-  const editorState = useEditorState({
-    editor,
-    selector: (ctx) => {
-      if (!ctx.editor) {
-        return null;
-      }
-      const link = ctx.editor.getAttributes("link");
-      return {
-        href: link.href,
-      };
-    },
-  });
+  const linkAttributes = editor.getAttributes("link");
+  const link = linkAttributes?.href || "";
 
   const handleEdit = useCallback(() => {
     setShowEdit(true);
@@ -126,14 +116,11 @@ export function LinkMenu({ editor, appendTo }: EditorMenuProps) {
           padding="xs"
           bg="var(--mantine-color-body)"
         >
-          <LinkEditorPanel
-            initialUrl={editorState?.href}
-            onSetLink={onSetLink}
-          />
+          <LinkEditorPanel initialUrl={link} onSetLink={onSetLink} />
         </Card>
       ) : (
         <LinkPreviewPanel
-          url={editorState?.href}
+          url={link}
           onClear={onUnsetLink}
           onEdit={handleEdit}
         />

@@ -8,12 +8,11 @@ import {
   IconChevronDown,
 } from "@tabler/icons-react";
 import { Popover, Button, ScrollArea, rem } from "@mantine/core";
-import type { Editor } from "@tiptap/react";
-import { useEditorState } from "@tiptap/react";
+import { useEditor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
 interface TextAlignmentProps {
-  editor: Editor | null;
+  editor: ReturnType<typeof useEditor>;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }
@@ -32,54 +31,36 @@ export const TextAlignmentSelector: FC<TextAlignmentProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const editorState = useEditorState({
-    editor,
-    selector: (ctx) => {
-      if (!ctx.editor) {
-        return null;
-      }
-
-      return {
-        isAlignLeft: ctx.editor.isActive({ textAlign: "left" }),
-        isAlignCenter: ctx.editor.isActive({ textAlign: "center" }),
-        isAlignRight: ctx.editor.isActive({ textAlign: "right" }),
-        isAlignJustify: ctx.editor.isActive({ textAlign: "justify" }),
-      };
-    },
-  });
-
-  if (!editor || !editorState) {
-    return null;
-  }
-
   const items: BubbleMenuItem[] = [
     {
       name: "Align left",
-      isActive: () => editorState?.isAlignLeft,
+      isActive: () => editor.isActive({ textAlign: "left" }),
       command: () => editor.chain().focus().setTextAlign("left").run(),
       icon: IconAlignLeft,
     },
     {
       name: "Align center",
-      isActive: () => editorState?.isAlignCenter,
+      isActive: () => editor.isActive({ textAlign: "center" }),
       command: () => editor.chain().focus().setTextAlign("center").run(),
       icon: IconAlignCenter,
     },
     {
       name: "Align right",
-      isActive: () => editorState?.isAlignRight,
+      isActive: () => editor.isActive({ textAlign: "right" }),
       command: () => editor.chain().focus().setTextAlign("right").run(),
       icon: IconAlignRight,
     },
     {
       name: "Justify",
-      isActive: () => editorState?.isAlignJustify,
+      isActive: () => editor.isActive({ textAlign: "justify" }),
       command: () => editor.chain().focus().setTextAlign("justify").run(),
       icon: IconAlignJustified,
     },
   ];
 
-  const activeItem = items.filter((item) => item.isActive()).pop() ?? items[0];
+  const activeItem = items.filter((item) => item.isActive()).pop() ?? {
+    name: "Multiple",
+  };
 
   return (
     <Popover opened={isOpen} withArrow>
@@ -92,7 +73,7 @@ export const TextAlignmentSelector: FC<TextAlignmentProps> = ({
           rightSection={<IconChevronDown size={16} />}
           onClick={() => setIsOpen(!isOpen)}
         >
-          <activeItem.icon style={{ width: rem(16) }} stroke={2} />
+          <IconAlignLeft style={{ width: rem(16) }} stroke={2} />
         </Button>
       </Popover.Target>
 
