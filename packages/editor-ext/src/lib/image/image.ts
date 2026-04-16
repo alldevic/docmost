@@ -51,7 +51,7 @@ declare module "@tiptap/core" {
       setImageAt: (
         attributes: ImageAttributes & { pos: number | Range },
       ) => ReturnType;
-      setImageAlign: (align: "left" | "center" | "right") => ReturnType;
+      setImageAlign: (align: "left" | "center" | "right" | "floatLeft" | "floatRight") => ReturnType;
       setImageWidth: (width: number) => ReturnType;
       setImageSize: (width: number, height: number) => ReturnType;
     };
@@ -375,11 +375,28 @@ export const TiptapImage = Image.extend<ImageOptions>({
 });
 
 function applyAlignment(container: HTMLElement, align: string) {
-  if (align === "left") {
-    container.style.justifyContent = "flex-start";
-  } else if (align === "right") {
-    container.style.justifyContent = "flex-end";
-  } else {
-    container.style.justifyContent = "center";
+  container.removeAttribute("style");
+  if (align === "floatLeft" || align === "floatRight") {
+    const p = 10;
+
+    if (align === "floatLeft"){
+      container.style.float = "left";
+      container.style.padding = `0 ${p}px 0 0`;
+    }
+    if (align === "floatRight"){
+      container.style.float = "right";
+      container.style.padding = `0 0 0 ${p}px`;
+    }
   }
+  else {
+    container.style.display = "flex";
+    if (align === "left") {
+      container.style.justifyContent = "flex-start";
+    } else if (align === "right") {
+      container.style.justifyContent = "flex-end";
+    } else {
+      container.style.justifyContent = "center";
+    }
+  }
+  
 }

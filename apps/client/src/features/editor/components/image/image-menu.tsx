@@ -9,6 +9,8 @@ import {
 import { ActionIcon, Tooltip } from "@mantine/core";
 import clsx from "clsx";
 import {
+  IconBoxAlignLeftFilled,
+  IconBoxAlignRightFilled,
   IconLayoutAlignCenter,
   IconLayoutAlignLeft,
   IconLayoutAlignRight,
@@ -37,8 +39,10 @@ export function ImageMenu({ editor }: EditorMenuProps) {
       return {
         isImage: ctx.editor.isActive("image"),
         isAlignLeft: ctx.editor.isActive("image", { align: "left" }),
+        isAlignFloatLeft: ctx.editor.isActive("image", { align: "floatLeft" }),
         isAlignCenter: ctx.editor.isActive("image", { align: "center" }),
         isAlignRight: ctx.editor.isActive("image", { align: "right" }),
+        isAlignFloatRight: ctx.editor.isActive("image", { align: "floatRight" }),
         src: imageAttrs?.src || null,
       };
     },
@@ -101,6 +105,22 @@ export function ImageMenu({ editor }: EditorMenuProps) {
       .run();
   }, [editor]);
 
+  const alignImageFloatLeft = useCallback(() => {
+    editor
+      .chain()
+      .focus(undefined, { scrollIntoView: false })
+      .setImageAlign("floatLeft")
+      .run();
+  }, [editor]);
+
+  const alignImageFloatRight = useCallback(() => {
+    editor
+      .chain()
+      .focus(undefined, { scrollIntoView: false })
+      .setImageAlign("floatRight")
+      .run();
+  }, [editor]);
+
   const handleDownload = useCallback(() => {
     if (!editorState?.src) return;
     const url = getFileUrl(editorState.src);
@@ -149,6 +169,18 @@ export function ImageMenu({ editor }: EditorMenuProps) {
       shouldShow={shouldShow}
     >
       <div className={classes.toolbar}>
+        <Tooltip position="top" label={t("Float left")} withinPortal={false}>
+          <ActionIcon
+            onClick={alignImageFloatLeft}
+            size="lg"
+            aria-label={t("Float left")}
+            variant="subtle"
+            className={clsx({ [classes.active]: editorState?.isAlignFloatLeft })}
+          >
+            <IconBoxAlignLeftFilled size={18} />
+          </ActionIcon>
+        </Tooltip>
+
         <Tooltip position="top" label={t("Align left")} withinPortal={false}>
           <ActionIcon
             onClick={alignImageLeft}
@@ -182,6 +214,17 @@ export function ImageMenu({ editor }: EditorMenuProps) {
             className={clsx({ [classes.active]: editorState?.isAlignRight })}
           >
             <IconLayoutAlignRight size={18} />
+          </ActionIcon>
+        </Tooltip>
+
+        <Tooltip position="top" label={t("Float right")} withinPortal={false}>
+          <ActionIcon
+            onClick={alignImageFloatRight}
+            size="lg"
+            variant="subtle"
+            className={clsx({ [classes.active]: editorState?.isAlignFloatRight })}
+          >
+            <IconBoxAlignRightFilled size={18} />
           </ActionIcon>
         </Tooltip>
 

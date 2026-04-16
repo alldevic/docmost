@@ -10,9 +10,12 @@ export default function ImageView(props: NodeViewProps) {
   const { t } = useTranslation();
   const { editor, node, selected } = props;
   const { src, width, align, title, aspectRatio, placeholder } = node.attrs;
+
   const alignClass = useMemo(() => {
+    if (align === "floatLeft") return "alignFloatLeft";
     if (align === "left") return "alignLeft";
     if (align === "right") return "alignRight";
+    if (align === "floatRight") return "alignFloatRight";
     if (align === "center") return "alignCenter";
     return "alignCenter";
   }, [align]);
