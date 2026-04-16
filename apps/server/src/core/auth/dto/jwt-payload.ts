@@ -33,6 +33,7 @@ export type JwtAttachmentPayload = {
   pageId: string;
   workspaceId: string;
   type: 'attachment';
+  sharedPageId?: string;
 };
 
 export interface JwtMfaTokenPayload {

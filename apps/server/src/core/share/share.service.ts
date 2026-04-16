@@ -368,6 +368,7 @@ export class ShareService {
           attachmentId,
           pageId: page.id,
           workspaceId: page.workspaceId,
+          sharedPageId: page.id,
         });
         attachmentMap.set(attachmentId, token);
       }),
