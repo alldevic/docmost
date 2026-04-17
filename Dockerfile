@@ -1,24 +1,27 @@
 FROM node:22-slim AS base
 LABEL org.opencontainers.image.source="https://github.com/docmost/docmost"
 
-RUN npm install -g pnpm@10.4.0
-
 FROM base AS builder
 
 WORKDIR /app
 
+RUN npm install -g pnpm@10.4.0
+
 COPY patches patches
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml nx.json .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml nx.json .npmrc crowdin.yml ./
 COPY apps/client/package.json apps/client/package.json
 COPY apps/server/package.json apps/server/package.json
 COPY packages/editor-ext/package.json packages/editor-ext/package.json
 
 RUN pnpm install --frozen-lockfile
 
-COPY . .
-
+COPY packages packages
 RUN pnpm editor-ext:build
+
+COPY apps/server apps/server
 RUN NX_DAEMON=false pnpm server:build
+
+COPY apps/client apps/client
 RUN NX_DAEMON=false pnpm client:build
 
 FROM base AS installer
@@ -26,6 +29,8 @@ FROM base AS installer
 RUN apt-get update \
   && apt-get install -y --no-install-recommends curl bash \
   && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g pnpm@10.4.0
 
 WORKDIR /app
 
@@ -41,7 +46,6 @@ COPY --from=builder /app/packages/editor-ext/package.json /app/packages/editor-e
 # Copy root package files
 COPY --from=builder /app/package.json /app/package.json
 COPY --from=builder /app/pnpm*.yaml /app/
-COPY --from=builder /app/.npmrc /app/.npmrc
 
 # Copy patches
 COPY --from=builder /app/patches /app/patches
