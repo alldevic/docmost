@@ -31,3 +31,4 @@ export * from "./lib/status";
 export * from "./lib/pdf";
 export * from "./lib/resizable-nodeview";
 export * from "./lib/extra-ligatures";
+export * from "./lib/move-block";
