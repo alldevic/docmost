@@ -20,4 +20,6 @@ export const asideStateAtom = atomWithWebStorage<AsideStateType>("aSide",{
   isAsideOpen: false,
 });
 
-export const sidebarWidthAtom = atomWithWebStorage<number>('sidebarWidth', 300);
+export const sidebarWidthAtom = atomWithWebStorage<number>("sidebarWidth", 300);
+
+export const asideWidthAtom = atomWithWebStorage<number>("asideWidth", 350);
