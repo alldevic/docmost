@@ -190,15 +190,11 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
                   <Tooltip key={index} label={t(name)} withArrow>
                     <Box
                       onClick={() => {
-                        if (name === "Default") {
-                          editor.commands.unsetColor();
-                        } else {
-                          editor
-                            .chain()
-                            .focus()
-                            .setColor(color || "")
-                            .run();
-                        }
+                        editor
+                          .chain()
+                          .focus()
+                          .setColor(color || "")
+                          .run();
                         setIsOpen(false);
                       }}
                       style={{
@@ -282,7 +278,7 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
               variant="default"
               fullWidth
               onClick={() => {
-                editor.commands.unsetColor();
+                editor.chain().focus().setColor("").run();
                 editor.commands.unsetHighlight();
                 setIsOpen(false);
               }}
