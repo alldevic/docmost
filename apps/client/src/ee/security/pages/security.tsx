@@ -20,8 +20,6 @@ export default function Security() {
   const { t } = useTranslation();
   const { isAdmin } = useUserRole();
   const hasCustomSso = useHasFeature(Feature.SSO_CUSTOM);
-  const hasRetention = useHasFeature(Feature.RETENTION);
-  const hasSharingControls = useHasFeature(Feature.SHARING_CONTROLS);
 
   if (!isAdmin) {
     return null;

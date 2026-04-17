@@ -14,6 +14,11 @@ export class EnvironmentService {
     return this.getNodeEnv() === 'development';
   }
 
+  isEEEnabled(): boolean {
+    const raw = this.configService.get<string>('EE_ENABLED', 'false');
+    return raw === 'true' || raw === '1';
+  }
+
   getAppUrl(): string {
     const rawUrl =
       this.configService.get<string>('APP_URL') ||
@@ -205,13 +210,6 @@ export class EnvironmentService {
       .get<string>('COLLAB_DISABLE_REDIS', 'false')
       .toLowerCase();
     return isStandalone === 'true';
-  }
-
-  isDisableTelemetry(): boolean {
-    const disable = this.configService
-      .get<string>('DISABLE_TELEMETRY', 'false')
-      .toLowerCase();
-    return disable === 'true';
   }
 
   getPostHogHost(): string {

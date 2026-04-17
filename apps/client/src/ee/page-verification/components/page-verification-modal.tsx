@@ -9,9 +9,6 @@ import { useParams } from "react-router-dom";
 import { extractPageSlugId } from "@/lib";
 import { usePageQuery } from "@/features/page/queries/page-query";
 import { usePageVerificationInfoQuery } from "@/ee/page-verification/queries/page-verification-query";
-import { useHasFeature } from "@/ee/hooks/use-feature";
-import { useUpgradeLabel } from "@/ee/hooks/use-upgrade-label";
-import { Feature } from "@/ee/features";
 import { SetupVerificationForm } from "./setup-verification-form";
 import { ManageVerificationForm } from "./manage-verification-form";
 import { getStatusColor, getStatusLabel } from "./verification-status";
@@ -77,32 +74,14 @@ export function PageVerificationBadge({
   const { t } = useTranslation();
   const { pageSlug } = useParams();
   const pageSlugId = extractPageSlugId(pageSlug);
-  const hasVerificationFeature = useHasFeature(Feature.PAGE_VERIFICATION);
   const [opened, { open, close }] = useDisclosure(false);
 
   const { data: page } = usePageQuery({ pageId: pageSlugId });
   const pageId = page?.id;
 
-  const { data: verificationInfo, isLoading } = usePageVerificationInfoQuery(
-    hasVerificationFeature ? pageId : undefined,
-  );
-  const upgradeLabel = useUpgradeLabel();
+  const { data: verificationInfo, isLoading } = usePageVerificationInfoQuery(pageId);
 
   if (!pageId) return null;
-  if (!hasVerificationFeature) {
-    if (readOnly) return null;
-    return (
-      <Tooltip
-        label={`${t("Add verification")} — ${upgradeLabel}`}
-        withArrow
-        openDelay={250}
-      >
-        <ActionIcon variant="subtle" color="gray">
-          <IconShieldCheck size={20} stroke={1.5} />
-        </ActionIcon>
-      </Tooltip>
-    );
-  }
   if (isLoading) return null;
 
   const status = verificationInfo?.status ?? "none";
@@ -151,12 +130,8 @@ export function PageVerificationMenuItem({
   onClick,
 }: PageVerificationMenuItemProps) {
   const { t } = useTranslation();
-  const hasVerificationFeature = useHasFeature(Feature.PAGE_VERIFICATION);
-  const upgradeLabel = useUpgradeLabel();
 
-  const { data: verificationInfo } = usePageVerificationInfoQuery(
-    hasVerificationFeature ? pageId : undefined,
-  );
+  const { data: verificationInfo } = usePageVerificationInfoQuery(pageId);
 
   const hasVerification =
     !!verificationInfo && verificationInfo.status !== "none";
@@ -166,21 +141,12 @@ export function PageVerificationMenuItem({
 
   const menuItem = (
     <Menu.Item
-      disabled={!hasVerificationFeature}
       leftSection={<IconShieldCheck size={16} />}
-      onClick={hasVerificationFeature ? onClick : undefined}
+      onClick={onClick}
     >
       {label}
     </Menu.Item>
   );
-
-  if (!hasVerificationFeature) {
-    return (
-      <Tooltip label={upgradeLabel} position="left" withinPortal={false}>
-        {menuItem}
-      </Tooltip>
-    );
-  }
 
   return menuItem;
 }

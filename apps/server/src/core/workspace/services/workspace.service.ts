@@ -18,7 +18,6 @@ import { WorkspaceRepo } from '@docmost/db/repos/workspace/workspace.repo';
 import { KyselyDB, KyselyTransaction } from '@docmost/db/types/kysely.types';
 import { executeTx } from '@docmost/db/utils';
 import { InjectKysely } from 'nestjs-kysely';
-import { Feature } from '../../../common/features';
 import { User } from '@docmost/db/types/entity.types';
 import { GroupUserRepo } from '@docmost/db/repos/group/group-user.repo';
 import { GroupRepo } from '@docmost/db/repos/group/group.repo';
@@ -352,19 +351,6 @@ export class WorkspaceService {
       }
 
       if (
-        typeof updateWorkspaceDto.disablePublicSharing !== 'undefined' ||
-        typeof updateWorkspaceDto.trashRetentionDays !== 'undefined' ||
-        typeof updateWorkspaceDto.restrictApiToAdmins !== 'undefined' ||
-        typeof updateWorkspaceDto.allowMemberTemplates !== 'undefined'
-      ) {
-        if (!this.licenseCheckService.hasFeature(ws.licenseKey, Feature.SECURITY_SETTINGS, ws.plan)) {
-          throw new ForbiddenException(
-            'This feature requires a valid license',
-          );
-        }
-      }
-
-      if (
         typeof updateWorkspaceDto.trashRetentionDays !== 'undefined' &&
         updateWorkspaceDto.trashRetentionDays !== ws.trashRetentionDays
       ) {
@@ -390,7 +376,7 @@ export class WorkspaceService {
 
     await executeTx(this.db, async (trx) => {
       if (typeof updateWorkspaceDto.restrictApiToAdmins !== 'undefined') {
-        const prev = settingsBefore?.api?.restrictToAdmins ?? false;
+        const prev = settingsBefore?.api?.restrictToAdmins ?? true;
         if (prev !== updateWorkspaceDto.restrictApiToAdmins) {
           before.restrictApiToAdmins = prev;
           after.restrictApiToAdmins = updateWorkspaceDto.restrictApiToAdmins;

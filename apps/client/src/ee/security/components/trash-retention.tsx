@@ -5,16 +5,12 @@ import {
   NumberInput,
   Select,
   Button,
-  Tooltip,
 } from "@mantine/core";
 import { useAtom } from "jotai";
 import { workspaceAtom } from "@/features/user/atoms/current-user-atom.ts";
 import { useTranslation } from "react-i18next";
 import { updateWorkspace } from "@/features/workspace/services/workspace-service.ts";
 import { notifications } from "@mantine/notifications";
-import { useHasFeature } from "@/ee/hooks/use-feature";
-import { Feature } from "@/ee/features";
-import { useUpgradeLabel } from "@/ee/hooks/use-upgrade-label.ts";
 
 type RetentionUnit = "days" | "months" | "years";
 
@@ -41,8 +37,6 @@ function retentionToDays(amount: number, unit: RetentionUnit): number {
 
 export default function TrashRetention() {
   const { t } = useTranslation();
-  const hasRetention = useHasFeature(Feature.RETENTION);
-  const upgradeLabel = useUpgradeLabel();
   const [workspace, setWorkspace] = useAtom(workspaceAtom);
 
   const currentDays = workspace?.trashRetentionDays ?? DEFAULT_RETENTION_DAYS;
@@ -107,43 +101,39 @@ export default function TrashRetention() {
         {t("Pages in trash will be permanently deleted after this period.")}
       </Text>
 
-      <Tooltip label={upgradeLabel} disabled={hasRetention}>
-        <Group gap="xs" wrap="nowrap" maw={320}>
-          <NumberInput
-            value={retentionAmount}
-            onChange={(val) => setRetentionAmount(val)}
-            min={1}
-            hideControls
-            size="sm"
-            w={60}
-            disabled={!hasRetention}
-          />
-          <Select
-            data={[
-              { value: "days", label: t("days") },
-              { value: "months", label: t("months") },
-              { value: "years", label: t("years") },
-            ]}
-            value={retentionUnit}
-            onChange={(value) => {
-              if (value === "days" || value === "months" || value === "years") {
-                setRetentionUnit(value);
-              }
-            }}
-            size="sm"
-            style={{ flex: 1 }}
-            disabled={!hasRetention}
-          />
-          <Button
-            size="sm"
-            onClick={handleSave}
-            loading={saving}
-            disabled={!hasRetention || !isDirty}
-          >
-            {t("Save")}
-          </Button>
-        </Group>
-      </Tooltip>
+      <Group gap="xs" wrap="nowrap" maw={320}>
+        <NumberInput
+          value={retentionAmount}
+          onChange={(val) => setRetentionAmount(val)}
+          min={1}
+          hideControls
+          size="sm"
+          w={60}
+        />
+        <Select
+          data={[
+            { value: "days", label: t("days") },
+            { value: "months", label: t("months") },
+            { value: "years", label: t("years") },
+          ]}
+          value={retentionUnit}
+          onChange={(value) => {
+            if (value === "days" || value === "months" || value === "years") {
+              setRetentionUnit(value);
+            }
+          }}
+          size="sm"
+          style={{ flex: 1 }}
+        />
+        <Button
+          size="sm"
+          onClick={handleSave}
+          loading={saving}
+          disabled={!isDirty}
+        >
+          {t("Save")}
+        </Button>
+      </Group>
     </div>
   );
 }

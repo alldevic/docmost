@@ -5,17 +5,9 @@ const enterpriseFeatures = [
   "AI Integration (Chat, Search & Assistant)",
   "MCP Support",
   "SSO (SAML, OIDC, LDAP)",
-  "Multi-factor Authentication (2FA)",
-  "Page-level Permissions",
-  "Page verification & approval workflow",
-  "Audit Logs",
-  "Enterprise Controls",
-  "API Keys",
   "Advanced Search Engine Support",
   "Full-text Search in Attachments (PDF, DOCX)",
-  "Resolve Comments",
   "Confluence Import",
-  "DOCX Import",
 ];
 
 export default function OssDetails() {

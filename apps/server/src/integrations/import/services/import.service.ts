@@ -150,18 +150,7 @@ export class ImportService {
     pageId: string,
     userId: string,
   ): Promise<any> {
-    let DocxImportModule: any;
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      DocxImportModule = require('./../../../ee/docx-import/docx-import.service');
-    } catch (err) {
-      this.logger.error(
-        'DOCX import requested but EE module not bundled in this build',
-      );
-      throw new BadRequestException(
-        'This feature requires a valid enterprise license.',
-      );
-    }
+    const DocxImportModule = require('./../../../ee/docx-import/docx-import.service');;
 
     const docxImportService = this.moduleRef.get(
       DocxImportModule.DocxImportService,
