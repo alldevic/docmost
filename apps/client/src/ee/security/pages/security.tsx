@@ -7,19 +7,14 @@ import useUserRole from "@/hooks/use-user-role.tsx";
 import SsoProviderList from "@/ee/security/components/sso-provider-list.tsx";
 import CreateSsoProvider from "@/ee/security/components/create-sso-provider.tsx";
 import EnforceSso from "@/ee/security/components/enforce-sso.tsx";
-import AllowedDomains from "@/ee/security/components/allowed-domains.tsx";
 import { useTranslation } from "react-i18next";
 import EnforceMfa from "@/ee/security/components/enforce-mfa.tsx";
 import DisablePublicSharing from "@/ee/security/components/disable-public-sharing.tsx";
 import TrashRetention from "@/ee/security/components/trash-retention.tsx";
 
-import { useHasFeature } from "@/ee/hooks/use-feature";
-import { Feature } from "@/ee/features";
-
 export default function Security() {
   const { t } = useTranslation();
   const { isAdmin } = useUserRole();
-  const hasCustomSso = useHasFeature(Feature.SSO_CUSTOM);
 
   if (!isAdmin) {
     return null;
@@ -49,19 +44,10 @@ export default function Security() {
       <EnforceSso />
       <Divider my="lg" />
 
-      {(isCloud() || hasCustomSso) && (
-        <>
-          <AllowedDomains />
-          <Divider my="lg" />
-        </>
-      )}
-
-      {hasCustomSso && (
-        <>
-          <CreateSsoProvider />
-          <Divider size={0} my="lg" />
-        </>
-      )}
+      <>
+        <CreateSsoProvider />
+        <Divider size={0} my="lg" />
+      </>
 
       <SsoProviderList />
     </>

@@ -1,18 +1,24 @@
 import React, { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
-import { Button, Menu, Group } from "@mantine/core";
+import { Button, Menu, Group, Tooltip } from "@mantine/core";
 import { IconChevronDown, IconLock, IconServer } from "@tabler/icons-react";
 import { useCreateSsoProviderMutation } from "@/ee/security/queries/security-query.ts";
 import { SSO_PROVIDER } from "@/ee/security/contants.ts";
 import { IAuthProvider } from "@/ee/security/types/security.types.ts";
 import SsoProviderModal from "@/ee/security/components/sso-provider-modal.tsx";
 import { OpenIdIcon } from "@/components/icons/openid-icon.tsx";
+import { useHasFeature } from "@/ee/hooks/use-feature.ts";
+import { Feature } from "@/ee/features.ts";
+import { useUpgradeLabel } from "@/ee/hooks/use-upgrade-label.ts";
 
 export default function CreateSsoProvider() {
   const [opened, { open, close }] = useDisclosure(false);
   const [provider, setProvider] = useState<IAuthProvider | null>(null);
 
   const createSsoProviderMutation = useCreateSsoProviderMutation();
+
+  const hasAccess = useHasFeature(Feature.SSO_CUSTOM);
+  const upgradeLabel = useUpgradeLabel();
 
   const handleCreateSAML = async () => {
     try {
@@ -71,26 +77,38 @@ export default function CreateSsoProvider() {
           </Menu.Target>
 
           <Menu.Dropdown>
-            <Menu.Item
-              onClick={handleCreateSAML}
-              leftSection={<IconLock size={16} />}
+            <Tooltip
+              label={upgradeLabel}
+              disabled={!hasAccess}
+              refProp="rootRef"
             >
-              SAML
-            </Menu.Item>
-
+              <Menu.Item
+                onClick={handleCreateSAML}
+                leftSection={<IconLock size={16} />}
+                disabled={!hasAccess}
+              >
+                SAML
+              </Menu.Item>
+            </Tooltip>
             <Menu.Item
               onClick={handleCreateOIDC}
               leftSection={<OpenIdIcon size={16} />}
             >
               OpenID (OIDC)
             </Menu.Item>
-
-            <Menu.Item
-              onClick={handleCreateLDAP}
-              leftSection={<IconServer size={16} />}
+            <Tooltip
+              label={upgradeLabel}
+              disabled={!hasAccess}
+              refProp="rootRef"
             >
-              LDAP / Active Directory
-            </Menu.Item>
+              <Menu.Item
+                onClick={handleCreateLDAP}
+                leftSection={<IconServer size={16} />}
+                disabled={!hasAccess}
+              >
+                LDAP / Active Directory
+              </Menu.Item>
+            </Tooltip>
           </Menu.Dropdown>
         </Menu>
       </Group>

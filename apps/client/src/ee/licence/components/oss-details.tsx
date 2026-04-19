@@ -4,7 +4,7 @@ import { IconCheck } from "@tabler/icons-react";
 const enterpriseFeatures = [
   "AI Integration (Chat, Search & Assistant)",
   "MCP Support",
-  "SSO (SAML, OIDC, LDAP)",
+  "SSO (SAML, LDAP)",
   "Advanced Search Engine Support",
   "Full-text Search in Attachments (PDF, DOCX)",
   "Confluence Import",
