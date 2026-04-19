@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -19,7 +18,6 @@ import {
   isUserDisabled,
   nanoIdGen,
 } from '../../../common/helpers';
-import { throwIfEmailNotVerified } from '../../../core/auth/auth.util';
 import * as OTPAuth from "otpauth";
 import * as QRCode from 'qrcode';
 import { FastifyReply, FastifyRequest } from 'fastify';
@@ -71,14 +69,6 @@ export class MfaService {
     if (!isPasswordMatch) {
       throw new UnauthorizedException(errorMessage);
     }
-
-    throwIfEmailNotVerified({
-      isCloud: this.environmentService.isCloud(),
-      emailVerifiedAt: user.emailVerifiedAt,
-      email: user.email,
-      workspaceId: workspace.id,
-      appSecret: this.environmentService.getAppSecret(),
-    });
 
     const userHasMfa = this.hasMfaEnabled(user);
     const isMfaEnforced = workspace.enforceMfa === true;

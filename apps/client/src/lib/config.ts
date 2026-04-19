@@ -39,10 +39,6 @@ export function getSubdomainHost(): string {
   return getConfigValue("SUBDOMAIN_HOST");
 }
 
-export function isCloud(): boolean {
-  return castToBoolean(getConfigValue("CLOUD"));
-}
-
 export function getAvatarUrl(
   avatarUrl: string,
   type: AvatarIconType = AvatarIconType.AVATAR,

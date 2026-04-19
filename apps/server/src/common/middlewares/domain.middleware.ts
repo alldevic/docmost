@@ -8,7 +8,7 @@ export class DomainMiddleware implements NestMiddleware {
   constructor(
     private workspaceRepo: WorkspaceRepo,
     private environmentService: EnvironmentService,
-  ) {}
+  ) { }
   async use(
     req: FastifyRequest['raw'],
     res: FastifyReply['raw'],
@@ -23,19 +23,6 @@ export class DomainMiddleware implements NestMiddleware {
       }
 
       // TODO: unify
-      (req as any).workspaceId = workspace.id;
-      (req as any).workspace = workspace;
-    } else if (this.environmentService.isCloud()) {
-      const header = req.headers.host;
-      const subdomain = header.split('.')[0];
-
-      const workspace = await this.workspaceRepo.findByHostname(subdomain);
-
-      if (!workspace) {
-        (req as any).workspaceId = null;
-        return next();
-      }
-
       (req as any).workspaceId = workspace.id;
       (req as any).workspace = workspace;
     }

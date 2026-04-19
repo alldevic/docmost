@@ -19,7 +19,6 @@ import {
   isUserDisabled,
   nanoIdGen,
 } from '../../../common/helpers';
-import { throwIfEmailNotVerified } from '../auth.util';
 import { ChangePasswordDto } from '../dto/change-password.dto';
 import { MailService } from '../../../integrations/mail/mail.service';
 import ChangePasswordEmail from '@docmost/transactional/emails/change-password-email';
@@ -55,7 +54,7 @@ export class AuthService {
     private environmentService: EnvironmentService,
     @InjectKysely() private readonly db: KyselyDB,
     @Inject(AUDIT_SERVICE) private readonly auditService: IAuditService,
-  ) {}
+  ) { }
 
   async login(loginDto: LoginDto, workspaceId: string) {
     const user = await this.userRepo.findByEmail(loginDto.email, workspaceId, {
@@ -75,14 +74,6 @@ export class AuthService {
     if (!isPasswordMatch) {
       throw new UnauthorizedException(errorMessage);
     }
-
-    throwIfEmailNotVerified({
-      isCloud: this.environmentService.isCloud(),
-      emailVerifiedAt: user.emailVerifiedAt,
-      email: user.email,
-      workspaceId,
-      appSecret: this.environmentService.getAppSecret(),
-    });
 
     user.lastLoginAt = new Date();
     await this.userRepo.updateLastLogin(user.id, workspaceId);
@@ -274,14 +265,6 @@ export class AuthService {
       subject: 'Your password has been changed',
       template: emailTemplate,
     });
-
-    if (this.environmentService.isCloud() && !user.emailVerifiedAt) {
-      await this.userRepo.updateUser(
-        { emailVerifiedAt: new Date() },
-        user.id,
-        workspace.id,
-      );
-    }
 
     // Check if user has MFA enabled or workspace enforces MFA
     const userHasMfa = user?.['mfa']?.isEnabled || false;

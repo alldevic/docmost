@@ -47,7 +47,7 @@ export class WorkspaceController {
     private readonly workspaceRepo: WorkspaceRepo,
     private environmentService: EnvironmentService,
     private licenseCheckService: LicenseCheckService,
-  ) {}
+  ) { }
 
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -73,7 +73,6 @@ export class WorkspaceController {
     }
 
     return {
-      cloud: this.environmentService.isCloud(),
       tier: this.licenseCheckService.resolveTier(licenseKey, plan),
       features: this.licenseCheckService.resolveFeatures(licenseKey, plan),
     };
@@ -334,10 +333,6 @@ export class WorkspaceController {
     @AuthUser() user: User,
     @AuthWorkspace() workspace: Workspace,
   ) {
-    if (this.environmentService.isCloud()) {
-      throw new ForbiddenException();
-    }
-
     const ability = this.workspaceAbility.createForUser(user, workspace);
     if (
       ability.cannot(WorkspaceCaslAction.Manage, WorkspaceCaslSubject.Member)

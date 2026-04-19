@@ -340,12 +340,6 @@ export class WorkspaceInvitationService {
       },
     });
 
-    if (this.environmentService.isCloud()) {
-      await this.billingQueue.add(QueueJob.STRIPE_SEATS_SYNC, {
-        workspaceId: workspace.id,
-      });
-    }
-
     if (workspace.enforceMfa) {
       return {
         requiresLogin: true,

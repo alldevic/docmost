@@ -37,10 +37,6 @@ try {
     optionalModules.length = 0;
   }
 } catch (err) {
-  if (process.env.CLOUD === 'true') {
-    console.warn('Failed to load enterprise modules. Exiting program.\n', err);
-    process.exit(1);
-  }
 }
 
 @Module({

@@ -7,14 +7,10 @@ export class LicenseCheckService {
   constructor(
     private moduleRef: ModuleRef,
     private environmentService: EnvironmentService,
-  ) {}
+  ) { }
 
   isValidEELicense(licenseKey: string): boolean {
     if (this.environmentService.isEEEnabled()) {
-      return true;
-    }
-
-    if (this.environmentService.isCloud()) {
       return true;
     }
 
@@ -36,16 +32,6 @@ export class LicenseCheckService {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { ALL_EE_FEATURES } = require('../../ee/licence/feature-registry');
         return ALL_EE_FEATURES.includes(feature);
-      } catch {
-        return false;
-      }
-    }
-
-    if (this.environmentService.isCloud()) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { getFeaturesForCloudPlan } = require('../../ee/licence/feature-registry');
-        return getFeaturesForCloudPlan(plan).has(feature);
       } catch {
         return false;
       }
@@ -91,26 +77,12 @@ export class LicenseCheckService {
       return this.getFeatures(licenseKey);
     }
 
-    if (this.environmentService.isCloud()) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { getFeaturesForCloudPlan } = require('../../ee/licence/feature-registry');
-        return [...getFeaturesForCloudPlan(plan)];
-      } catch {
-        return [];
-      }
-    }
-
     return this.getFeatures(licenseKey);
   }
 
   resolveTier(licenseKey: string, plan: string): string {
     if (this.environmentService.isEEEnabled()) {
       return 'enterprise';
-    }
-
-    if (this.environmentService.isCloud()) {
-      return plan ?? 'standard';
     }
 
     return this.getLicenseType(licenseKey) ?? 'free';

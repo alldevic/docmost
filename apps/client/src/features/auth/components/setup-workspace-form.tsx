@@ -9,16 +9,11 @@ import {
   Button,
   PasswordInput,
   Box,
-  Anchor,
-  Text,
 } from "@mantine/core";
 import useAuth from "@/features/auth/hooks/use-auth";
 import classes from "@/features/auth/components/auth.module.css";
 import { useTranslation } from "react-i18next";
-import SsoCloudSignup from "@/ee/components/sso-cloud-signup.tsx";
-import { isCloud } from "@/lib/config.ts";
-import { Link } from "react-router-dom";
-import APP_ROUTE from "@/lib/app-route.ts";
+
 import { AuthLayout } from "./auth-layout.tsx";
 
 const formSchema = z.object({
@@ -27,7 +22,9 @@ const formSchema = z.object({
   email: z
     .email({ message: "Invalid email address" })
     .min(1, { message: "Email is required" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" }),
 });
 type FormValues = z.infer<typeof formSchema>;
 
@@ -58,20 +55,16 @@ export function SetupWorkspaceForm() {
             {t("Create workspace")}
           </Title>
 
-          {isCloud() && <SsoCloudSignup />}
-
           <form onSubmit={form.onSubmit(onSubmit)}>
-            {!isCloud() && (
-              <TextInput
-                id="workspaceName"
-                type="text"
-                label={t("Workspace Name")}
-                placeholder={t("e.g ACME Inc")}
-                variant="filled"
-                mt="md"
-                {...form.getInputProps("workspaceName")}
-              />
-            )}
+            <TextInput
+              id="workspaceName"
+              type="text"
+              label={t("Workspace Name")}
+              placeholder={t("e.g ACME Inc")}
+              variant="filled"
+              mt="md"
+              {...form.getInputProps("workspaceName")}
+            />
 
             <TextInput
               id="name"
@@ -106,18 +99,6 @@ export function SetupWorkspaceForm() {
           </form>
         </Box>
       </Container>
-      {isCloud() && (
-        <Text ta="center">
-          {t("Already part of an existing workspace?")}{" "}
-          <Anchor
-            component={Link}
-            to={APP_ROUTE.AUTH.SELECT_WORKSPACE}
-            fw={500}
-          >
-            {t("Sign-in")}
-          </Anchor>
-        </Text>
-      )}
     </AuthLayout>
   );
 }

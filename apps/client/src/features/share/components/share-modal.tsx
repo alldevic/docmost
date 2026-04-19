@@ -11,7 +11,12 @@ import {
   PasswordInput,
   Divider,
 } from "@mantine/core";
-import { IconExternalLink, IconWorld, IconLock, IconLockOpen } from "@tabler/icons-react";
+import {
+  IconExternalLink,
+  IconWorld,
+  IconLock,
+  IconLockOpen,
+} from "@tabler/icons-react";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   useCreateShareMutation,
@@ -26,7 +31,7 @@ import { extractPageSlugId, getPageIcon } from "@/lib";
 import { useTranslation } from "react-i18next";
 import { usePageQuery } from "@/features/page/queries/page-query.ts";
 import CopyTextButton from "@/components/common/copy.tsx";
-import { getAppUrl, isCloud } from "@/lib/config.ts";
+import { getAppUrl } from "@/lib/config.ts";
 import { buildPageUrl } from "@/features/page/page.utils.ts";
 import classes from "@/features/share/components/share.module.css";
 import useTrial from "@/ee/hooks/use-trial.tsx";
@@ -67,7 +72,8 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
 
   const [isPagePublic, setIsPagePublic] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
-  const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(false);
+  const [isPasswordProtected, setIsPasswordProtected] =
+    useState<boolean>(false);
   useEffect(() => {
     if (share) {
       setIsPagePublic(true);
@@ -185,28 +191,7 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
         </Button>
       </Popover.Target>
       <Popover.Dropdown style={{ userSelect: "none" }}>
-        {isCloud() && isTrial ? (
-          <>
-            <Group justify="center" mb="sm">
-              <IconLock size={20} stroke={1.5} />
-            </Group>
-            <Text size="sm" ta="center" fw={500} mb="xs">
-              {t("Upgrade to share pages")}
-            </Text>
-            <Text size="sm" c="dimmed" ta="center" mb="sm">
-              {t(
-                "Page sharing is available on paid plans. Upgrade to share your pages publicly.",
-              )}
-            </Text>
-            <Button
-              size="xs"
-              onClick={() => navigate("/settings/billing")}
-              fullWidth
-            >
-              {t("Upgrade Plan")}
-            </Button>
-          </>
-        ) : sharingDisabled ? (
+        {sharingDisabled ? (
           <>
             <Group justify="center" mb="sm">
               <IconLock size={20} stroke={1.5} />
@@ -316,7 +301,15 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
 
                 {isPasswordProtected ? (
                   <Group justify="space-between" align="center" mt="xs">
-                    <Text size="xs" c="dimmed" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <Text
+                      size="xs"
+                      c="dimmed"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
                       <IconLock size={12} />
                       {t("Password protected")}
                     </Text>
@@ -324,9 +317,13 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
                       size="xs"
                       variant="subtle"
                       color="red"
-                      onClick={() => removePasswordMutation.mutateAsync(share.id)}
+                      onClick={() =>
+                        removePasswordMutation.mutateAsync(share.id)
+                      }
                       disabled={readOnly}
-                    > {/* TODO: canManage */}
+                    >
+                      {" "}
+                      {/* TODO: canManage */}
                       {t("Remove password")}
                     </Button>
                   </Group>
@@ -335,7 +332,9 @@ export default function ShareModal({ readOnly }: ShareModalProps) {
                     <PasswordInput
                       placeholder={t("Enter password")}
                       value={password}
-                      onChange={(event) => setPassword(event.currentTarget.value)}
+                      onChange={(event) =>
+                        setPassword(event.currentTarget.value)
+                      }
                       size="xs"
                       style={{ flex: 1 }}
                       disabled={readOnly}

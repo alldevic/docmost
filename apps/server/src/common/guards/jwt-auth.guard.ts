@@ -36,36 +36,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       throw err || new UnauthorizedException();
     }
 
-    this.setJoinedWorkspacesCookie(user, ctx);
     return user;
-  }
-
-  setJoinedWorkspacesCookie(user: any, ctx: ExecutionContext) {
-    if (this.environmentService.isCloud()) {
-      const req = ctx.switchToHttp().getRequest();
-      const res = ctx.switchToHttp().getResponse();
-
-      const workspaceId = user?.workspace?.id;
-      let workspaceIds = [];
-      try {
-        workspaceIds = req.cookies.joinedWorkspaces
-          ? JSON.parse(req.cookies.joinedWorkspaces)
-          : [];
-      } catch (err) {
-        /* empty */
-      }
-
-      if (!workspaceIds.includes(workspaceId)) {
-        workspaceIds.push(workspaceId);
-      }
-
-      res.setCookie('joinedWorkspaces', JSON.stringify(workspaceIds), {
-        httpOnly: false,
-        domain: '.' + this.environmentService.getSubdomainHost(),
-        path: '/',
-        expires: addDays(new Date(), 365),
-        secure: this.environmentService.isHttps(),
-      });
-    }
   }
 }

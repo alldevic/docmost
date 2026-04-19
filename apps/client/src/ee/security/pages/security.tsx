@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { getAppName, isCloud } from "@/lib/config.ts";
+import { getAppName } from "@/lib/config.ts";
 import SettingsTitle from "@/components/settings/settings-title.tsx";
 import { Divider, Title } from "@mantine/core";
 import React from "react";

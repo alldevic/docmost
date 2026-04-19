@@ -19,11 +19,9 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import classes from "./settings.module.css";
 import { useTranslation } from "react-i18next";
-import { isCloud } from "@/lib/config.ts";
 import useUserRole from "@/hooks/use-user-role.tsx";
 import { useAtom } from "jotai";
 import { entitlementAtom } from "@/ee/entitlement/entitlement-atom";
-import { Feature } from "@/ee/features";
 import { useUpgradeLabel } from "@/ee/hooks/use-upgrade-label";
 import {
   prefetchApiKeyManagement,
@@ -49,7 +47,7 @@ type DataItem = {
   path: string;
   feature?: string;
   role?: "admin" | "owner";
-  env?: "cloud" | "selfhosted";
+  env?: "selfhosted";
 };
 
 type DataGroup = {
@@ -79,13 +77,6 @@ const groupedData: DataGroup[] = [
     items: [
       { label: "General", icon: IconSettings, path: "/settings/workspace" },
       { label: "Members", icon: IconUsers, path: "/settings/members" },
-      {
-        label: "Billing",
-        icon: IconCoin,
-        path: "/settings/billing",
-        role: "admin",
-        env: "cloud",
-      },
       {
         label: "Security & SSO",
         icon: IconLock,
@@ -152,8 +143,7 @@ export default function SettingsSidebar() {
     entitlements?.features?.includes(f) ?? false;
 
   const canShowItem = (item: DataItem) => {
-    if (item.env === "cloud" && !isCloud()) return false;
-    if (item.env === "selfhosted" && isCloud()) return false;
+    if (item.env === "selfhosted") return false;
     if (item.role === "admin" && !isAdmin) return false;
     if (item.role === "owner" && !isOwner) return false;
     return true;
@@ -165,7 +155,7 @@ export default function SettingsSidebar() {
   };
 
   const menuItems = groupedData.map((group) => {
-    if (group.heading === "System" && (!isAdmin || isCloud())) {
+    if (group.heading === "System" && !isAdmin) {
       return null;
     }
 
@@ -288,20 +278,7 @@ export default function SettingsSidebar() {
 
       <ScrollArea w="100%">{menuItems}</ScrollArea>
 
-      {!isCloud() && <AppVersion />}
-
-      {isCloud() && (
-        <div className={classes.text}>
-          <Text
-            size="sm"
-            c="dimmed"
-            component="a"
-            href="mailto:help@docmost.com"
-          >
-            help@docmost.com
-          </Text>
-        </div>
-      )}
+      <AppVersion />
     </div>
   );
 }

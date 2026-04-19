@@ -26,7 +26,6 @@ import {
   useSetSharePasswordMutation,
   useRemoveSharePasswordMutation,
 } from "@/features/share/queries/share-query";
-import useTrial from "@/ee/hooks/use-trial";
 
 type PublishTabProps = {
   pageId: string;

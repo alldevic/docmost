@@ -17,14 +17,9 @@ import Layout from "@/components/layouts/global/layout.tsx";
 import InviteSignup from "@/pages/auth/invite-signup.tsx";
 import ForgotPassword from "@/pages/auth/forgot-password.tsx";
 import PasswordReset from "./pages/auth/password-reset";
-import Billing from "@/ee/billing/pages/billing.tsx";
-import CloudLogin from "@/ee/pages/cloud-login.tsx";
-import CreateWorkspace from "@/ee/pages/create-workspace.tsx";
-import { isCloud } from "@/lib/config.ts";
 import { useTranslation } from "react-i18next";
 import Security from "@/ee/security/pages/security.tsx";
 import License from "@/ee/licence/pages/license.tsx";
-import { useRedirectToCloudSelect } from "@/ee/hooks/use-redirect-to-cloud-select.tsx";
 import SharedPage from "@/pages/share/shared-page.tsx";
 import PdfRenderPage from "@/ee/pdf-export/pdf-render-page.tsx";
 import Shares from "@/pages/settings/shares/shares.tsx";
@@ -44,11 +39,10 @@ import TemplateList from "@/ee/template/pages/template-list";
 import TemplateEditor from "@/ee/template/pages/template-editor";
 import FavoritesPage from "@/pages/favorites/favorites-page";
 import AiChat from "@/ee/ai-chat/pages/ai-chat.tsx";
-import VerifyEmail from "@/ee/pages/verify-email.tsx";
+
 
 export default function App() {
   const { t } = useTranslation();
-  useRedirectToCloudSelect();
   useTrackOrigin();
 
   return (
@@ -61,18 +55,7 @@ export default function App() {
         <Route path={"/password-reset"} element={<PasswordReset />} />
         <Route path={"/login/mfa"} element={<MfaChallengePage />} />
         <Route path={"/login/mfa/setup"} element={<MfaSetupRequiredPage />} />
-
-        {!isCloud() && (
-          <Route path={"/setup/register"} element={<SetupWorkspace />} />
-        )}
-
-        {isCloud() && (
-          <>
-            <Route path={"/create"} element={<CreateWorkspace />} />
-            <Route path={"/select"} element={<CloudLogin />} />
-            <Route path={"/verify-email"} element={<VerifyEmail />} />
-          </>
-        )}
+        <Route path={"/setup/register"} element={<SetupWorkspace />} />
 
         <Route element={<ShareLayout />}>
           <Route
@@ -93,16 +76,10 @@ export default function App() {
           <Route path={"/spaces"} element={<SpacesPage />} />
           <Route path={"/favorites"} element={<FavoritesPage />} />
           <Route path={"/templates"} element={<TemplateList />} />
-          <Route
-            path={"/templates/:templateId"}
-            element={<TemplateEditor />}
-          />
+          <Route path={"/templates/:templateId"} element={<TemplateEditor />} />
           <Route path={"/s/:spaceSlug"} element={<SpaceHome />} />
           <Route path={"/s/:spaceSlug/trash"} element={<SpaceTrash />} />
-          <Route
-            path={"/s/:spaceSlug/p/:pageSlug"}
-            element={<Page />}
-          />
+          <Route path={"/s/:spaceSlug/p/:pageSlug"} element={<Page />} />
 
           <Route path={"/settings"}>
             <Route path={"account/profile"} element={<AccountSettings />} />
@@ -123,8 +100,7 @@ export default function App() {
             <Route path={"ai/mcp"} element={<AiSettings />} />
             <Route path={"audit"} element={<AuditLogs />} />
             <Route path={"verifications"} element={<VerifiedPages />} />
-            {!isCloud() && <Route path={"license"} element={<License />} />}
-            {isCloud() && <Route path={"billing"} element={<Billing />} />}
+            <Route path={"license"} element={<License />} />
           </Route>
         </Route>
 
