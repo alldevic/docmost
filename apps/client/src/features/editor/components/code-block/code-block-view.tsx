@@ -1,5 +1,5 @@
 import { NodeViewContent, NodeViewProps, NodeViewWrapper } from "@tiptap/react";
-import { ActionIcon, Group, Select, Tooltip } from "@mantine/core";
+import { ActionIcon, Group, Select, Text, Tooltip } from "@mantine/core";
 import { CopyButton } from "@/components/common/copy-button";
 import { useEffect, useState } from "react";
 import {
@@ -13,6 +13,16 @@ import classes from "./code-block.module.css";
 import React from "react";
 import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
+import { ErrorBoundary } from "react-error-boundary";
+
+function MermaidErrorFallback() {
+  const { t } = useTranslation();
+  return (
+    <div className={classes.error}>
+      <Text size="sm">{t("Failed to render Mermaid diagram")}</Text>
+    </div>
+  );
+}
 
 const MermaidView = React.lazy(
   () => import("@/features/editor/components/code-block/mermaid-view.tsx"),
@@ -173,9 +183,11 @@ export default function CodeBlockView(props: NodeViewProps) {
       </pre>
 
       {language === "mermaid" && (
-        <Suspense fallback={null}>
-          <MermaidView props={props} />
-        </Suspense>
+        <ErrorBoundary FallbackComponent={MermaidErrorFallback}>
+          <Suspense fallback={null}>
+            <MermaidView props={props} />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </NodeViewWrapper>
   );
