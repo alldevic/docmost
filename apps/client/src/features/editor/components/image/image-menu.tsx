@@ -135,7 +135,7 @@ export function ImageMenu({ editor }: EditorMenuProps) {
   }, []);
 
   const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
 
@@ -144,9 +144,8 @@ export function ImageMenu({ editor }: EditorMenuProps) {
       if (pageId) {
         const pos = editor.state.selection.from;
         uploadImageAction(file, editor, pos, pageId);
+        editor.commands.deleteSelection();
       }
-      // Reset so the same file can be selected again
-      e.target.value = "";
     },
     [editor],
   );
@@ -222,7 +221,9 @@ export function ImageMenu({ editor }: EditorMenuProps) {
             onClick={alignImageFloatRight}
             size="lg"
             variant="subtle"
-            className={clsx({ [classes.active]: editorState?.isAlignFloatRight })}
+            className={clsx({
+              [classes.active]: editorState?.isAlignFloatRight,
+            })}
           >
             <IconBoxAlignRightFilled size={18} />
           </ActionIcon>
