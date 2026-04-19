@@ -33,6 +33,7 @@ export default function ChatMessageList({
   streamingContent,
   streamingToolCalls,
 }: Props) {
+  const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef(true);
@@ -162,7 +163,7 @@ export default function ChatMessageList({
       {showScrollButton && (
         <button
           type="button"
-          aria-label="Scroll to bottom"
+          aria-label={t("Scroll to bottom")}
           className={classes.scrollToBottomButton}
           onClick={() => scrollToBottom("smooth")}
         >

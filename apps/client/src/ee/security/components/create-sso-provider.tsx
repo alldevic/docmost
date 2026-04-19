@@ -10,8 +10,10 @@ import { OpenIdIcon } from "@/components/icons/openid-icon.tsx";
 import { useHasFeature } from "@/ee/hooks/use-feature.ts";
 import { Feature } from "@/ee/features.ts";
 import { useUpgradeLabel } from "@/ee/hooks/use-upgrade-label.ts";
+import { useTranslation } from "react-i18next";
 
 export default function CreateSsoProvider() {
+  const { t } = useTranslation();
   const [opened, { open, close }] = useDisclosure(false);
   const [provider, setProvider] = useState<IAuthProvider | null>(null);
 
@@ -72,7 +74,7 @@ export default function CreateSsoProvider() {
         >
           <Menu.Target>
             <Button rightSection={<IconChevronDown size={16} />} pr={12}>
-              Create SSO
+              {t("Create SSO")}
             </Button>
           </Menu.Target>
 
@@ -87,14 +89,14 @@ export default function CreateSsoProvider() {
                 leftSection={<IconLock size={16} />}
                 disabled={!hasAccess}
               >
-                SAML
+                {t("SAML")}
               </Menu.Item>
             </Tooltip>
             <Menu.Item
               onClick={handleCreateOIDC}
               leftSection={<OpenIdIcon size={16} />}
             >
-              OpenID (OIDC)
+              {t("OpenID (OIDC)")}
             </Menu.Item>
             <Tooltip
               label={upgradeLabel}
@@ -106,7 +108,7 @@ export default function CreateSsoProvider() {
                 leftSection={<IconServer size={16} />}
                 disabled={!hasAccess}
               >
-                LDAP / Active Directory
+                {t("LDAP / Active Directory")}
               </Menu.Item>
             </Tooltip>
           </Menu.Dropdown>

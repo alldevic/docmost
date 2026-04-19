@@ -22,10 +22,10 @@ export default function ReadonlyPageEditor({
   content,
   pageId,
 }: PageEditorProps) {
+  const { t } = useTranslation();
   const [, setReadOnlyEditor] = useAtom(readOnlyEditorAtom);
   const isComponentMounted = useRef(false);
   const editorCreated = useRef(false);
-  const { t } = useTranslation();
 
   const canScroll = useCallback(
     () => isComponentMounted.current && editorCreated.current,
