@@ -108,7 +108,6 @@ const groupedData: DataGroup[] = [
         icon: IconHistory,
         path: "/settings/audit",
         role: "owner",
-        env: "selfhosted",
       },
     ],
   },
