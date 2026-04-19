@@ -17,7 +17,7 @@ import { NotificationSettingKey } from '../../../core/notification/notification.
 
 @Injectable()
 export class UserRepo {
-  constructor(@InjectKysely() private readonly db: KyselyDB) {}
+  constructor(@InjectKysely() private readonly db: KyselyDB) { }
 
   public baseFields: Array<keyof Users> = [
     'id',
@@ -114,9 +114,14 @@ export class UserRepo {
         insertableUser.name || insertableUser.email.split('@')[0].toLowerCase(),
       email: insertableUser.email.toLowerCase(),
       password: await hashPassword(insertableUser.password),
-      locale: 'en-US',
+      locale: 'ru-RU',
       role: insertableUser?.role,
       lastLoginAt: new Date(),
+      settings: {
+        preferences: {
+          pageEditMode: "read"
+        }
+      }
     };
 
     const db = dbOrTx(this.db, trx);

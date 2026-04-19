@@ -15,12 +15,14 @@ import {
   AUDIT_SERVICE,
   IAuditService,
 } from '../../../integrations/audit/audit.service';
+import { WorkspaceRepo } from '@docmost/db/repos/workspace/workspace.repo';
 
 @Injectable()
 export class SignupService {
   constructor(
     private userRepo: UserRepo,
     private workspaceService: WorkspaceService,
+    private workspaceRepo: WorkspaceRepo,
     private groupUserRepo: GroupUserRepo,
     @InjectKysely() private readonly db: KyselyDB,
     @Inject(AUDIT_SERVICE) private readonly auditService: IAuditService,
@@ -123,6 +125,13 @@ export class SignupService {
         workspace = await this.workspaceService.create(
           user,
           workspaceData,
+          trx,
+        );
+
+        await this.workspaceRepo.updateApiSettings(
+          workspace.id,
+          'restrictToAdmins',
+          true,
           trx,
         );
 

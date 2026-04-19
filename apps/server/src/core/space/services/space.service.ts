@@ -106,9 +106,16 @@ export class SpaceService {
         creatorId: userId,
         workspaceId: workspaceId,
         slug: createSpaceDto.slug,
+        settings: {
+          comments: {
+            allowViewerComments: true
+          }
+        }
       },
       trx,
     );
+
+
   }
 
   async updateSpace(
