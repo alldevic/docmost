@@ -10,7 +10,6 @@ import { Typography } from "@tiptap/extension-typography";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import GlobalDragHandle from "tiptap-extension-global-drag-handle";
-import { Youtube } from "@tiptap/extension-youtube";
 import SlashCommand, { SlashCommandExtension as Command } from "@/features/editor/extensions/slash-command";
 import renderItems from "@/features/editor/components/slash-menu/render-items";
 import getSuggestionItems from "@/features/editor/components/slash-menu/menu-items";
@@ -37,8 +36,6 @@ import {
   Selection,
   Attachment,
   CustomCodeBlock,
-  Drawio,
-  Excalidraw,
   Embed,
   TiptapPdf,
   SearchAndReplace,
@@ -77,8 +74,6 @@ import VideoView from "@/features/editor/components/video/video-view.tsx";
 import AudioView from "@/features/editor/components/audio/audio-view.tsx";
 import AttachmentView from "@/features/editor/components/attachment/attachment-view.tsx";
 import CodeBlockView from "@/features/editor/components/code-block/code-block-view.tsx";
-import DrawioView from "../components/drawio/drawio-view";
-import ExcalidrawView from "@/features/editor/components/excalidraw/excalidraw-view.tsx";
 import EmbedView from "@/features/editor/components/embed/embed-view.tsx";
 import PdfView from "@/features/editor/components/pdf/pdf-view.tsx";
 import SubpagesView from "@/features/editor/components/subpages/subpages-view.tsx";
@@ -268,11 +263,6 @@ export const mainExtensions = [
   Details,
   DetailsSummary,
   DetailsContent,
-  Youtube.configure({
-    addPasteHandler: false,
-    controls: true,
-    nocookie: true,
-  }),
   TiptapImage.configure({
     view: ImageView,
     allowBase64: false,
@@ -318,32 +308,6 @@ export const mainExtensions = [
   MoveBlock,
   Attachment.configure({
     view: AttachmentView,
-  }),
-  Drawio.configure({
-    view: DrawioView,
-    resize: {
-      enabled: true,
-      directions: ["left", "right"],
-      minWidth: 24,
-      minHeight: 16,
-      alwaysPreserveAspectRatio: true,
-      //@ts-ignore
-      createCustomHandle: createResizeHandle,
-      className: buildResizeClasses("node-drawio"),
-    },
-  }),
-  Excalidraw.configure({
-    view: ExcalidrawView,
-    resize: {
-      enabled: true,
-      directions: ["left", "right"],
-      minWidth: 24,
-      minHeight: 16,
-      alwaysPreserveAspectRatio: true,
-      //@ts-ignore
-      createCustomHandle: createResizeHandle,
-      className: buildResizeClasses("node-excalidraw"),
-    },
   }),
   Embed.configure({
     view: EmbedView,
@@ -392,8 +356,6 @@ const TEMPLATE_EXCLUDED_SLASH_ITEMS = new Set([
   "Image",
   "Video",
   "File attachment",
-  "Draw.io (diagrams.net)",
-  "Excalidraw diagram",
 ]);
 
 const TemplateSlashCommand = Command.configure({

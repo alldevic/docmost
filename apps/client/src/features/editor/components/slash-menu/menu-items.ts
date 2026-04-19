@@ -35,23 +35,7 @@ import { uploadVideoAction } from "@/features/editor/components/video/upload-vid
 import { uploadAudioAction } from "@/features/editor/components/audio/upload-audio-action.tsx";
 import { uploadAttachmentAction } from "@/features/editor/components/attachment/upload-attachment-action.tsx";
 import { uploadPdfAction } from "@/features/editor/components/pdf/upload-pdf-action.tsx";
-import IconExcalidraw from "@/components/icons/icon-excalidraw";
 import IconMermaid from "@/components/icons/icon-mermaid";
-import IconDrawio from "@/components/icons/icon-drawio";
-import { IconColumns4 } from "@/components/icons/icon-columns-4";
-import { IconColumns5 } from "@/components/icons/icon-columns-5";
-import {
-  AirtableIcon,
-  FigmaIcon,
-  FramerIcon,
-  GoogleDriveIcon,
-  GoogleSheetsIcon,
-  LoomIcon,
-  MiroIcon,
-  TypeformIcon,
-  VimeoIcon,
-  YoutubeIcon,
-} from "@/components/icons";
 
 const CommandGroups: SlashMenuGroupedItemsType = {
   basic: [
@@ -428,22 +412,6 @@ const CommandGroups: SlashMenuGroupedItemsType = {
           .run(),
     },
     {
-      title: "Draw.io (diagrams.net)",
-      description: "Insert and design Drawio diagrams",
-      searchTerms: ["drawio", "diagrams", "charts", "uml", "whiteboard"],
-      icon: IconDrawio,
-      command: ({ editor, range }: CommandProps) =>
-        editor.chain().focus().deleteRange(range).setDrawio().run(),
-    },
-    {
-      title: "Excalidraw (Whiteboard)",
-      description: "Draw and sketch excalidraw diagrams",
-      searchTerms: ["diagrams", "draw", "sketch", "whiteboard"],
-      icon: IconExcalidraw,
-      command: ({ editor, range }: CommandProps) =>
-        editor.chain().focus().deleteRange(range).setExcalidraw().run(),
-    },
-    {
       title: "Date",
       description: "Insert current date",
       searchTerms: ["date", "today"],
@@ -513,32 +481,6 @@ const CommandGroups: SlashMenuGroupedItemsType = {
           .run(),
     },
     {
-      title: "4 Columns",
-      description: "Split content into four columns.",
-      searchTerms: ["columns", "layout", "split"],
-      icon: IconColumns4,
-      command: ({ editor, range }: CommandProps) =>
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .insertColumns({ layout: "four_equal" })
-          .run(),
-    },
-    {
-      title: "5 Columns",
-      description: "Split content into five columns.",
-      searchTerms: ["columns", "layout", "split"],
-      icon: IconColumns5,
-      command: ({ editor, range }: CommandProps) =>
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .insertColumns({ layout: "five_equal" })
-          .run(),
-    },
-    {
       title: "Iframe embed",
       description: "Embed any Iframe",
       searchTerms: ["iframe"],
@@ -549,146 +491,6 @@ const CommandGroups: SlashMenuGroupedItemsType = {
           .focus()
           .deleteRange(range)
           .setEmbed({ provider: "iframe" })
-          .run();
-      },
-    },
-    {
-      title: "Airtable",
-      description: "Embed Airtable",
-      searchTerms: ["airtable"],
-      icon: AirtableIcon,
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setEmbed({ provider: "airtable" })
-          .run();
-      },
-    },
-    {
-      title: "Loom",
-      description: "Embed Loom video",
-      searchTerms: ["loom"],
-      icon: LoomIcon,
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setEmbed({ provider: "loom" })
-          .run();
-      },
-    },
-    {
-      title: "Figma",
-      description: "Embed Figma files",
-      searchTerms: ["figma"],
-      icon: FigmaIcon,
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setEmbed({ provider: "figma" })
-          .run();
-      },
-    },
-    {
-      title: "Typeform",
-      description: "Embed Typeform",
-      searchTerms: ["typeform"],
-      icon: TypeformIcon,
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setEmbed({ provider: "typeform" })
-          .run();
-      },
-    },
-    {
-      title: "Miro",
-      description: "Embed Miro board",
-      searchTerms: ["miro"],
-      icon: MiroIcon,
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setEmbed({ provider: "miro" })
-          .run();
-      },
-    },
-    {
-      title: "YouTube",
-      description: "Embed YouTube video",
-      searchTerms: ["youtube", "yt", "media", "video"],
-      icon: YoutubeIcon,
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setEmbed({ provider: "youtube" })
-          .run();
-      },
-    },
-    {
-      title: "Vimeo",
-      description: "Embed Vimeo video",
-      searchTerms: ["vimeo"],
-      icon: VimeoIcon,
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setEmbed({ provider: "vimeo" })
-          .run();
-      },
-    },
-    {
-      title: "Framer",
-      description: "Embed Framer prototype",
-      searchTerms: ["framer"],
-      icon: FramerIcon,
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setEmbed({ provider: "framer" })
-          .run();
-      },
-    },
-    {
-      title: "Google Drive",
-      description: "Embed Google Drive content",
-      searchTerms: ["google drive", "gdrive"],
-      icon: GoogleDriveIcon,
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setEmbed({ provider: "gdrive" })
-          .run();
-      },
-    },
-    {
-      title: "Google Sheets",
-      description: "Embed Google Sheets content",
-      searchTerms: ["google sheets", "gsheets"],
-      icon: GoogleSheetsIcon,
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setEmbed({ provider: "gsheets" })
           .run();
       },
     },

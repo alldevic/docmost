@@ -16,8 +16,6 @@ const ATTACHMENT_NODE_TYPES = [
   "audio",
   "pdf",
   "attachment",
-  "excalidraw",
-  "drawio",
 ];
 
 const ATTACHMENT_URL_RE = /\/api\/files\/([0-9a-f-]+)\//;

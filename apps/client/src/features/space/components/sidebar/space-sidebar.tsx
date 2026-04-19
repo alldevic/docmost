@@ -14,7 +14,6 @@ import {
   IconFileExport,
   IconHome,
   IconPlus,
-  IconSearch,
   IconSettings,
   IconStar,
   IconStarFilled,
@@ -52,7 +51,6 @@ import {
 } from "@/features/favorite/queries/favorite-query";
 import { mobileSidebarAtom } from "@/components/layouts/global/hooks/atoms/sidebar-atom.ts";
 import { useToggleSidebar } from "@/components/layouts/global/hooks/hooks/use-toggle-sidebar.ts";
-import { searchSpotlight } from "@/features/search/constants";
 
 export function SpaceSidebar() {
   const { t } = useTranslation();
@@ -130,20 +128,6 @@ export function SpaceSidebar() {
               </div>
             </UnstyledButton>
 
-            <UnstyledButton
-              className={classes.menu}
-              onClick={searchSpotlight.open}
-            >
-              <div className={classes.menuItemInner}>
-                <IconSearch
-                  size={18}
-                  className={classes.menuItemIcon}
-                  stroke={2}
-                />
-                <span>{t("Search")}</span>
-              </div>
-            </UnstyledButton>
-
             <UnstyledButton className={classes.menu} onClick={openSettings}>
               <div className={classes.menuItemInner}>
                 <IconSettings
@@ -152,6 +136,26 @@ export function SpaceSidebar() {
                   stroke={2}
                 />
                 <span>{t("Space settings")}</span>
+              </div>
+            </UnstyledButton>
+
+            <UnstyledButton
+              component={Link}
+              to={`/s/${spaceSlug}/trash`}
+              className={clsx(
+                classes.menu,
+                location.pathname.toLowerCase() === `/s/${spaceSlug}/trash`
+                  ? classes.activeButton
+                  : "",
+              )}
+            >
+              <div className={classes.menuItemInner}>
+                <IconTrash
+                  size={18}
+                  className={classes.menuItemIcon}
+                  stroke={2}
+                />
+                <span>{t("Trash")}</span>
               </div>
             </UnstyledButton>
 
@@ -347,14 +351,6 @@ function SpaceMenu({
                 leftSection={<IconSettings size={16} />}
               >
                 {t("Space settings")}
-              </Menu.Item>
-
-              <Menu.Item
-                component={Link}
-                to={`/s/${spaceSlug}/trash`}
-                leftSection={<IconTrash size={16} />}
-              >
-                {t("Trash")}
               </Menu.Item>
             </>
           )}

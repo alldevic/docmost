@@ -75,8 +75,6 @@ export function ColumnsMenu({ editor }: EditorMenuProps) {
     "callout",
     "image",
     "video",
-    "drawio",
-    "excalidraw",
     "table",
   ];
 

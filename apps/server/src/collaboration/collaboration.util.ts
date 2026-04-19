@@ -5,7 +5,6 @@ import SubScript from '@tiptap/extension-subscript';
 import { Typography } from '@tiptap/extension-typography';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
-import { Youtube } from '@tiptap/extension-youtube';
 import { TaskList, TaskItem } from '@tiptap/extension-list';
 import {
   Heading,
@@ -28,8 +27,6 @@ import {
   TiptapPdf,
   TrailingNode,
   Attachment,
-  Drawio,
-  Excalidraw,
   Embed,
   Mention,
   Subpages,
@@ -85,7 +82,6 @@ export const tiptapExtensions = [
   TableCell,
   TableRow,
   TableHeader,
-  Youtube,
   TiptapImage,
   TiptapVideo,
   TiptapAudio,
@@ -93,8 +89,6 @@ export const tiptapExtensions = [
   Callout,
   Attachment,
   CustomCodeBlock,
-  Drawio,
-  Excalidraw,
   Embed,
   Mention,
   Subpages,

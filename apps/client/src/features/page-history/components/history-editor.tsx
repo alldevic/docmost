@@ -65,8 +65,6 @@ export function HistoryEditor({
           "image",
           "attachment",
           "video",
-          "excalidraw",
-          "drawio",
           "mermaid",
           "mathBlock",
           "mathInline",

@@ -129,8 +129,6 @@ export function isAttachmentNode(nodeType: string) {
     'video',
     'audio',
     'pdf',
-    'excalidraw',
-    'drawio',
   ];
   return attachmentNodeTypes.includes(nodeType);
 }

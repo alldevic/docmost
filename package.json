@@ -51,7 +51,6 @@
     "@tiptap/extension-text-style": "3.20.4",
     "@tiptap/extension-typography": "3.20.4",
     "@tiptap/extension-unique-id": "3.20.4",
-    "@tiptap/extension-youtube": "3.20.4",
     "@tiptap/html": "3.20.4",
     "@tiptap/pm": "3.20.4",
     "@tiptap/react": "3.20.4",

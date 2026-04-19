@@ -13,8 +13,6 @@ export * from "./lib/selection";
 export * from "./lib/attachment";
 export * from "./lib/audio";
 export * from "./lib/custom-code-block";
-export * from "./lib/drawio";
-export * from "./lib/excalidraw";
 export * from "./lib/embed";
 export * from "./lib/mention";
 export * from "./lib/markdown";
