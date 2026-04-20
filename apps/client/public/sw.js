@@ -1,212 +1,41 @@
-const CACHE_VERSION = "docmost-pwa-v1";
-const SHELL_CACHE = `${CACHE_VERSION}-shell`;
-const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
+const VERSION = 'v4'; // Update this to trigger re-install
 
-const APP_SHELL_ASSETS = [
-  "/",
-  "/offline.html",
-  "/manifest.json",
-  "/icons/favicon-16x16.png",
-  "/icons/favicon-32x32.png",
-  "/icons/app-icon-192x192.png",
-  "/icons/app-icon-512x512.png",
-];
-
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches
-      .open(SHELL_CACHE)
-      .then((cache) => cache.addAll(APP_SHELL_ASSETS))
-      .then(() => self.skipWaiting()),
-  );
+self.addEventListener('install', (event) => {
+    event.waitUntil(self.skipWaiting());
 });
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches
-      .keys()
-      .then((cacheNames) =>
-        Promise.all(
-          cacheNames
-            .filter((cacheName) => !cacheName.startsWith(CACHE_VERSION))
-            .map((cacheName) => caches.delete(cacheName)),
-        ),
-      )
-      .then(() => self.clients.claim()),
-  );
+self.addEventListener('activate', (event) => {
+    event.waitUntil(clients.claim());
 });
 
-self.addEventListener("fetch", (event) => {
-  const { request } = event;
+self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
 
-  // Do not intercept non-GET requests and system chrome-extension URLs.
-  if (request.method !== "GET" || !request.url.startsWith("http")) {
-    return;
-  }
+    if (event.request.method === 'POST' && url.pathname === '/share-target') {
+        event.respondWith(
+            (async () => {
+                let data = { title: "", text: "", url: "" };
+                try {
+                    const formData = await event.request.formData();
+                    for (const [key, value] of formData.entries()) {
+                        if (key in data && typeof value === "string") data[key] = value;
+                    }
+                } catch (e) {
+                    // If parsing fails, still redirect to UI (which can show "no content").
+                }
 
-  const url = new URL(request.url);
+                // Store in Cache API
+                const cache = await caches.open('share-target');
+                await cache.put(
+                    'shared-content',
+                    new Response(JSON.stringify(data), {
+                        headers: { 'Content-Type': 'application/json' },
+                    })
+                );
 
-  // Always pass critical realtime/API requests directly to the network
-  // to avoid breaking authentication, WebSocket upgrades, and synchronization.
-  if (
-    url.pathname.startsWith("/api") ||
-    url.pathname.startsWith("/socket.io") ||
-    url.pathname.startsWith("/collab")
-  ) {
-    return;
-  }
-
-  if (request.mode === "navigate") {
-    event.respondWith(networkFirstForDocuments(request));
-    return;
-  }
-
-  event.respondWith(staleWhileRevalidate(request));
+                // Redirect to the client-side route
+                return Response.redirect('/share-target', 303);
+            })()
+        );
+    }
 });
-
-self.addEventListener("push", (event) => {
-  event.waitUntil(handlePushEvent(event));
-});
-
-self.addEventListener("notificationclick", (event) => {
-  event.waitUntil(handleNotificationClick(event));
-});
-
-/**
- * Handles incoming push payload and displays a notification.
- *
- * @param {PushEvent} event - Push event from the browser.
- * @returns {Promise<void>} Promise that resolves when notification display completes.
- */
-async function handlePushEvent(event) {
-  let payload = {};
-
-  if (event.data) {
-    try {
-      payload = event.data.json();
-    } catch {
-      payload = { body: event.data.text() };
-    }
-  }
-
-  const title = payload.title || "Docmost";
-  const body = payload.body || "You have a new notification";
-
-  await self.registration.showNotification(title, {
-    body,
-    icon: "/icons/app-icon-192x192.png",
-    badge: "/icons/favicon-32x32.png",
-    data: {
-      url: payload.url || "/",
-    },
-  });
-}
-
-/**
- * On click, opens the target tab or focuses an existing one.
- *
- * @param {NotificationEvent} event - Click event for a system notification.
- * @returns {Promise<void>} Promise that resolves when click handling completes.
- */
-async function handleNotificationClick(event) {
-  event.notification.close();
-
-  const targetUrl = event.notification.data?.url || "/";
-  const windows = await self.clients.matchAll({
-    type: "window",
-    includeUncontrolled: true,
-  });
-
-  const existingWindow = windows.find((client) => {
-    try {
-      const clientUrl = new URL(client.url);
-      const expectedUrl = new URL(targetUrl, self.location.origin);
-
-      return clientUrl.pathname === expectedUrl.pathname;
-    } catch {
-      return false;
-    }
-  });
-
-  if (existingWindow) {
-    await existingWindow.focus();
-    return;
-  }
-
-  await self.clients.openWindow(targetUrl);
-}
-
-/**
- * Network First strategy for HTML navigation.
- *
- * @param {Request} request - Original browser navigation request.
- * @returns {Promise<Response>} Fresh network response or fallback from cache/offline page.
- */
-async function networkFirstForDocuments(request) {
-  const cache = await caches.open(RUNTIME_CACHE);
-
-  try {
-    const response = await fetch(request);
-
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-
-    return response;
-  } catch {
-    const cachedResponse = await cache.match(request);
-
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-
-    const offlinePage = await caches.match("/offline.html");
-
-    if (offlinePage) {
-      return offlinePage;
-    }
-
-    return new Response("Offline", {
-      status: 503,
-      statusText: "Offline",
-      headers: { "Content-Type": "text/plain; charset=UTF-8" },
-    });
-  }
-}
-
-/**
- * Stale-While-Revalidate strategy for assets (JS/CSS/images).
- *
- * @param {Request} request - Original request for a static resource.
- * @returns {Promise<Response>} Fast response from cache or network with follow-up cache update.
- */
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(RUNTIME_CACHE);
-  const cachedResponse = await cache.match(request);
-
-  const networkResponsePromise = fetch(request)
-    .then((networkResponse) => {
-      if (networkResponse.ok) {
-        cache.put(request, networkResponse.clone());
-      }
-
-      return networkResponse;
-    })
-    .catch(() => null);
-
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-
-  const networkResponse = await networkResponsePromise;
-
-  if (networkResponse) {
-    return networkResponse;
-  }
-
-  return new Response("Offline", {
-    status: 503,
-    statusText: "Offline",
-    headers: { "Content-Type": "text/plain; charset=UTF-8" },
-  });
-}

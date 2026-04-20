@@ -33,6 +33,7 @@ import SpaceTrash from "@/pages/space/space-trash.tsx";
 import UserApiKeys from "@/ee/api-key/pages/user-api-keys";
 import WorkspaceApiKeys from "@/ee/api-key/pages/workspace-api-keys";
 import AiSettings from "@/ee/ai/pages/ai-settings.tsx";
+import ShareTarget from "@/pages/share-target/share-target.tsx";
 import AuditLogs from "@/ee/audit/pages/audit-logs.tsx";
 import VerifiedPages from "@/ee/page-verification/pages/verified-pages.tsx";
 import TemplateList from "@/ee/template/pages/template-list";
@@ -56,7 +57,7 @@ export default function App() {
         <Route path={"/login/mfa"} element={<MfaChallengePage />} />
         <Route path={"/login/mfa/setup"} element={<MfaSetupRequiredPage />} />
         <Route path={"/setup/register"} element={<SetupWorkspace />} />
-
+        <Route path={"/share-target"} element={<ShareTarget />} />
         <Route element={<ShareLayout />}>
           <Route
             path={"/share/:shareId/p/:pageSlug"}

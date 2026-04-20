@@ -3,6 +3,9 @@ LABEL org.opencontainers.image.source="https://github.com/docmost/docmost"
 
 FROM base AS builder
 
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
 WORKDIR /app
 
 RUN npm install -g pnpm@10.4.0
@@ -13,7 +16,7 @@ COPY apps/client/package.json apps/client/package.json
 COPY apps/server/package.json apps/server/package.json
 COPY packages/editor-ext/package.json packages/editor-ext/package.json
 
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 COPY packages packages
 RUN pnpm editor-ext:build
@@ -54,7 +57,7 @@ RUN chown -R node:node /app
 
 USER node
 
-RUN pnpm install --frozen-lockfile --prod
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prod
 
 RUN mkdir -p /app/data/storage
 

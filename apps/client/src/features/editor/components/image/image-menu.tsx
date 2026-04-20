@@ -242,7 +242,7 @@ export function ImageMenu({ editor }: EditorMenuProps) {
           </ActionIcon>
         </Tooltip>
 
-        <Tooltip position="top" label={t("Replace image")} withinPortal={false}>
+        {/* <Tooltip position="top" label={t("Replace image")} withinPortal={false}>
           <ActionIcon
             onClick={handleReplace}
             size="lg"
@@ -251,7 +251,7 @@ export function ImageMenu({ editor }: EditorMenuProps) {
           >
             <IconRefresh size={18} />
           </ActionIcon>
-        </Tooltip>
+        </Tooltip> */}
 
         <Tooltip position="top" label={t("Delete")} withinPortal={false}>
           <ActionIcon
