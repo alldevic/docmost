@@ -35,8 +35,8 @@ export class CommentService {
     private notificationQueue: Queue,
   ) {}
 
-  async findById(commentId: string) {
-    const comment = await this.commentRepo.findById(commentId, {
+  async findById(commentId: string, workspaceId: string) {
+    const comment = await this.commentRepo.findById(commentId, workspaceId, {
       includeCreator: true,
       includeResolvedBy: true,
     });
@@ -51,11 +51,18 @@ export class CommentService {
     createCommentDto: CreateCommentDto,
   ) {
     const { page, workspaceId, user } = opts;
-    const commentContent = JSON.parse(createCommentDto.content);
+
+    let commentContent: any;
+    try {
+      commentContent = JSON.parse(createCommentDto.content);
+    } catch {
+      throw new BadRequestException('Invalid comment content');
+    }
 
     if (createCommentDto.parentCommentId) {
       const parentComment = await this.commentRepo.findById(
         createCommentDto.parentCommentId,
+        workspaceId,
       );
 
       if (!parentComment || parentComment.pageId !== page.id) {
@@ -106,7 +113,7 @@ export class CommentService {
       }
     }
 
-    const comment = await this.commentRepo.findById(inserted.id, {
+    const comment = await this.commentRepo.findById(inserted.id, workspaceId, {
       includeCreator: true,
       includeResolvedBy: true,
     });

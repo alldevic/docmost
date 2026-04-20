@@ -45,7 +45,7 @@ export class CommentEeController {
     @AuthUser() user: User,
     @AuthWorkspace() workspace: Workspace,
   ) {
-    const comment = await this.commentRepo.findById(dto.commentId, {
+    const comment = await this.commentRepo.findById(dto.commentId,workspace.id, {
       includeCreator: true,
       includeResolvedBy: true,
     });
@@ -72,7 +72,7 @@ export class CommentEeController {
       comment.id,
     );
 
-    const updated = await this.commentRepo.findById(comment.id, {
+    const updated = await this.commentRepo.findById(comment.id, workspace.id, {
       includeCreator: true,
       includeResolvedBy: true,
     });

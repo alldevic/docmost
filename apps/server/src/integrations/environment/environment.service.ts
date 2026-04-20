@@ -205,14 +205,6 @@ export class EnvironmentService {
     return isStandalone === 'true';
   }
 
-  getPostHogHost(): string {
-    return this.configService.get<string>('POSTHOG_HOST');
-  }
-
-  getPostHogKey(): string {
-    return this.configService.get<string>('POSTHOG_KEY');
-  }
-
   getSearchDriver(): string {
     return this.configService
       .get<string>('SEARCH_DRIVER', 'database')

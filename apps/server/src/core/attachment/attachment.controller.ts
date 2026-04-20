@@ -387,6 +387,11 @@ export class AttachmentController {
       throw new BadRequestException('Invalid file id');
     }
 
+    // Prevent path traversal attacks
+    if (fileName.includes('..') || fileName.includes('/') || fileName.includes('\\')) {
+      throw new BadRequestException('Invalid filename');
+    }
+
     const filePath = `${getAttachmentFolderPath(attachmentType, workspace.id)}/${fileName}`;
 
     try {

@@ -116,7 +116,7 @@ export class TokenService {
       type: JwtType.API_KEY,
     };
 
-    return this.jwtService.sign(payload, expiresIn ? { expiresIn } : {});
+    return this.jwtService.sign(payload, expiresIn ? { expiresIn } : { expiresIn: '365d' });
   }
 
   async generatePdfRenderToken(

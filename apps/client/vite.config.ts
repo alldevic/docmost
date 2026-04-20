@@ -33,19 +33,19 @@ export default defineConfig(({ mode }) => {
       APP_VERSION: JSON.stringify(process.env.npm_package_version),
     },
     plugins: [react()],
-    build: {
-      rolldownOptions: {
-        output: {
-          codeSplitting: {
-            groups: [
-              { name: "vendor-mantine", test: /@mantine/ },
-              { name: "vendor-mermaid", test: /mermaid|cytoscape|elkjs/ },
-              { name: "vendor-katex", test: /katex/ },
-            ],
-          },
-        },
-      },
-    },
+    // build: {
+    //   rolldownOptions: {
+    //     output: {
+    //       codeSplitting: {
+    //         groups: [
+    //           { name: "vendor-mantine", test: /@mantine/ },
+    //           { name: "vendor-mermaid", test: /mermaid|cytoscape|elkjs/ },
+    //           { name: "vendor-katex", test: /katex/ },
+    //         ],
+    //       },
+    //     },
+    //   },
+    // },
     resolve: {
       alias: {
         "@": "/src",

@@ -25,8 +25,6 @@ import { Notifications } from "@mantine/notifications";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import "./i18n";
-import { PostHogProvider } from "posthog-js/react";
-import posthog from "posthog-js";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,19 +40,25 @@ export const queryClient = new QueryClient({
 const container = document.getElementById("root") as HTMLElement;
 const root = (container as any).__reactRoot ??= ReactDOM.createRoot(container);
 
-root.render(
-  <BrowserRouter>
-    <MantineProvider theme={theme} cssVariablesResolver={mantineCssResolver}>
-      <ModalsProvider>
-        <QueryClientProvider client={queryClient}>
-          <Notifications position="bottom-center" limit={3} zIndex={10000} />
-          <HelmetProvider>
-            <PostHogProvider client={posthog}>
-              <App />
-            </PostHogProvider>
-          </HelmetProvider>
-        </QueryClientProvider>
-      </ModalsProvider>
-    </MantineProvider>
-  </BrowserRouter>,
-);
+function renderApp() {
+  const appContent = (
+    <HelmetProvider>
+      <App />
+    </HelmetProvider>
+  );
+
+  root.render(
+    <BrowserRouter>
+      <MantineProvider theme={theme} cssVariablesResolver={mantineCssResolver}>
+        <ModalsProvider>
+          <QueryClientProvider client={queryClient}>
+            <Notifications position="bottom-center" limit={3} zIndex={10000} />
+            {appContent}
+          </QueryClientProvider>
+        </ModalsProvider>
+      </MantineProvider>
+    </BrowserRouter>,
+  );
+}
+
+renderApp();
