@@ -15,6 +15,7 @@ if (typeof URL.canParse !== "function") {
   };
 }
 
+import { registerServiceWorker } from "@/lib/pwa/register-service-worker.ts";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import { mantineCssResolver, theme } from "@/theme";
@@ -62,3 +63,5 @@ function renderApp() {
 }
 
 renderApp();
+
+registerServiceWorker();
