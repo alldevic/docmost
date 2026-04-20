@@ -1,12 +1,24 @@
-import { ActionIcon, Tooltip, Group, Text, MantineSize, SegmentedControl } from "@mantine/core";
+import {
+  ActionIcon,
+  Tooltip,
+  Group,
+  Text,
+  MantineSize,
+  SegmentedControl,
+} from "@mantine/core";
 import { useAtom } from "jotai";
 import { userAtom } from "@/features/user/atoms/current-user-atom.ts";
 import { updateUser } from "@/features/user/services/user-service.ts";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageEditMode } from "@/features/user/types/user.types.ts";
-import { ResponsiveSettingsRow, ResponsiveSettingsContent, ResponsiveSettingsControl } from "@/components/ui/responsive-settings-row";
+import {
+  ResponsiveSettingsRow,
+  ResponsiveSettingsContent,
+  ResponsiveSettingsControl,
+} from "@/components/ui/responsive-settings-row";
 import { IconPencilOff, IconPencil } from "@tabler/icons-react";
+import { currentPageEditModeAtom } from "@/features/editor/atoms/editor-atoms.ts";
 
 export default function PageStatePref() {
   const { t } = useTranslation();
@@ -61,18 +73,87 @@ export function PageStateSegmentedControl({
   }, [pageEditMode, value]);
 
   return (
-    <Tooltip label={pageEditMode === PageEditMode.Edit ? t("Editing") : t("Reading")} openDelay={250} withArrow>
+    <Tooltip
+      label={pageEditMode === PageEditMode.Edit ? t("Editing") : t("Reading")}
+      openDelay={250}
+      withArrow
+    >
       <ActionIcon
         variant="subtle"
         color="dark"
         style={{ border: "none" }}
         onClick={() => {
-          handleChange(pageEditMode === PageEditMode.Edit ? PageEditMode.Read : PageEditMode.Edit);
+          handleChange(
+            pageEditMode === PageEditMode.Edit
+              ? PageEditMode.Read
+              : PageEditMode.Edit,
+          );
         }}
-        aria-label={pageEditMode === PageEditMode.Edit ? t("Editing") : t("Reading")}
+        aria-label={
+          pageEditMode === PageEditMode.Edit ? t("Editing") : t("Reading")
+        }
       >
-        {pageEditMode === PageEditMode.Edit ? <IconPencil size={20} stroke={2} /> : <IconPencilOff size={20} stroke={2} />}
+        {pageEditMode === PageEditMode.Edit ? (
+          <IconPencil size={20} stroke={2} />
+        ) : (
+          <IconPencilOff size={20} stroke={2} />
+        )}
       </ActionIcon>
     </Tooltip>
+  );
+}
+
+// Header variant: updates the current page's mode locally without persisting
+// the preference to the server.
+export function PageEditModeToggle({ size }: { size?: MantineSize }) {
+  const { t } = useTranslation();
+  const [currentPageEditMode, setCurrentPageEditMode] = useAtom(
+    currentPageEditModeAtom,
+  );
+
+  return (
+    <Tooltip
+      label={
+        currentPageEditMode === PageEditMode.Edit ? t("Editing") : t("Reading")
+      }
+      openDelay={250}
+      withArrow
+    >
+      <ActionIcon
+        variant="subtle"
+        color="dark"
+        style={{ border: "none" }}
+        onClick={() => {
+          setCurrentPageEditMode(
+            currentPageEditMode === PageEditMode.Edit
+              ? PageEditMode.Read
+              : PageEditMode.Edit,
+          );
+        }}
+        aria-label={
+          currentPageEditMode === PageEditMode.Edit
+            ? t("Editing")
+            : t("Reading")
+        }
+      >
+        {currentPageEditMode === PageEditMode.Edit ? (
+          <IconPencil size={20} stroke={2} />
+        ) : (
+          <IconPencilOff size={20} stroke={2} />
+        )}
+      </ActionIcon>
+    </Tooltip>
+  );
+
+  return (
+    <SegmentedControl
+      size={size}
+      value={currentPageEditMode}
+      onChange={(v) => setCurrentPageEditMode(v as PageEditMode)}
+      data={[
+        { label: t("Edit"), value: PageEditMode.Edit },
+        { label: t("Read"), value: PageEditMode.Read },
+      ]}
+    />
   );
 }

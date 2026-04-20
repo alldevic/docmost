@@ -7,6 +7,7 @@ import { Text } from "@tiptap/extension-text";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { useAtomValue } from "jotai";
 import {
+  currentPageEditModeAtom,
   pageEditorAtom,
   titleEditorAtom,
 } from "@/features/editor/atoms/editor-atoms";
@@ -53,9 +54,8 @@ export function TitleEditor({
   const navigate = useNavigate();
   const [activePageId, setActivePageId] = useState(pageId);
   const [currentUser] = useAtom(currentUserAtom);
-  const userPageEditMode =
-    currentUser?.user?.settings?.preferences?.pageEditMode ?? PageEditMode.Edit;
   const userSpellcheckPref = currentUser?.user?.settings?.preferences?.spellcheck ?? true;
+  const currentPageEditMode = useAtomValue(currentPageEditModeAtom);
 
   const titleEditor = useEditor({
     extensions: [
@@ -173,18 +173,9 @@ export function TitleEditor({
   }, [pageId]);
 
   useEffect(() => {
-    if (titleEditor) {
-      if (userPageEditMode && editable) {
-        if (userPageEditMode === PageEditMode.Edit) {
-          titleEditor.setEditable(true);
-        } else if (userPageEditMode === PageEditMode.Read) {
-          titleEditor.setEditable(false);
-        }
-      } else {
-        titleEditor.setEditable(false);
-      }
-    }
-  }, [userPageEditMode, titleEditor, editable]);
+    if (!titleEditor) return;
+    titleEditor.setEditable(editable && currentPageEditMode === PageEditMode.Edit);
+  }, [currentPageEditMode, titleEditor, editable]);
 
   const openSearchDialog = () => {
     const event = new CustomEvent("openFindDialogFromEditor", {});
