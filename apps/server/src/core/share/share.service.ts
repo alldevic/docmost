@@ -47,7 +47,7 @@ export class ShareService {
 
     const isRestricted =
       await this.pagePermissionRepo.hasRestrictedAncestor(share.pageId);
-    if (isRestricted) {
+    if (isRestricted && !share.passwordHash) {
       throw new NotFoundException('Share not found');
     }
 
@@ -173,7 +173,7 @@ export class ShareService {
     // Block access to restricted pages
     const isRestricted =
       await this.pagePermissionRepo.hasRestrictedAncestor(page.id);
-    if (isRestricted) {
+    if (isRestricted && !share.passwordHash) {
       throw new NotFoundException('Shared page not found');
     }
 

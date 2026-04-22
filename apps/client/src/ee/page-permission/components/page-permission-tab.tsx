@@ -28,7 +28,14 @@ import { GeneralAccessSelect } from "@/ee/page-permission";
 import { PagePermissionList } from "@/ee/page-permission";
 import classes from "./page-permission.module.css";
 import { buildPageUrl } from "@/features/page/page.utils";
-
+import {
+  useCreateShareMutation,
+  useDeleteShareMutation,
+  useShareForPageQuery,
+  useUpdateShareMutation,
+  useSetSharePasswordMutation,
+  useRemoveSharePasswordMutation,
+} from "@/features/share/queries/share-query.ts";
 type PagePermissionTabProps = {
   pageId: string;
   restrictionInfo: IPageRestrictionInfo;
@@ -50,12 +57,17 @@ export function PagePermissionTab({
   const hasInheritedRestriction = restrictionInfo.hasInheritedRestriction;
   const hasDirectRestriction = restrictionInfo.hasDirectRestriction;
   const canManage = restrictionInfo.userAccess.canManage;
+  const deleteShareMutation = useDeleteShareMutation();
+  const { data: share } = useShareForPageQuery(pageId);
 
   const handleDirectAccessChange = async (value: "open" | "restricted") => {
     if (value === "restricted" && !hasDirectRestriction) {
       await restrictMutation.mutateAsync(pageId);
     } else if (value === "open" && hasDirectRestriction) {
       await unrestrictMutation.mutateAsync(pageId);
+    }
+    if (share && (value === "restricted")) {
+      await deleteShareMutation.mutateAsync(share.id);
     }
   };
 
@@ -89,12 +101,7 @@ export function PagePermissionTab({
       {hasInheritedRestriction && (
         <Paper className={classes.inheritedSection} p="sm" radius="sm">
           <Group gap="sm" wrap="nowrap">
-            <ThemeIcon
-              size="lg"
-              radius="sm"
-              variant="light"
-              color="orange"
-            >
+            <ThemeIcon size="lg" radius="sm" variant="light" color="orange">
               <IconShieldLock size={18} stroke={1.5} />
             </ThemeIcon>
             <Box style={{ flex: 1 }}>
@@ -118,7 +125,10 @@ export function PagePermissionTab({
                       <Text size="xs" fw={500} c="blue">
                         {restrictionInfo.inheritedFrom.title || t("Untitled")}
                       </Text>
-                      <IconArrowRight size={12} color="var(--mantine-color-blue-6)" />
+                      <IconArrowRight
+                        size={12}
+                        color="var(--mantine-color-blue-6)"
+                      />
                     </Group>
                   </Link>
                 )}

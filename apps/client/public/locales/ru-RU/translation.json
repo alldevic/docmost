@@ -1322,5 +1322,8 @@
   "3 Columns": "3 колонки",
   "Split content into three columns.": "Разделить контент на 3 колонки",
   "Iframe embed": "Iframe",
-  "Embed any Iframe": "Встройте любой сайт чере Iframe"
+  "Embed any Iframe": "Встройте любой сайт чере Iframe",
+  "Remove share": "Отключить публикацию",
+  "This page is password protected. Please enter the password to continue.": "Введите пароль для доступа к странице",
+  "Password Required": "Введите пароль"
 }

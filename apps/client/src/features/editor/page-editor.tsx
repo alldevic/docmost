@@ -117,7 +117,8 @@ export default function PageEditor({
   );
   const { handleScrollTo } = useEditorScroll({ canScroll });
 
-  const userSpellcheckPref = currentUser?.user?.settings?.preferences?.spellcheck ?? true;
+  const userSpellcheckPref =
+    currentUser?.user?.settings?.preferences?.spellcheck ?? true;
 
   // Providers only created once per pageId
   const providersRef = useRef<{
@@ -243,6 +244,14 @@ export default function PageEditor({
               event.preventDefault();
               debouncedSendSaveCommand();
               return true;
+            }
+            if (event.key === "Tab") {
+              const editor = editorRef.current;
+              if (!editor) return false;
+              event.preventDefault();
+              return editor.view.someProp("handleKeyDown", (f) =>
+                f(editor.view, event),
+              );
             }
             if (platformModifierKey(event) && event.code === "KeyK") {
               searchSpotlight.open();
@@ -424,9 +433,10 @@ export default function PageEditor({
             <ColumnsMenu editor={editor} />
           </div>
         )}
-        {editor && !editorIsEditable && (editable || canComment) && providersRef.current && (
-          <ReadonlyBubbleMenu editor={editor} />
-        )}
+        {editor &&
+          !editorIsEditable &&
+          (editable || canComment) &&
+          providersRef.current && <ReadonlyBubbleMenu editor={editor} />}
         {showCommentPopup && <CommentDialog editor={editor} pageId={pageId} />}
         {showReadOnlyCommentPopup && (
           <CommentDialog editor={editor} pageId={pageId} readOnly />

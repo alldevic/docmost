@@ -36,6 +36,7 @@ import { Color } from "@tiptap/extension-color";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
 import { Highlight } from "@tiptap/extension-highlight";
 import { TextStyle } from "@tiptap/extension-text-style";
+import { platformModifierKey } from "@/lib";
 
 interface CommentEditorProps {
   defaultContent?: any;
@@ -223,7 +224,7 @@ const CommentEditor = forwardRef(
               }
             }
 
-            if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+            if (platformModifierKey(event) && event.code === "Enter") {
               event.preventDefault();
               if (onSave) onSave();
 

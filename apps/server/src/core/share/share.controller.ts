@@ -53,7 +53,7 @@ export class ShareController {
     private readonly licenseCheckService: LicenseCheckService,
     @Inject(AUDIT_SERVICE) private readonly auditService: IAuditService,
     private readonly spaceMemberRepo: SpaceMemberRepo
-  ) {}
+  ) { }
 
   @HttpCode(HttpStatus.OK)
   @Post('/')
@@ -81,7 +81,7 @@ export class ShareController {
       workspace.id,
       shareData.share.spaceId,
     );
-    if (!sharingAllowed) {
+    if (!sharingAllowed && !shareData.share.passwordHash) {
       throw new NotFoundException('Shared page not found');
     }
 
@@ -110,7 +110,7 @@ export class ShareController {
       share.workspaceId,
       share.spaceId,
     );
-    if (!sharingAllowed) {
+    if (!sharingAllowed && !share.passwordHash) {
       throw new NotFoundException('Share not found');
     }
 
@@ -164,8 +164,8 @@ export class ShareController {
     const isRestricted = await this.pagePermissionRepo.hasRestrictedAncestor(
       page.id,
     );
-    if (isRestricted) {
-      throw new BadRequestException('Cannot share a restricted page');
+    if (isRestricted && !createShareDto.password) {
+      throw new BadRequestException('Cannot share a restricted page without password');
     }
 
     const sharingAllowed = await this.shareService.isSharingAllowed(
@@ -267,7 +267,7 @@ export class ShareController {
       workspace.id,
       treeData.share.spaceId,
     );
-    if (!sharingAllowed) {
+    if (!sharingAllowed && !treeData.share.passwordHash) {
       throw new NotFoundException('Share not found');
     }
 

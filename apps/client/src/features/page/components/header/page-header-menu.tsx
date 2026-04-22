@@ -54,7 +54,6 @@ import { formattedDate } from "@/lib/time.ts";
 import { PageEditModeToggle } from "@/features/user/components/page-state-pref.tsx";
 import MovePageModal from "@/features/page/components/move-page-modal.tsx";
 import { useTimeAgo } from "@/hooks/use-time-ago.tsx";
-import { PageAccessModal } from "@/ee/page-permission";
 import {
   PageVerificationMenuItem,
   PageVerificationModal,
@@ -75,6 +74,8 @@ interface PageHeaderMenuProps {
   readOnly?: boolean;
 }
 import { searchAndReplaceStateAtom } from "@/features/editor/components/search-and-replace/atoms/search-and-replace-state-atom.ts";
+import { workspaceAtom } from "@/features/user/atoms/current-user-atom";
+import { useSpaceQuery } from "@/features/space/queries/space-query";
 
 export default function PageHeaderMenu({ readOnly }: PageHeaderMenuProps) {
   const { t } = useTranslation();
@@ -182,6 +183,13 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
   const { data: share } = useShareForPageQuery(pageId);
   const [isPagePublic, setIsPagePublic] = useState<boolean>(false);
   const isRestricted = page?.permissions?.hasRestriction ?? false;
+  const isDescendantShared = share && share.level > 0;
+  const [workspace] = useAtom(workspaceAtom);
+  const { data: space } = useSpaceQuery(spaceSlug);
+  const workspaceSharingDisabled =
+    workspace?.settings?.sharing?.disabled === true;
+  const spaceSharingDisabled = space?.settings?.sharing?.disabled === true;
+
   useEffect(() => {
     if (share) {
       setIsPagePublic(true);
@@ -251,17 +259,24 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
       >
         <Menu.Target>
           <ActionIcon variant="subtle" color="dark">
-            {isRestricted ? (
-              <Indicator color="red" offset={5} withBorder>
+            <Indicator
+              color="red"
+              offset={5}
+              withBorder
+              autoContrast
+              disabled={!isRestricted}
+              position="bottom-end"
+            >
+              <Indicator
+                color="green"
+                offset={5}
+                withBorder
+                autoContrast
+                disabled={!isPagePublic}
+              >
                 <IconDots size={20} />
               </Indicator>
-            ) : isPagePublic ? (
-              <Indicator color="green" offset={5} withBorder>
-                <IconDots size={20} />
-              </Indicator>
-            ) : (
-              <IconDots size={20} />
-            )}
+            </Indicator>
           </ActionIcon>
         </Menu.Target>
 
@@ -332,21 +347,23 @@ function PageActionMenu({ readOnly }: PageActionMenuProps) {
               {t("Page access")}
             </Indicator>
           </Menu.Item>
-          <Menu.Item
-            leftSection={<IconWorld size={16} />}
-            onClick={openShareModal}
-            disabled={isRestricted}
-          >
-            <Indicator
-              color="green"
-              offset={5}
-              disabled={!isPagePublic}
-              processing
-              position="middle-end"
+          {!workspaceSharingDisabled && !spaceSharingDisabled && (
+            <Menu.Item
+              leftSection={<IconWorld size={16} />}
+              onClick={openShareModal}
+              disabled={isDescendantShared}
             >
-              {t("Share")}
-            </Indicator>
-          </Menu.Item>
+              <Indicator
+                color="green"
+                offset={5}
+                disabled={!isPagePublic}
+                processing
+                position="middle-end"
+              >
+                {t("Share")}
+              </Indicator>
+            </Menu.Item>
+          )}
           <Menu.Divider />
 
           <Menu.Item leftSection={<IconArrowsHorizontal size={16} />}>
