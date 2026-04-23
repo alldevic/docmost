@@ -60,6 +60,7 @@ export class StaticModule implements OnModuleInit {
       await app.register(fastifyStatic, {
         root: clientDistPath,
         wildcard: false,
+        preCompressed: true
       });
 
       app.get(RENDER_PATH, (req: any, res: any) => {

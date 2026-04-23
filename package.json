@@ -94,7 +94,8 @@
   "packageManager": "pnpm@10.4.0",
   "pnpm": {
     "patchedDependencies": {
-      "react-arborist@3.4.0": "patches/react-arborist@3.4.0.patch"
+      "react-arborist@3.4.0": "patches/react-arborist@3.4.0.patch",
+      "@fastify/static": "patches/@fastify__static.patch"
     },
     "overrides": {
       "prosemirror-changeset": "2.4.0",

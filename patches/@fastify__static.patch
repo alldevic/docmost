@@ -1,0 +1,16 @@
+diff --git a/index.js b/index.js
+index 86b47dc63bc2a32e388ec35a23fd2facd1e2de2d..c0cfbd01dce8ccee9c074f8f516edf111dc673fa 100644
+--- a/index.js
++++ b/index.js
+@@ -14,9 +14,10 @@ const dirList = require('./lib/dirList')
+ const endForwardSlashRegex = /\/$/u
+ const asteriskRegex = /\*/gu
+ 
+-const supportedEncodings = ['br', 'gzip', 'deflate']
++const supportedEncodings = ['zstd', 'br', 'gzip', 'deflate']
+ send.mime.default_type = 'application/octet-stream'
+ const encodingExtensionMap = {
++  zstd: '.zst',
+   br: '.br',
+   gzip: '.gz'
+ }
