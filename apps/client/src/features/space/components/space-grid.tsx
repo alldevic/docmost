@@ -20,7 +20,7 @@ export default function SpaceGrid() {
   const { data, isLoading } = useGetSpacesQuery({ limit: 10 });
   const spaceFavoriteIds = useFavoriteIds("space");
 
-  const cards = data?.items.slice(0, 6).map((space, index) => (
+  const cards = data?.items.slice(0, 9).map((space, index) => (
     <Card
       key={space.id}
       p="xs"
