@@ -20,6 +20,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { WorkspaceInviteForm } from "@/features/workspace/components/members/components/workspace-invite-form";
 import { CustomAvatar } from "@/components/ui/custom-avatar";
 import { AvatarIconType } from "@/features/attachments/types/attachment.types";
+import useUserRole from "@/hooks/use-user-role.tsx";
 
 const mainNavItems = [
   { label: "Home", icon: IconHome, path: "/home" },
@@ -33,16 +34,23 @@ export default function GlobalSidebar() {
   const [active, setActive] = useState(location.pathname);
   const [mobileSidebarOpened] = useAtom(mobileSidebarAtom);
   const toggleMobileSidebar = useToggleSidebar(mobileSidebarAtom);
-  const { data: favoriteSpacesData, isPending: isFavoritesPending } = useFavoritesQuery("space");
-  const favoriteSpaces = favoriteSpacesData?.pages.flatMap((p) => p.items) ?? [];
+  const { data: favoriteSpacesData, isPending: isFavoritesPending } =
+    useFavoritesQuery("space");
+  const favoriteSpaces =
+    favoriteSpacesData?.pages.flatMap((p) => p.items) ?? [];
   const sortedFavoriteSpaces = [...favoriteSpaces]
     .filter((fav) => fav.space)
     .sort((a, b) => {
-      const cmp = (a.space!.name ?? "").localeCompare(b.space!.name ?? "", undefined, { sensitivity: "base" });
+      const cmp = (a.space!.name ?? "").localeCompare(
+        b.space!.name ?? "",
+        undefined,
+        { sensitivity: "base" },
+      );
       return cmp !== 0 ? cmp : a.id.localeCompare(b.id);
     });
   const [inviteOpened, { open: openInvite, close: closeInvite }] =
     useDisclosure(false);
+  const { isAdmin } = useUserRole();
 
   useEffect(() => {
     setActive(location.pathname);
@@ -115,21 +123,22 @@ export default function GlobalSidebar() {
             </>
           )}
         </div>
-
       </ScrollArea>
 
       <div className={classes.bottomSection}>
-        <a
-          className={classes.link}
-          onClick={(e) => {
-            e.preventDefault();
-            openInvite();
-          }}
-          href="#"
-        >
-          <IconUserPlus className={classes.linkIcon} stroke={2} />
-          <span>{t("Invite People")}</span>
-        </a>
+        {isAdmin && (
+          <a
+            className={classes.link}
+            onClick={(e) => {
+              e.preventDefault();
+              openInvite();
+            }}
+            href="#"
+          >
+            <IconUserPlus className={classes.linkIcon} stroke={2} />
+            <span>{t("Invite People")}</span>
+          </a>
+        )}
         <Link
           className={classes.link}
           data-active={active.startsWith("/settings") || undefined}
