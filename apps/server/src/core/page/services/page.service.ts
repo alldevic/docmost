@@ -305,13 +305,17 @@ export class PageService {
       beforeCursor: pagination.beforeCursor,
       fields: [
         {
-          expression: 'position',
+          // Sort and compare the cursor in the same collation. With only the ORDER BY in
+          // "C", the cursor condition used the database collation and folders of more
+          // than one page of items lost and repeated pages (positions mix upper and lower case).
+          expression: sql<string>`position collate "C"`,
+          key: 'position',
           direction: 'asc',
-          orderModifier: (ob) => ob.collate('C').asc(),
         },
         { expression: 'id', direction: 'asc' },
       ],
-      parseCursor: (cursor) => ({
+      // the cursor type cannot be inferred from a raw expression
+      parseCursor: (cursor: Record<string, string>) => ({
         position: cursor.position,
         id: cursor.id,
       }),
