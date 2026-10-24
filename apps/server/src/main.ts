@@ -8,10 +8,12 @@ import { Logger, NotFoundException, ValidationPipe } from '@nestjs/common';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { TransformHttpResponseInterceptor } from './common/interceptors/http-response.interceptor';
 import { WsRedisIoAdapter } from './ws/adapter/ws-redis.adapter';
+import fastifyCompress from '@fastify/compress';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyCookie from '@fastify/cookie';
 import fastifyIp from 'fastify-ip';
 import { InternalLogFilter } from './common/logger/internal-log-filter';
+import { constants as zlibConstants } from 'node:zlib';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -47,6 +49,24 @@ async function bootstrap() {
   app.useWebSocketAdapter(redisIoAdapter);
 
   await app.register(fastifyIp);
+  // Must be registered before @fastify/static (StaticModule), which serves
+  // precompressed assets itself. customTypes only adds to the types mime-db marks
+  // as compressible; text/event-stream is in neither, so event streams stay
+  // unbuffered. File downloads opt out per route (AttachmentController).
+  // HTTP_COMPRESSION=false leaves it to a reverse proxy.
+  if (process.env.HTTP_COMPRESSION !== 'false') {
+    await app.register(fastifyCompress, {
+      encodings: ['br', 'gzip'],
+      threshold: 1024,
+      customTypes:
+        /^(application\/(json|javascript|xml)|text\/(html|css|plain|markdown|javascript|xml|csv)|image\/svg\+xml)\b/,
+      brotliOptions: {
+        params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 4 },
+      },
+      zlibOptions: { level: 6 },
+      globalDecompression: false,
+    });
+  }
   await app.register(fastifyMultipart);
   await app.register(fastifyCookie);
 

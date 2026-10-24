@@ -17,6 +17,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { RouteConfig } from '@nestjs/platform-fastify';
 import { AttachmentService } from './services/attachment.service';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { FileInterceptor } from '../../common/interceptors/file.interceptor';
@@ -163,7 +164,10 @@ export class AttachmentController {
     }
   }
 
+  // No HTTP compression for file downloads: it would drop Content-Length, and a
+  // 206 response would be encoded while Content-Range counts the raw bytes.
   @UseGuards(JwtAuthGuard)
+  @RouteConfig({ compress: false })
   @Get('/files/:fileId/:fileName')
   async getFile(
     @Req() req: FastifyRequest,
@@ -210,6 +214,7 @@ export class AttachmentController {
     }
   }
 
+  @RouteConfig({ compress: false })
   @Get('/files/public/:fileId/:fileName')
   async getPublicFile(
     @Req() req: FastifyRequest,
