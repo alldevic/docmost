@@ -2,10 +2,15 @@ import "@/features/editor/styles/index.css";
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+import { getSchema } from "@tiptap/core";
+import { DOMSerializer, Node as PMNode, Schema } from "@tiptap/pm/model";
+import codeBlockClasses from "@/features/editor/components/code-block/code-block.module.css";
+import imageClasses from "@/features/editor/components/image/image-view.module.css";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 import {
@@ -71,6 +76,121 @@ import { useEditorScroll } from "./hooks/use-editor-scroll";
 import { EditorAiMenu } from "@/ee/ai/components/editor/ai-menu/ai-menu";
 import { EditorLinkMenu } from "@/features/editor/components/link/link-menu";
 import ColumnsMenu from "@/features/editor/components/columns/columns-menu.tsx";
+
+// The copy shown until the collaborative editor has synced. Serialized straight to DOM
+// from the page JSON: a second TipTap editor with React node views cost about as much
+// as the live editor itself on large pages.
+let staticSchema: Schema | null = null;
+
+const IMAGE_ALIGN: Record<string, string> = {
+  left: "alignLeft",
+  right: "alignRight",
+  floatLeft: "alignFloatLeft",
+  floatRight: "alignFloatRight",
+};
+
+// The node views of code blocks and images wrap their content; the serialized copy gets the
+// same wrappers and classes, so the live editor replaces it without a layout shift.
+function dressStaticCopy(root: HTMLElement) {
+  for (const pre of Array.from(root.querySelectorAll("pre"))) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "codeBlock";
+    const header = document.createElement("div");
+    header.className = codeBlockClasses.headerGroup;
+    header.contentEditable = "false";
+    const actions = document.createElement("div");
+    actions.className = codeBlockClasses.actionsGroup;
+    actions.style.display = "flex";
+    actions.style.alignItems = "center";
+    const language = document.createElement("span");
+    language.className = codeBlockClasses.languageButton;
+    language.textContent =
+      pre.querySelector("code")?.className.match(/language-(\S+)/)?.[1] ?? "auto";
+    actions.append(language);
+    header.append(actions);
+    pre.className =
+      pre.dataset.wrap === "true"
+        ? codeBlockClasses.lineWrap
+        : codeBlockClasses.noLineWrap;
+    pre.replaceWith(wrapper);
+    wrapper.append(header, pre);
+    // ProseMirror shows a trailing newline as an extra line (hack <br>)
+    const code = pre.querySelector("code");
+    if (code?.textContent?.endsWith("\n")) code.append(document.createElement("br"));
+  }
+  // details: the same markup as the node view of editor-ext/details
+  for (const details of Array.from(root.querySelectorAll("details"))) {
+    const dom = document.createElement("div");
+    dom.setAttribute("data-type", "details");
+    if (details.hasAttribute("open")) dom.setAttribute("open", "true");
+    const button = document.createElement("button");
+    button.setAttribute("data-type", "detailsButton");
+    button.innerHTML =
+      '<div><span class="ProseMirror-icon ProseMirror-icon-right-line"></span></div>';
+    const container = document.createElement("div");
+    container.setAttribute("data-type", "detailsContainer");
+    container.append(...Array.from(details.childNodes));
+    dom.append(button, container);
+    details.replaceWith(dom);
+  }
+  // ProseMirror keeps empty text blocks and a hard break at the end of a block visible
+  // with a trailing <br>
+  for (const el of Array.from(root.querySelectorAll("p, h1, h2, h3, h4, h5, h6"))) {
+    if (!el.lastChild || el.lastChild.nodeName === "BR") {
+      el.append(document.createElement("br"));
+    }
+  }
+  for (const img of Array.from(root.querySelectorAll("img"))) {
+    const wrapper = document.createElement("div");
+    wrapper.className = `${imageClasses.imageWrapper} ${IMAGE_ALIGN[img.dataset.align ?? ""] ?? "alignCenter"}`;
+    const width = img.getAttribute("width");
+    if (width) wrapper.style.width = /^\d+$/.test(width) ? `${width}px` : width;
+    img.replaceWith(wrapper);
+    wrapper.append(img);
+  }
+}
+
+function StaticPageContent({ content }: { content: any }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [failed, setFailed] = useState(false);
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    try {
+      staticSchema ??= getSchema(mainExtensions);
+      const doc = PMNode.fromJSON(staticSchema, content);
+      ref.current.replaceChildren(
+        DOMSerializer.fromSchema(staticSchema).serializeFragment(doc.content),
+      );
+      dressStaticCopy(ref.current);
+    } catch (err) {
+      console.error("static render failed, falling back to the editor", err);
+      setFailed(true);
+    }
+  }, [content]);
+
+  if (failed || !content || typeof content !== "object") {
+    return (
+      <EditorProvider
+        editable={false}
+        immediatelyRender={true}
+        extensions={mainExtensions}
+        content={content}
+      />
+    );
+  }
+
+  return (
+    <div>
+      <div
+        ref={ref}
+        className="tiptap ProseMirror"
+        contentEditable={false}
+        translate="no"
+      />
+    </div>
+  );
+}
 
 interface PageEditorProps {
   pageId: string;
@@ -398,14 +518,7 @@ export default function PageEditor({
   }, [yjsConnectionStatus, isSynced]);
 
   if (showStatic) {
-    return (
-      <EditorProvider
-        editable={false}
-        immediatelyRender={true}
-        extensions={mainExtensions}
-        content={content}
-      />
-    );
+    return <StaticPageContent content={content} />;
   }
 
   return (
