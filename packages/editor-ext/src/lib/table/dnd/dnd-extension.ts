@@ -69,9 +69,24 @@ class TableDragHandlePluginSpec implements PluginSpec<void> {
     //@ts-ignore
     wrapper.appendChild(this._dropIndicatorController.dropIndicatorRoot);
 
+    // To make `drop` event work, we need to prevent the default behavior of the
+    // `dragover` event for drop zone. Here we set the whole document as the
+    // drop zone so that even the mouse moves outside the editor, the `drop`
+    // event will still be triggered.
+    // Bound per plugin view and removed with it: `destroy` below returns early because
+    // ProseMirror destroys plugin views before the editor counts as destroyed, so listeners
+    // left on the document kept every closed editor (and its page DOM) alive.
+    const ownerDocument = this.editor.view.dom?.ownerDocument;
+    ownerDocument?.addEventListener("drop", this._onDrop);
+    ownerDocument?.addEventListener("dragover", this._onDrag);
+
     return {
       update: this.update,
-      destroy: this.destroy,
+      destroy: () => {
+        ownerDocument?.removeEventListener("drop", this._onDrop);
+        ownerDocument?.removeEventListener("dragover", this._onDrag);
+        this.destroy();
+      },
     };
   };
 
@@ -205,19 +220,6 @@ class TableDragHandlePluginSpec implements PluginSpec<void> {
       this._rowDragHandle.removeEventListener("dragend", this._onDragEnd);
     });
 
-    const ownerDocument = this.editor.view.dom?.ownerDocument;
-    if (ownerDocument) {
-      // To make `drop` event work, we need to prevent the default behavior of the
-      // `dragover` event for drop zone. Here we set the whole document as the
-      // drop zone so that even the mouse moves outside the editor, the `drop`
-      // event will still be triggered.
-      ownerDocument.addEventListener("drop", this._onDrop);
-      ownerDocument.addEventListener("dragover", this._onDrag);
-      this._disposables.push(() => {
-        ownerDocument.removeEventListener("drop", this._onDrop);
-        ownerDocument.removeEventListener("dragover", this._onDrag);
-      });
-    }
   };
 
   private _onDragStart = (event: DragEvent, type: "col" | "row") => {
