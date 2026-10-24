@@ -1,5 +1,4 @@
-import "katex/dist/katex.min.css";
-import katex from "katex";
+import { loadKatex } from "./load-katex";
 //import "katex/dist/contrib/mhchem.min.js";
 import { useEffect, useRef, useState } from "react";
 import { NodeViewProps, NodeViewWrapper } from "@tiptap/react";
@@ -25,16 +24,17 @@ export default function MathBlockView(props: NodeViewProps) {
     katexString: string,
     container: HTMLDivElement | null,
   ) => {
-    try {
-      katex.render(katexString, container!, {
-        displayMode: true,
-        strict: false,
-      });
-      setError(null);
-    } catch (e) {
-      //console.error(e.message);
-      setError(e.message);
-    }
+    loadKatex().then((katex) => {
+      try {
+        katex.render(katexString, container!, {
+          displayMode: true,
+          strict: false,
+        });
+        setError(null);
+      } catch (e) {
+        setError(e.message);
+      }
+    });
   };
 
   useEffect(() => {
