@@ -1,8 +1,9 @@
 import type { Extensions, JSONContent } from "@tiptap/core";
-import { findChildren, getSchema } from "@tiptap/core";
-import { Node } from "@tiptap/pm/model";
-import { EditorState } from "@tiptap/pm/state";
+import { getSchema } from "@tiptap/core";
+import { Node, Schema } from "@tiptap/pm/model";
 import type { UniqueID } from "./unique-id";
+
+const schemaCache = new WeakMap<Extensions, Schema>();
 
 /**
  * Creates a new document with unique IDs added to the nodes. Does the same
@@ -53,26 +54,34 @@ export function addUniqueIdsToDoc(
   const { types, attributeName, generateID } = uniqueIDExtension.options;
 
   // Convert the JSON content to a ProseMirror node
-  const schema = getSchema([
-    ...extensions.filter((ext) => ext.name !== "uniqueID"),
-    uniqueIDExtension,
-  ]);
-  const contentNode = Node.fromJSON(schema, doc);
-
-  // Find nodes that don't have a unique ID
-  const nodesWithoutId = findChildren(contentNode, (node) => {
-    return !node.attrs[attributeName] && types.includes(node.type.name);
-  });
-
-  // Edit the document to add unique IDs to the nodes that don't have a unique ID
-  let tr = EditorState.create({
-    doc: contentNode,
-  }).tr;
-  // eslint-disable-next-line no-restricted-syntax
-  for (const { node, pos } of nodesWithoutId) {
-    tr = tr.setNodeAttribute(pos, attributeName, generateID({ node, pos }));
+  let schema = schemaCache.get(extensions);
+  if (!schema) {
+    schema = getSchema([
+      ...extensions.filter((ext) => ext.name !== "uniqueID"),
+      uniqueIDExtension,
+    ]);
+    schemaCache.set(extensions, schema);
   }
+  const contentNode = Node.fromJSON(schema, doc);
+  const result = contentNode.toJSON();
 
-  // Return the updated document
-  return tr.doc.toJSON();
+  // Set IDs on the JSON copy while walking the node tree in parallel. A
+  // transaction step per node would rebuild the document each time, which is
+  // quadratic on large documents.
+  const assignIds = (node: Node, json: JSONContent, contentStart: number) => {
+    node.forEach((child, offset, index) => {
+      const pos = contentStart + offset;
+      const childJson = json.content[index];
+      if (!child.attrs[attributeName] && types.includes(child.type.name)) {
+        childJson.attrs = {
+          ...childJson.attrs,
+          [attributeName]: generateID({ node: child, pos }),
+        };
+      }
+      assignIds(child, childJson, pos + 1);
+    });
+  };
+  assignIds(contentNode, result, 0);
+
+  return result;
 }
