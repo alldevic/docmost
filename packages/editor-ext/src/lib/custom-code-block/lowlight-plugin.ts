@@ -40,6 +40,68 @@ function registered(aliasOrLanguage: string) {
 // Max characters to sample for auto-detection to avoid performance issues with large code blocks
 const AUTO_DETECT_SAMPLE_SIZE = 3000;
 
+// Highlighting of a code block depends only on its node (text and language). ProseMirror
+// nodes are immutable, so an unchanged block keeps the same object across transactions, also
+// when y-prosemirror rebuilds the whole document for a remote change. Without this cache
+// every such change ran lowlight (or auto-detection) over every code block of the page.
+type Span = { from: number; to: number; className: string };
+const spanCache = new WeakMap<
+  ProsemirrorNode,
+  { languageCount: number; spans: Span[] }
+>();
+
+function highlightSpans(
+  node: ProsemirrorNode,
+  lowlight: any,
+  defaultLanguage: string | null | undefined,
+  languages: string[],
+): Span[] {
+  const cached = spanCache.get(node);
+  // a language registered later changes the result for blocks that fell back to auto
+  if (cached && cached.languageCount === languages.length) return cached.spans;
+
+  const language = node.attrs.language || defaultLanguage;
+  const textContent = node.textContent;
+
+  let nodes;
+  if (
+    language &&
+    (languages.includes(language) ||
+      registered(language) ||
+      lowlight.registered?.(language))
+  ) {
+    nodes = getHighlightNodes(lowlight.highlight(language, textContent));
+  } else {
+    // For auto-detection, sample a limited portion to detect the language,
+    // then highlight the full content with the detected language
+    const sample =
+      textContent.length > AUTO_DETECT_SAMPLE_SIZE
+        ? textContent.slice(0, AUTO_DETECT_SAMPLE_SIZE)
+        : textContent;
+    const autoResult = lowlight.highlightAuto(sample);
+    const detectedLanguage = autoResult.data?.language;
+    if (detectedLanguage && textContent.length > AUTO_DETECT_SAMPLE_SIZE) {
+      nodes = getHighlightNodes(
+        lowlight.highlight(detectedLanguage, textContent),
+      );
+    } else {
+      nodes = getHighlightNodes(autoResult);
+    }
+  }
+
+  const spans: Span[] = [];
+  let from = 0;
+  parseNodes(nodes).forEach((part) => {
+    const to = from + part.text.length;
+    if (part.classes.length) {
+      spans.push({ from, to, className: part.classes.join(' ') });
+    }
+    from = to;
+  });
+  spanCache.set(node, { languageCount: languages.length, spans });
+  return spans;
+}
+
 function getDecorations({
   doc,
   name,
@@ -52,52 +114,17 @@ function getDecorations({
   defaultLanguage: string | null | undefined;
 }) {
   const decorations: Decoration[] = [];
+  const languages = lowlight.listLanguages();
 
   findChildren(doc, (node) => node.type.name === name).forEach((block) => {
-    let from = block.pos + 1;
-    const language = block.node.attrs.language || defaultLanguage;
-    const languages = lowlight.listLanguages();
-    const textContent = block.node.textContent;
-
-    let nodes;
-    if (
-      language &&
-      (languages.includes(language) ||
-        registered(language) ||
-        lowlight.registered?.(language))
-    ) {
-      nodes = getHighlightNodes(lowlight.highlight(language, textContent));
-    } else {
-      // For auto-detection, sample a limited portion to detect the language,
-      // then highlight the full content with the detected language
-      const sample =
-        textContent.length > AUTO_DETECT_SAMPLE_SIZE
-          ? textContent.slice(0, AUTO_DETECT_SAMPLE_SIZE)
-          : textContent;
-      const autoResult = lowlight.highlightAuto(sample);
-      const detectedLanguage = autoResult.data?.language;
-      if (detectedLanguage && textContent.length > AUTO_DETECT_SAMPLE_SIZE) {
-        nodes = getHighlightNodes(
-          lowlight.highlight(detectedLanguage, textContent),
-        );
-      } else {
-        nodes = getHighlightNodes(autoResult);
-      }
+    const start = block.pos + 1;
+    for (const span of highlightSpans(block.node, lowlight, defaultLanguage, languages)) {
+      decorations.push(
+        Decoration.inline(start + span.from, start + span.to, {
+          class: span.className,
+        }),
+      );
     }
-
-    parseNodes(nodes).forEach((node) => {
-      const to = from + node.text.length;
-
-      if (node.classes.length) {
-        const decoration = Decoration.inline(from, to, {
-          class: node.classes.join(' '),
-        });
-
-        decorations.push(decoration);
-      }
-
-      from = to;
-    });
   });
 
   return DecorationSet.create(doc, decorations);
@@ -139,6 +166,11 @@ export function LowlightPlugin({
           defaultLanguage,
         }),
       apply: (transaction, decorationSet, oldState, newState) => {
+        // selection-only transactions (every caret move) leave the highlighting as is;
+        // the checks below walk the whole document twice
+        if (!transaction.docChanged) {
+          return decorationSet;
+        }
         const oldNodeName = oldState.selection.$head.parent.type.name;
         const newNodeName = newState.selection.$head.parent.type.name;
         const oldNodes = findChildren(
