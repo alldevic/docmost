@@ -60,7 +60,18 @@ export class StaticModule implements OnModuleInit {
       await app.register(fastifyStatic, {
         root: clientDistPath,
         wildcard: false,
-        preCompressed: true
+        preCompressed: true,
+        // Hashed build output never changes under the same name: let browsers keep it
+        // instead of revalidating ~80 files on every load. Everything else revalidates.
+        cacheControl: false,
+        setHeaders: (res: any, filePath: string) => {
+          res.setHeader(
+            'Cache-Control',
+            filePath.includes(`${join('dist', 'assets')}/`)
+              ? 'public, max-age=31536000, immutable'
+              : 'no-cache',
+          );
+        },
       });
 
       app.get(RENDER_PATH, (req: any, res: any) => {
