@@ -65,6 +65,8 @@ export class SearchService {
       )
       .where('deletedAt', 'is', null)
       .orderBy('rank', 'desc')
+      // id breaks ties, otherwise pages of equal rank move between result pages
+      .orderBy('id')
       .limit(searchParams.limit || 25)
       .offset(searchParams.offset || 0);
 
