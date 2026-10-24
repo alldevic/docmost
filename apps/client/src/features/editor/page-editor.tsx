@@ -265,6 +265,8 @@ export default function PageEditor({
       };
       const onSyncedHandler = (event: onSyncedParameters) => {
         setIsRemoteSynced(event.state);
+        // the 7.5 s check below may have marked a slow first sync as disconnected
+        if (event.state) setYjsConnectionStatus(socket.status);
       };
       const onAuthenticationFailedHandler = () => {
         const payload = jwtDecode(collabQuery?.token);
@@ -514,16 +516,15 @@ export default function PageEditor({
   const hasConnectedOnceRef = useRef(false);
   const [showStatic, setShowStatic] = useState(true);
 
+  // A remote sync implies a connection. Waiting for the status atom as well raced with the
+  // 7.5 s check above: on a slow device or link (a large page takes longer than that to
+  // arrive) the status was forced to "disconnected" and the page stayed read-only for good.
   useEffect(() => {
-    if (
-      !hasConnectedOnceRef.current &&
-      yjsConnectionStatus === WebSocketStatus.Connected &&
-      isSynced
-    ) {
+    if (!hasConnectedOnceRef.current && isSynced) {
       hasConnectedOnceRef.current = true;
       setShowStatic(false);
     }
-  }, [yjsConnectionStatus, isSynced]);
+  }, [isSynced]);
 
   useEffect(() => {
     if (hasLocalCopy) setShowStatic(false);
