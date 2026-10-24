@@ -65,9 +65,6 @@ export class SearchService {
         'createdAt',
         'updatedAt',
         sql<number>`ts_rank(tsv, ${tsQuery})`.as('rank'),
-        sql<string>`ts_headline('english', text_content, ${tsQuery}, 'MinWords=9, MaxWords=10, MaxFragments=3')`.as(
-          'highlight',
-        ),
       ])
       .where('tsv', '@@', tsQuery)
       .$if(Boolean(searchParams.creatorId), (qb) =>
@@ -149,6 +146,23 @@ export class SearchService {
         });
       const accessibleSet = new Set(accessibleIds);
       results = results.filter((r: any) => accessibleSet.has(r.id));
+    }
+
+    // Highlights only for the returned pages. The cost of ts_headline grows with the text
+    // (a 500 KB page takes ~60 ms), so it reads the first 20 000 characters.
+    if (results.length > 0) {
+      const highlights = await this.db
+        .selectFrom('pages')
+        .select([
+          'id',
+          sql<string>`ts_headline('english', left(text_content, 20000), ${tsQuery}, 'MinWords=9, MaxWords=10, MaxFragments=3')`.as(
+            'highlight',
+          ),
+        ])
+        .where('id', 'in', results.map((r) => r.id))
+        .execute();
+      const byId = new Map(highlights.map((h) => [h.id, h.highlight]));
+      results.forEach((r) => (r.highlight = byId.get(r.id)));
     }
 
     //@ts-ignore
