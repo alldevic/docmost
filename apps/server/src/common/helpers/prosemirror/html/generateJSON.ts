@@ -1,7 +1,7 @@
 import type { Extensions } from '@tiptap/core';
-import { getSchema } from '@tiptap/core';
 import { type ParseOptions, DOMParser as PMDOMParser } from '@tiptap/pm/model';
 import { Window } from 'happy-dom';
+import { getCachedSchema } from '../schema';
 
 /**
  * Generates a JSON object from the given HTML string and converts it into a Prosemirror node with content.
@@ -32,7 +32,7 @@ export function generateJSON(
   let result: Record<string, any>;
 
   try {
-    const schema = getSchema(extensions);
+    const schema = getCachedSchema(extensions);
     let doc: ReturnType<typeof localDOMParser.parseFromString> | null = null;
 
     const htmlString = `<!DOCTYPE html><html><body>${html}</body></html>`;

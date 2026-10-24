@@ -1,6 +1,7 @@
-import { type Extensions, type JSONContent, getSchema } from '@tiptap/core';
+import { type Extensions, type JSONContent } from '@tiptap/core';
 import { Node } from '@tiptap/pm/model';
 import { getHTMLFromFragment } from './getHTMLFromFragment';
+import { getCachedSchema } from '../schema';
 
 /**
  * This function generates HTML from a ProseMirror JSON content object.
@@ -22,7 +23,7 @@ export function generateHTML(doc: JSONContent, extensions: Extensions): string {
     );
   }
 
-  const schema = getSchema(extensions);
+  const schema = getCachedSchema(extensions);
   const contentNode = Node.fromJSON(schema, doc);
 
   return getHTMLFromFragment(contentNode, schema);

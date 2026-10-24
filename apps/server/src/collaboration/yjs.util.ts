@@ -4,8 +4,8 @@ import {
 } from '@tiptap/y-tiptap';
 import * as Y from 'yjs';
 import { Document } from '@hocuspocus/server';
-import { getSchema } from '@tiptap/core';
 import { tiptapExtensions } from './collaboration.util';
+import { getCachedSchema } from '../common/helpers/prosemirror/schema';
 
 export type YjsSelection = {
   anchor: any;
@@ -19,7 +19,7 @@ export function setYjsMark(
   markName: string,
   markAttributes: Record<string, any>,
 ) {
-  const schema = getSchema(tiptapExtensions);
+  const schema = getCachedSchema(tiptapExtensions);
   const { mapping } = initProseMirrorDoc(fragment, schema);
 
   // Convert JSON positions to Y.js RelativePosition objects

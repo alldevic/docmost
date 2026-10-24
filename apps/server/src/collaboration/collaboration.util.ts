@@ -38,8 +38,13 @@ import {
   addUniqueIdsToDoc,
   htmlToMarkdown,
 } from '@docmost/editor-ext';
-import { generateText, getSchema, JSONContent } from '@tiptap/core';
+import {
+  getText,
+  getTextSerializersFromSchema,
+  JSONContent,
+} from '@tiptap/core';
 import { generateHTML, generateJSON } from '../common/helpers/prosemirror/html';
+import { getCachedSchema } from '../common/helpers/prosemirror/schema';
 // @tiptap/html library works best for generating prosemirror json state but not HTML
 // see: https://github.com/ueberdosis/tiptap/issues/5352
 // see:https://github.com/ueberdosis/tiptap/issues/4089
@@ -112,12 +117,17 @@ export function htmlToJson(html: string) {
   }
 }
 
+// Same as generateText from @tiptap/core, without rebuilding the schema on every call.
 export function jsonToText(tiptapJson: JSONContent) {
-  return generateText(tiptapJson, tiptapExtensions);
+  const schema = getCachedSchema(tiptapExtensions);
+  return getText(Node.fromJSON(schema, tiptapJson), {
+    blockSeparator: '\n\n',
+    textSerializers: getTextSerializersFromSchema(schema),
+  });
 }
 
 export function jsonToNode(tiptapJson: JSONContent) {
-  const schema = getSchema(tiptapExtensions);
+  const schema = getCachedSchema(tiptapExtensions);
   try {
     return Node.fromJSON(schema, tiptapJson);
   } catch (error) {
