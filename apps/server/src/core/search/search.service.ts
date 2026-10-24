@@ -10,8 +10,21 @@ import { ShareRepo } from '@docmost/db/repos/share/share.repo';
 import { PagePermissionRepo } from '@docmost/db/repos/page/page-permission.repo';
 import { DB } from '@docmost/db/types/db';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const tsquery = require('pg-tsquery')();
+// The user's query for websearch_to_tsquery (words, "phrases", -excluded, or) and the last word
+// as a prefix for to_tsquery, so results follow typing. A trailing space or quote ends the word.
+export function splitSearchQuery(query: string): { web: string; prefix: string } {
+  const text = query.trim();
+  const quotes = (query.match(/"/g) || []).length;
+  const m = text.match(/^(.*?)([\p{L}\p{N}]+)$/su);
+  if (!m || quotes % 2 === 1 || !/[\p{L}\p{N}]$/u.test(query)) {
+    return { web: text, prefix: '' };
+  }
+  const [, head, last] = m;
+  if (/[-\p{L}\p{N}"]$/u.test(head) || last.length < 2) {
+    return { web: text, prefix: '' };
+  }
+  return { web: head, prefix: `${last}:*` };
+}
 
 @Injectable()
 export class SearchService {
@@ -35,7 +48,10 @@ export class SearchService {
     if (query.length < 1) {
       return { items: [] };
     }
-    const searchQuery = tsquery(query.trim() + '*');
+    const { web, prefix } = splitSearchQuery(query);
+    const webQuery = sql`nullif(websearch_to_tsquery('english', f_unaccent(${web})), ''::tsquery)`;
+    const prefixQuery = sql`nullif(to_tsquery('english', f_unaccent(${prefix})), ''::tsquery)`;
+    const tsQuery = sql<string>`coalesce(${webQuery} && ${prefixQuery}, ${webQuery}, ${prefixQuery})`;
 
     let queryResults = this.db
       .selectFrom('pages')
@@ -48,18 +64,12 @@ export class SearchService {
         'creatorId',
         'createdAt',
         'updatedAt',
-        sql<number>`ts_rank(tsv, to_tsquery('english', f_unaccent(${searchQuery})))`.as(
-          'rank',
-        ),
-        sql<string>`ts_headline('english', text_content, to_tsquery('english', f_unaccent(${searchQuery})),'MinWords=9, MaxWords=10, MaxFragments=3')`.as(
+        sql<number>`ts_rank(tsv, ${tsQuery})`.as('rank'),
+        sql<string>`ts_headline('english', text_content, ${tsQuery}, 'MinWords=9, MaxWords=10, MaxFragments=3')`.as(
           'highlight',
         ),
       ])
-      .where(
-        'tsv',
-        '@@',
-        sql<string>`to_tsquery('english', f_unaccent(${searchQuery}))`,
-      )
+      .where('tsv', '@@', tsQuery)
       .$if(Boolean(searchParams.creatorId), (qb) =>
         qb.where('creatorId', '=', searchParams.creatorId),
       )
