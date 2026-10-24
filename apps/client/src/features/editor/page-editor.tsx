@@ -221,6 +221,7 @@ export default function PageEditor({
   const [showReadOnlyCommentPopup] = useAtom(showReadOnlyCommentPopupAtom);
   const [isLocalSynced, setIsLocalSynced] = useState(false);
   const [isRemoteSynced, setIsRemoteSynced] = useState(false);
+  const [hasLocalCopy, setHasLocalCopy] = useState(false);
   const [yjsConnectionStatus, setYjsConnectionStatus] = useAtom(
     yjsConnectionStatusAtom,
   );
@@ -291,6 +292,13 @@ export default function PageEditor({
         onSynced: onSyncedHandler,
       });
 
+      local.on("synced", () => {
+        // a copy from an earlier visit: show the live editor right away,
+        // remote updates are merged as they arrive
+        if (ydoc.getXmlFragment("default").length > 0) {
+          setHasLocalCopy(true);
+        }
+      });
       local.on("synced", onLocalSyncedHandler);
       providersRef.current = { socket, local, remote };
       setProvidersReady(true);
@@ -516,6 +524,10 @@ export default function PageEditor({
       setShowStatic(false);
     }
   }, [yjsConnectionStatus, isSynced]);
+
+  useEffect(() => {
+    if (hasLocalCopy) setShowStatic(false);
+  }, [hasLocalCopy]);
 
   if (showStatic) {
     return <StaticPageContent content={content} />;
