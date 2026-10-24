@@ -24,6 +24,34 @@
 
     <!--window-config-->
 
+    <script>
+      // Start the first API requests while the app bundle is still downloading.
+      // lib/prefetch.ts hands the responses to the first matching API call.
+      (function () {
+        try {
+          var post = function (path, body) {
+            return fetch("/api" + path, {
+              method: "POST",
+              credentials: "include",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify(body || {}),
+            });
+          };
+          var pf = (window.__prefetch = {});
+          if (/^\/(login|share|invites|setup|forgot-password|password-reset)/.test(location.pathname)) return;
+          pf["/users/me"] = post("/users/me");
+          var m = location.pathname.match(/^\/s\/[^/]+\/p\/([^/?#]+)/);
+          if (m) {
+            // same rule as extractPageSlugId: a UUID as is, else the part after the last "-"
+            var slug = decodeURIComponent(m[1]);
+            var isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+            var id = isUuid ? slug : slug.split("-").pop();
+            pf["/pages/info:" + id] = post("/pages/info", { pageId: id });
+          }
+        } catch (e) {}
+      })();
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

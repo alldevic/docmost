@@ -1,4 +1,5 @@
 import api from "@/lib/api-client";
+import { takePrefetched } from "@/lib/prefetch";
 import {
   ICopyPageToSpace,
   IExportPageParams,
@@ -23,6 +24,11 @@ export async function createPage(data: Partial<IPage>): Promise<IPage> {
 export async function getPageById(
   pageInput: Partial<IPageInput>,
 ): Promise<IPage> {
+  const keys = Object.keys(pageInput);
+  if (keys.length === 1 && keys[0] === "pageId") {
+    const early = await takePrefetched<IPage>(`/pages/info:${pageInput.pageId}`);
+    if (early) return early;
+  }
   const req = await api.post<IPage>("/pages/info", pageInput);
   return req.data;
 }
