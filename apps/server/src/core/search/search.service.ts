@@ -10,9 +10,13 @@ import { ShareRepo } from '@docmost/db/repos/share/share.repo';
 import { PagePermissionRepo } from '@docmost/db/repos/page/page-permission.repo';
 import { DB } from '@docmost/db/types/db';
 
-// ts_rank reads the whole tsvector of every match, so a word that matches a large share of
-// the pages is slow to rank. Only the RANK_CANDIDATES most recently updated matches are ranked;
-// below that the results are exact.
+// The page text search configuration. 'russian' stems Cyrillic words with the Russian Snowball
+// stemmer and Latin ones with the English stemmer, so it serves both languages.
+const TS_CONFIG = 'russian';
+
+// ts_rank reads the whole tsvector of every match, and with stemming a common word matches a
+// large share of the pages ('история' matches 19% of 100k Wikipedia pages: 400 ms to rank). Only
+// the RANK_CANDIDATES most recently updated matches are ranked; below that the results are exact.
 const RANK_CANDIDATES = 2000;
 
 // The user's query for websearch_to_tsquery (words, "phrases", -excluded, or) and the last word
@@ -54,8 +58,8 @@ export class SearchService {
       return { items: [] };
     }
     const { web, prefix } = splitSearchQuery(query);
-    const webQuery = sql`nullif(websearch_to_tsquery('english', f_unaccent(${web})), ''::tsquery)`;
-    const prefixQuery = sql`nullif(to_tsquery('english', f_unaccent(${prefix})), ''::tsquery)`;
+    const webQuery = sql`nullif(websearch_to_tsquery(${TS_CONFIG}::regconfig, f_unaccent(${web})), ''::tsquery)`;
+    const prefixQuery = sql`nullif(to_tsquery(${TS_CONFIG}::regconfig, f_unaccent(${prefix})), ''::tsquery)`;
     const tsQuery = sql<string>`coalesce(${webQuery} && ${prefixQuery}, ${webQuery}, ${prefixQuery})`;
 
     // the matching pages the user may search in; the space and share conditions are added below
@@ -182,7 +186,7 @@ export class SearchService {
         .selectFrom('pages')
         .select([
           'id',
-          sql<string>`ts_headline('english', left(text_content, 20000), ${tsQuery}, 'MinWords=9, MaxWords=10, MaxFragments=3')`.as(
+          sql<string>`ts_headline(${TS_CONFIG}::regconfig, left(text_content, 20000), ${tsQuery}, 'MinWords=9, MaxWords=10, MaxFragments=3')`.as(
             'highlight',
           ),
         ])
