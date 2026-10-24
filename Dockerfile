@@ -65,4 +65,11 @@ VOLUME ["/app/data/storage"]
 
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+# Run node directly: the pnpm and cross-env wrappers of `pnpm start` cost ~200 MB RSS.
+# The working directory matches what `pnpm --filter ./apps/server` uses, and NODE_PATH
+# is what the cross-env bin shim set: workspace packages rely on it for undeclared
+# dependencies (editor-ext imports nanoid).
+ENV NODE_ENV=production
+ENV NODE_PATH=/app/node_modules/.pnpm/node_modules
+WORKDIR /app/apps/server
+CMD ["node", "dist/main"]
