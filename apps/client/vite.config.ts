@@ -36,10 +36,11 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       compression({
+        // No zstd: @fastify/static prefers it whenever the browser accepts it, and
+        // these files are ~4% larger than brotli at maximum quality.
         algorithms: [
           'gzip',
           'brotliCompress',
-          'zstd'
         ],
         threshold: 1024,
       })],
