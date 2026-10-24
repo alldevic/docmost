@@ -7,7 +7,21 @@ export class CollabWsAdapter {
   private readonly logger = new Logger(CollabWsAdapter.name);
 
   constructor() {
-    this.wss = new WebSocketServer({ noServer: true });
+    // The first sync of a page is one message with the whole Yjs document (1.2 MB for a
+    // 400 KB test page, 0.34 MB with deflate). No context takeover: no zlib state is kept
+    // per connection. HTTP_COMPRESSION=false turns it off with the HTTP compression.
+    this.wss = new WebSocketServer({
+      noServer: true,
+      perMessageDeflate:
+        process.env.HTTP_COMPRESSION === 'false'
+          ? false
+          : {
+              threshold: 1024,
+              zlibDeflateOptions: { level: 3 },
+              serverNoContextTakeover: true,
+              clientNoContextTakeover: true,
+            },
+    });
   }
 
   handleUpgrade(path: string, httpServer: any) {
