@@ -1,15 +1,15 @@
 import type { Extensions } from '@tiptap/core';
 import { type ParseOptions, DOMParser as PMDOMParser } from '@tiptap/pm/model';
-import { Window } from 'happy-dom';
 import { getCachedSchema } from '../schema';
+import { createHtmlDocument } from './dom';
 
 /**
  * Generates a JSON object from the given HTML string and converts it into a Prosemirror node with content.
- * @remarks **Important**: This function requires `happy-dom` to be installed in your project.
+ * @remarks Uses `linkedom` as the DOM implementation: it parses several times faster than `happy-dom`.
  * @param {string} html - The HTML string to be converted into a Prosemirror node.
  * @param {Extensions} extensions - The extensions to be used for generating the schema.
  * @param {ParseOptions} options - The options to be supplied to the parser.
- * @returns {Promise<Record<string, any>>} - A promise with the generated JSON object.
+ * @returns {Record<string, any>} - The generated JSON object.
  * @example
  * const html = '<p>Hello, world!</p>'
  * const extensions = [...]
@@ -27,29 +27,9 @@ export function generateJSON(
     );
   }
 
-  const localWindow = new Window();
-  const localDOMParser = new localWindow.DOMParser();
-  let result: Record<string, any>;
+  const doc = createHtmlDocument(html);
 
-  try {
-    const schema = getCachedSchema(extensions);
-    let doc: ReturnType<typeof localDOMParser.parseFromString> | null = null;
-
-    const htmlString = `<!DOCTYPE html><html><body>${html}</body></html>`;
-    doc = localDOMParser.parseFromString(htmlString, 'text/html');
-
-    if (!doc) {
-      throw new Error('Failed to parse HTML string');
-    }
-
-    result = PMDOMParser.fromSchema(schema)
-      .parse(doc.body as unknown as Node, options)
-      .toJSON();
-  } finally {
-    // clean up happy-dom to avoid memory leaks
-    localWindow.happyDOM.abort();
-    localWindow.happyDOM.close();
-  }
-
-  return result;
+  return PMDOMParser.fromSchema(getCachedSchema(extensions))
+    .parse(doc.body as unknown as Node, options)
+    .toJSON();
 }
