@@ -10,6 +10,11 @@ import { ShareRepo } from '@docmost/db/repos/share/share.repo';
 import { PagePermissionRepo } from '@docmost/db/repos/page/page-permission.repo';
 import { DB } from '@docmost/db/types/db';
 
+// ts_rank reads the whole tsvector of every match, so a word that matches a large share of
+// the pages is slow to rank. Only the RANK_CANDIDATES most recently updated matches are ranked;
+// below that the results are exact.
+const RANK_CANDIDATES = 2000;
+
 // The user's query for websearch_to_tsquery (words, "phrases", -excluded, or) and the last word
 // as a prefix for to_tsquery, so results follow typing. A trailing space or quote ends the word.
 export function splitSearchQuery(query: string): { web: string; prefix: string } {
@@ -53,41 +58,25 @@ export class SearchService {
     const prefixQuery = sql`nullif(to_tsquery('english', f_unaccent(${prefix})), ''::tsquery)`;
     const tsQuery = sql<string>`coalesce(${webQuery} && ${prefixQuery}, ${webQuery}, ${prefixQuery})`;
 
-    let queryResults = this.db
+    // the matching pages the user may search in; the space and share conditions are added below
+    let candidates = this.db
       .selectFrom('pages')
-      .select([
-        'id',
-        'slugId',
-        'title',
-        'icon',
-        'parentPageId',
-        'creatorId',
-        'createdAt',
-        'updatedAt',
-        sql<number>`ts_rank(tsv, ${tsQuery})`.as('rank'),
-      ])
+      .select('id')
       .where('tsv', '@@', tsQuery)
       .$if(Boolean(searchParams.creatorId), (qb) =>
         qb.where('creatorId', '=', searchParams.creatorId),
       )
-      .where('deletedAt', 'is', null)
-      .orderBy('rank', 'desc')
-      // id breaks ties, otherwise pages of equal rank move between result pages
-      .orderBy('id');
+      .where('deletedAt', 'is', null);
 
     const limit = searchParams.limit || 25;
     const offset = searchParams.offset || 0;
 
-    if (!searchParams.shareId) {
-      queryResults = queryResults.select((eb) => this.pageRepo.withSpace(eb));
-    }
-
     if (searchParams.spaceId) {
       // search by spaceId
-      queryResults = queryResults.where('spaceId', '=', searchParams.spaceId);
+      candidates = candidates.where('spaceId', '=', searchParams.spaceId);
     } else if (opts.userId && !searchParams.spaceId) {
       // only search spaces the user is a member of
-      queryResults = queryResults
+      candidates = candidates
         .where(
           'spaceId',
           'in',
@@ -123,7 +112,7 @@ export class SearchService {
       }
 
       if (pageIdsToSearch.length > 0) {
-        queryResults = queryResults
+        candidates = candidates
           .where('id', 'in', pageIdsToSearch)
           .where('workspaceId', '=', opts.workspaceId);
       } else {
@@ -131,6 +120,31 @@ export class SearchService {
       }
     } else {
       return { items: [] };
+    }
+
+    let queryResults = this.db
+      .selectFrom('pages')
+      .select([
+        'id',
+        'slugId',
+        'title',
+        'icon',
+        'parentPageId',
+        'creatorId',
+        'createdAt',
+        'updatedAt',
+        sql<number>`ts_rank(tsv, ${tsQuery})`.as('rank'),
+      ])
+      .where(
+        'id',
+        'in',
+        candidates.orderBy('updatedAt', 'desc').orderBy('id').limit(RANK_CANDIDATES),
+      )
+      // id breaks ties, otherwise pages of equal rank move between result pages
+      .orderBy('rank', 'desc')
+      .orderBy('id');
+    if (!searchParams.shareId) {
+      queryResults = queryResults.select((eb) => this.pageRepo.withSpace(eb));
     }
 
     // Page restrictions are checked on candidates in rank order until the page of results is
