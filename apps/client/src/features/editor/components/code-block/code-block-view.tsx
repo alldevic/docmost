@@ -1,5 +1,5 @@
 import { NodeViewContent, NodeViewProps, NodeViewWrapper } from "@tiptap/react";
-import { ActionIcon, Group, Select, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Group, Select, Text, UnstyledButton } from "@mantine/core";
 import { CopyButton } from "@/components/common/copy-button";
 import { useEffect, useState } from "react";
 import {
@@ -28,6 +28,60 @@ const MermaidView = React.lazy(
   () => import("@/features/editor/components/code-block/mermaid-view.tsx"),
 );
 
+// Sorted once: every code block used to sort ~190 names on each render.
+let sortedLanguages: string[] | null = null;
+function languageList(lowlight: { listLanguages(): string[] }): string[] {
+  return (sortedLanguages ??= lowlight.listLanguages().sort());
+}
+
+// A page can have hundreds of code blocks. Mantine's Select (combobox, floating
+// dropdown, ~190 options) is mounted only when the user opens it.
+function LanguageSelect({
+  value,
+  languages,
+  onChange,
+  disabled,
+}: {
+  value: string | null;
+  languages: () => string[];
+  onChange: (language: string) => void;
+  disabled: boolean;
+}) {
+  const [active, setActive] = useState(false);
+  if (!active) {
+    return (
+      <UnstyledButton
+        className={classes.languageButton}
+        onClick={() => setActive(true)}
+        disabled={disabled}
+        aria-haspopup="listbox"
+      >
+        {value || "auto"}
+      </UnstyledButton>
+    );
+  }
+  return (
+    <Select
+      placeholder="auto"
+      checkIconPosition="right"
+      data={languages()}
+      value={value}
+      onChange={(v) => {
+        onChange(v);
+        setActive(false);
+      }}
+      onDropdownClose={() => setActive(false)}
+      defaultDropdownOpened
+      autoFocus
+      searchable
+      size="sm"
+      style={{ maxWidth: "130px" }}
+      classNames={{ input: classes.selectInput }}
+      disabled={disabled}
+    />
+  );
+}
+
 export default function CodeBlockView(props: NodeViewProps) {
   const { t } = useTranslation();
   const { node, updateAttributes, extension, editor, getPos } = props;
@@ -42,6 +96,8 @@ export default function CodeBlockView(props: NodeViewProps) {
   }, [language]);
 
   useEffect(() => {
+    // only mermaid blocks change with the selection (source shown while selected)
+    if (language !== "mermaid") return;
     const updateSelection = () => {
       const { state } = editor;
       const { from, to } = state.selection;
@@ -56,7 +112,7 @@ export default function CodeBlockView(props: NodeViewProps) {
     return () => {
       editor.off("selectionUpdate", updateSelection);
     };
-  }, [editor, getPos(), node.nodeSize]);
+  }, [editor, getPos(), node.nodeSize, language]);
 
   function changeLanguage(language: string) {
     setLanguageValue(language);
@@ -105,65 +161,53 @@ export default function CodeBlockView(props: NodeViewProps) {
         mb={0}
       >
         <Group gap="xs" className={classes.actionsGroup}>
-          <Tooltip
-            label={wrap ? t("Disable line wrap") : t("Enable line wrap")}
-            withArrow
-            position="top"
-          >
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="sm"
-              onClick={toggleWrapLines}
-            >
-              {wrap ? (
-                <IconTextWrapDisabled size={14} />
-              ) : (
-                <IconTextWrap size={14} />
-              )}
-            </ActionIcon>
-          </Tooltip>
-
-          <Select
-            placeholder="auto"
-            checkIconPosition="right"
-            data={extension.options.lowlight.listLanguages().sort()}
-            value={languageValue}
-            onChange={changeLanguage}
-            searchable
+          {/* native titles: a Mantine Tooltip per button is a floating
+              instance per code block */}
+          <ActionIcon
+            variant="subtle"
+            color="gray"
             size="sm"
-            style={{ maxWidth: "130px" }}
-            classNames={{ input: classes.selectInput }}
+            onClick={toggleWrapLines}
+            title={wrap ? t("Disable line wrap") : t("Enable line wrap")}
+            aria-label={wrap ? t("Disable line wrap") : t("Enable line wrap")}
+          >
+            {wrap ? (
+              <IconTextWrapDisabled size={14} />
+            ) : (
+              <IconTextWrap size={14} />
+            )}
+          </ActionIcon>
+
+          <LanguageSelect
+            value={languageValue}
+            languages={() => languageList(extension.options.lowlight)}
+            onChange={changeLanguage}
             disabled={!editor.isEditable}
           />
 
-          <Tooltip label={t("Download code")} withArrow position="top">
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="sm"
-              onClick={downloadCode}
-            >
-              <IconDownload size={14} />
-            </ActionIcon>
-          </Tooltip>
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            size="sm"
+            onClick={downloadCode}
+            title={t("Download code")}
+            aria-label={t("Download code")}
+          >
+            <IconDownload size={14} />
+          </ActionIcon>
 
           <CopyButton value={node?.textContent} timeout={2000}>
             {({ copied, copy }) => (
-              <Tooltip
-                label={copied ? t("Copied") : t("Copy")}
-                withArrow
-                position="top"
+              <ActionIcon
+                color={copied ? "teal" : "gray"}
+                variant="subtle"
+                size="sm"
+                onClick={copy}
+                title={copied ? t("Copied") : t("Copy")}
+                aria-label={copied ? t("Copied") : t("Copy")}
               >
-                <ActionIcon
-                  color={copied ? "teal" : "gray"}
-                  variant="subtle"
-                  size="sm"
-                  onClick={copy}
-                >
-                  {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
-                </ActionIcon>
-              </Tooltip>
+                {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+              </ActionIcon>
             )}
           </CopyButton>
         </Group>
