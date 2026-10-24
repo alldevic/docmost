@@ -11,6 +11,9 @@ export async function registerServiceWorker(): Promise<void> {
   }
 
   window.addEventListener("load", async () => {
+    // The first install also takes control of the page (clients.claim), which used to
+    // reload every first visit. Reload only when a previous worker is being replaced.
+    const hadController = !!navigator.serviceWorker.controller;
     try {
       const registration = await navigator.serviceWorker.register("/sw.js", {
         scope: "/",
@@ -31,6 +34,7 @@ export async function registerServiceWorker(): Promise<void> {
         nextWorker.addEventListener("statechange", () => {
           if (
             nextWorker.state === "activated" &&
+            hadController &&
             navigator.serviceWorker.controller
           ) {
             window.location.reload();
