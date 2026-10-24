@@ -73,9 +73,10 @@ export class SearchService {
       .where('deletedAt', 'is', null)
       .orderBy('rank', 'desc')
       // id breaks ties, otherwise pages of equal rank move between result pages
-      .orderBy('id')
-      .limit(searchParams.limit || 25)
-      .offset(searchParams.offset || 0);
+      .orderBy('id');
+
+    const limit = searchParams.limit || 25;
+    const offset = searchParams.offset || 0;
 
     if (!searchParams.shareId) {
       queryResults = queryResults.select((eb) => this.pageRepo.withSpace(eb));
@@ -132,20 +133,32 @@ export class SearchService {
       return { items: [] };
     }
 
-    //@ts-ignore
-    let results: any[] = await queryResults.execute();
-
-    // Filter results by page-level permissions (if user is authenticated)
-    if (opts.userId && results.length > 0) {
-      const pageIds = results.map((r: any) => r.id);
-      const accessibleIds =
-        await this.pagePermissionRepo.filterAccessiblePageIds({
-          pageIds,
-          userId: opts.userId,
-          spaceId: searchParams.spaceId,
-        });
-      const accessibleSet = new Set(accessibleIds);
-      results = results.filter((r: any) => accessibleSet.has(r.id));
+    // Page restrictions are checked on candidates in rank order until the page of results is
+    // full, so a user with restrictions does not get short pages (before, the check ran after
+    // LIMIT and the hidden pages were just dropped).
+    let results: any[];
+    if (opts.userId) {
+      const visible: any[] = [];
+      let batch = Math.max(2 * (offset + limit), 50);
+      for (let start = 0; visible.length < offset + limit; start += batch, batch *= 2) {
+        //@ts-ignore
+        const rows: any[] = await queryResults.limit(batch).offset(start).execute();
+        if (rows.length > 0) {
+          const accessible = new Set(
+            await this.pagePermissionRepo.filterAccessiblePageIds({
+              pageIds: rows.map((r) => r.id),
+              userId: opts.userId,
+              spaceId: searchParams.spaceId,
+            }),
+          );
+          visible.push(...rows.filter((r) => accessible.has(r.id)));
+        }
+        if (rows.length < batch) break;
+      }
+      results = visible.slice(offset, offset + limit);
+    } else {
+      //@ts-ignore
+      results = await queryResults.limit(limit).offset(offset).execute();
     }
 
     // Highlights only for the returned pages. The cost of ts_headline grows with the text
